@@ -34,6 +34,8 @@ class ProductController extends Controller
         if ($validator->fails())
         {
             return $this->sendError('Validation Error.', $validator->errors());
+            return response()
+            ->json(["success" => true, "message" => "Validation Error."],$validator->errors());
         }
         $product = Product::create($input);
         return response()->json(["success" => true, "message" => "Product created successfully.", "data" => $product]);
@@ -49,7 +51,9 @@ class ProductController extends Controller
         $product = Product::find($id);
         if (is_null($product))
         {
-            return $this->sendError('Product not found.');
+   /*          return $this->sendError('Product not found.'); */
+            return response()
+            ->json(["success" => true, "message" => "Product not found."]);
         }
         return response()
             ->json(["success" => true, "message" => "Product retrieved successfully.", "data" => $product]);
