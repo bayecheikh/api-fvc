@@ -9,7 +9,7 @@ class ProductController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('role:admin');
+        $this->middleware('role:point_focal|admin');
     }
     /**
      * Display a listing of the resource.
@@ -18,7 +18,7 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->user()->can('create-tasks')) {
+        if ($request->user()->hasPermission('create-task')) {
             $products = Product::all();
             return response()->json(["success" => true, "message" => "Product List", "data" => $products]);
         }

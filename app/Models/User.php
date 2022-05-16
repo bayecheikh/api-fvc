@@ -91,4 +91,15 @@ class User extends Authenticatable
       }
       return false;
     }
+    public function hasPermission($permission_name)
+    {
+      if (!empty($this->roles)) {
+        foreach ($this->roles as $role) {
+          if ($role->permissions()->where('name', $permission_name)->first()) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
 }
