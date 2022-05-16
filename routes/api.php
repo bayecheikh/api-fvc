@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\RegionController;
 use App\Http\Controllers\Api\DepartementController;
+use App\Http\Controllers\Api\StructureController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,4 +33,5 @@ Route::middleware('auth:api')->group(function () {
     Route::resource('permissions', PermissionController::class);
     Route::resource('regions', RegionController::class);
     Route::resource('departements', DepartementController::class);
+    Route::resource('structures', StructureController::class);
 });

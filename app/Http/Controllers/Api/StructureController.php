@@ -9,14 +9,16 @@ use App\Models\Role;
 use App\Models\Permission;
 use App\Models\Region;
 use App\Models\Departement;
+use App\Models\Structure;
 
-class RegionController extends Controller
+class StructureController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
         //$this->middleware('role:admin');
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -24,8 +26,8 @@ class RegionController extends Controller
      */
     public function index()
     {
-        $regions = Region::with('departements')->get();
-        return response()->json(["success" => true, "message" => "Region List", "data" => $regions]);
+        $structures = Structure::with('regions')->with('departements')->get();
+        return response()->json(["success" => true, "message" => "Structure List", "data" => $structures]);
         
     }
     /**
@@ -37,25 +39,33 @@ class RegionController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-        $validator = Validator::make($input, ['nom_region' => 'required', 'slug' => 'required']);
+        $validator = Validator::make($input, ['nom_structure' => 'required']);
         if ($validator->fails())
         {
             //return $this->sendError('Validation Error.', $validator->errors());
             return response()
             ->json($validator->errors());
         }
-        $region = Region::create($input);
+        $structure = Structure::create($input);
 
         $array_departements = $request->departements;
+        $array_regions = $request->regions;
 
         if(!empty($array_departements)){
             foreach($array_departements as $departement){
                 $departementObj = Departement::where('id',$departement)->first();
-                $region->departements()->attach($departementObj);
+                $structure->departements()->attach($departementObj);
             }
         }
 
-        return response()->json(["success" => true, "message" => "Region created successfully.", "data" => $region]);
+        if(!empty($array_regions)){
+            foreach($array_regions as $region){
+                $regionObj = Departement::where('id',$region)->first();
+                $structure->regions()->attach($regionObj);
+            }
+        }
+
+        return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $structure]);
     }
     /**
      * Display the specified resource.
@@ -65,15 +75,15 @@ class RegionController extends Controller
      */
     public function show($id)
     {
-        $region = Region::find($id);
-        if (is_null($region))
+        $structure = Structure::with('regions')->with('departements')->get()->find($id);
+        if (is_null($structure))
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "Region not found."]);
+            ->json(["success" => true, "message" => "Structure not found."]);
         }
         return response()
-            ->json(["success" => true, "message" => "Region retrieved successfully.", "data" => $region]);
+            ->json(["success" => true, "message" => "Structure retrieved successfully.", "data" => $structure]);
     }
     /**
      * Update the specified resource in storage.
@@ -82,36 +92,48 @@ class RegionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Region $region)
+    public function update(Request $request, Structure $structure)
     {
         $input = $request->all();
-        $validator = Validator::make($input, ['nom_region' => 'required', 'slug' => 'required']);
+        $validator = Validator::make($input, ['nom_structure' => 'required']);
         if ($validator->fails())
         {
             //return $this->sendError('Validation Error.', $validator->errors());
             return response()
             ->json($validator->errors());
         }
-        $region->nom_region = $input['nom_region'];
-        $region->slug = $input['slug'];
-        $region->save();
+        $structure->nom_structure = $input['nom_structure'];
+        $structure->save();
 
         $array_departements = $request->departements;
-        $old_departements = $region->departements();
+        $array_regions = $request->regions;
+        $old_departements = $structure->departements();
+        $old_regions = $structure->regions();
 
         if(!empty($array_departements)){
             foreach($old_departements as $departement){
                 $departementObj = Departement::where('id',$departement)->first();
-                $region->departements()->detach($departementObj);
+                $structure->departements()->detach($departementObj);
             }
             foreach($array_departements as $departement){
                 $departementObj = Departement::where('id',$departement)->first();
-                $region->departements()->attach($departementObj);
+                $structure->departements()->attach($departementObj);
+            }
+        }
+
+        if(!empty($array_regions)){
+            foreach($old_regions as $region){
+                $regionObj = Region::where('id',$region)->first();
+                $structure->regions()->detach($regionObj);
+            }
+            foreach($array_regions as $region){
+                $regionObj = Region::where('id',$region)->first();
+                $structure->regions()->attach($regionObj);
             }
         }
 
         return response()
-            ->json(["success" => true, "message" => "Region updated successfully.", "data" => $region]);
+            ->json(["success" => true, "message" => "structure updated successfully.", "data" => $structure]);
     }
     /**
      * Remove the specified resource from storage.
@@ -119,10 +141,10 @@ class RegionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Region $region)
+    public function destroy(Structure $structure)
     {
-        $region->delete();
+        $structure->delete();
         return response()
-            ->json(["success" => true, "message" => "Region deleted successfully.", "data" => $region]);
+            ->json(["success" => true, "message" => "Structure deleted successfully.", "data" => $structure]);
     }
 }

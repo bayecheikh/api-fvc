@@ -22,5 +22,9 @@ class Region extends Model
     return $this->belongsToMany(Departement::class,'regions_departements');          
   }
 
+  public function structures() {
+    return $this->belongsToMany(Structure::class,'structures_regions');          
+  }
+
 
 }
