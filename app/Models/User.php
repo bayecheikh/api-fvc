@@ -8,10 +8,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Database\Eloquent\Model;
+use App\Permissions\HasPermissionsTrait;
  
 class User extends Authenticatable
 {
-    use Notifiable, HasApiTokens;
+    use Notifiable, HasApiTokens, HasPermissionsTrait;
  
     /**
      * The attributes that are mass assignable.
@@ -40,11 +41,16 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function roles()
-    {
-        return $this
-            ->belongsToMany(Role::class)
-            ->withTimestamps();
+    public function roles() {
+
+      return $this->belongsToMany(Role::class,'role_user');
+            
+    }
+
+    public function permissions() {
+
+      return $this->belongsToMany(Permision::class,'users_permissions');
+            
     }
 
     public function users()

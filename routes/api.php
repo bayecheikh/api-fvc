@@ -4,6 +4,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\PermissionController;
+use App\Http\Controllers\Api\RoleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,5 +25,7 @@ Route::post('login', [AuthController::class, 'login']);
 Route::middleware('auth:api')->group(function () {
     Route::get('get-user', [AuthController::class, 'userInfo']);
     Route::resource('products', ProductController::class);
- 
+    Route::resource('users', UserController::class);
+    Route::resource('roles', RoleController::class);
+    Route::resource('permissions', PermissionController::class);
 });

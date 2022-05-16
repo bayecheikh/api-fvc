@@ -16,10 +16,15 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::all();
-        return response()->json(["success" => true, "message" => "Product List", "data" => $products]);
+        if ($request->user()->can('create-tasks')) {
+            $products = Product::all();
+            return response()->json(["success" => true, "message" => "Product List", "data" => $products]);
+        }
+        else
+        return response()->json(["success" => true, "message" => "Vous n'etes pas autorisé"]);
+        
     }
     /**
      * Store a newly created resource in storage.
@@ -33,7 +38,7 @@ class ProductController extends Controller
         $validator = Validator::make($input, ['name' => 'required', 'detail' => 'required']);
         if ($validator->fails())
         {
-            return $this->sendError('Validation Error.', $validator->errors());
+            //return $this->sendError('Validation Error.', $validator->errors());
             return response()
             ->json(["success" => true, "message" => "Validation Error."],$validator->errors());
         }
