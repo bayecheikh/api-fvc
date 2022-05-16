@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\RegionController;
+use App\Http\Controllers\Api\DepartementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,4 +30,6 @@ Route::middleware('auth:api')->group(function () {
     Route::resource('users', UserController::class);
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
+    Route::resource('regions', RegionController::class);
+    Route::resource('departements', DepartementController::class);
 });

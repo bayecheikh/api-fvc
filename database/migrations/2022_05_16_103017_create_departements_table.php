@@ -13,10 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('roles_permissions', function (Blueprint $table) {
-            $table->unsignedInteger('role_id');
-            $table->unsignedInteger('permission_id');
-            $table->primary(['role_id','permission_id']);
+        Schema::create('departements', function (Blueprint $table) {
+            $table->id();
+            $table->string('slug');
+            $table->string('nom_departement');
+            $table->float('latitude'); 
+            $table->float('longitude');
+            $table->longText('svg');
             $table->timestamps();
         });
     }
@@ -28,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('roles_permissions');
+        Schema::dropIfExists('departements');
     }
 };
