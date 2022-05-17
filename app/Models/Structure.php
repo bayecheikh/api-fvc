@@ -24,4 +24,8 @@ class Structure extends Model
   public function departements() {
     return $this->belongsToMany(Departement::class,'structures_departements');          
   }
+
+  public function dimensions() {
+    return $this->belongsToMany(Dimension::class,'dimensions_structures');          
+  }
 }

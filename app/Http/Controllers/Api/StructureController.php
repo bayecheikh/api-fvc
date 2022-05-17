@@ -10,6 +10,7 @@ use App\Models\Permission;
 use App\Models\Region;
 use App\Models\Departement;
 use App\Models\Structure;
+use App\Models\Dimension;
 
 class StructureController extends Controller
 {
@@ -26,7 +27,7 @@ class StructureController extends Controller
      */
     public function index()
     {
-        $structures = Structure::with('regions')->with('departements')->get();
+        $structures = Structure::with('regions')->with('departements')->with('dimensions')->get();
         return response()->json(["success" => true, "message" => "Structure List", "data" => $structures]);
         
     }
@@ -50,6 +51,7 @@ class StructureController extends Controller
 
         $array_departements = $request->departements;
         $array_regions = $request->regions;
+        $array_dimensions = $request->dimensions;
 
         if(!empty($array_departements)){
             foreach($array_departements as $departement){
@@ -60,8 +62,15 @@ class StructureController extends Controller
 
         if(!empty($array_regions)){
             foreach($array_regions as $region){
-                $regionObj = Departement::where('id',$region)->first();
+                $regionObj = Region::where('id',$region)->first();
                 $structure->regions()->attach($regionObj);
+            }
+        }
+
+        if(!empty($array_dimensions)){
+            foreach($array_dimensions as $dimension){
+                $dimensionObj = Dimension::where('id',$dimension)->first();
+                $structure->dimensions()->attach($dimensionObj);
             }
         }
 
@@ -75,7 +84,7 @@ class StructureController extends Controller
      */
     public function show($id)
     {
-        $structure = Structure::with('regions')->with('departements')->get()->find($id);
+        $structure = Structure::with('regions')->with('departements')->with('dimensions')->get()->find($id);
         if (is_null($structure))
         {
    /*          return $this->sendError('Product not found.'); */
@@ -107,8 +116,10 @@ class StructureController extends Controller
 
         $array_departements = $request->departements;
         $array_regions = $request->regions;
+        $array_dimensions = $request->dimensions;
         $old_departements = $structure->departements();
         $old_regions = $structure->regions();
+        $old_dimensions = $structure->dimensions();
 
         if(!empty($array_departements)){
             foreach($old_departements as $departement){
@@ -129,6 +140,17 @@ class StructureController extends Controller
             foreach($array_regions as $region){
                 $regionObj = Region::where('id',$region)->first();
                 $structure->regions()->attach($regionObj);
+            }
+        }
+
+        if(!empty($array_dimensions)){
+            foreach($old_dimensions as $dimension){
+                $dimensionObj = Dimension::where('id',$dimension)->first();
+                $structure->dimensions()->detach($dimensionObj);
+            }
+            foreach($array_dimensions as $dimension){
+                $dimensionObj = Dimension::where('id',$dimension)->first();
+                $structure->dimensions()->attach($dimensionObj);
             }
         }
 
