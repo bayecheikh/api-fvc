@@ -28,4 +28,8 @@ class Structure extends Model
   public function dimensions() {
     return $this->belongsToMany(Dimension::class,'dimensions_structures');          
   }
+
+  public function type_zone_interventions() {
+    return $this->belongsToMany(TypeZoneIntervention::class,'type_zone_structures','type_zone_id','structure_id');          
+  }
 }

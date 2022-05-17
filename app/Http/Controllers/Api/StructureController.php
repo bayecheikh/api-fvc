@@ -11,6 +11,7 @@ use App\Models\Region;
 use App\Models\Departement;
 use App\Models\Structure;
 use App\Models\Dimension;
+use App\Models\TypeZoneIntervention;
 
 class StructureController extends Controller
 {
@@ -27,7 +28,7 @@ class StructureController extends Controller
      */
     public function index()
     {
-        $structures = Structure::with('regions')->with('departements')->with('dimensions')->get();
+        $structures = Structure::with('regions')->with('departements')->with('dimensions')->with('type_zone_interventions')->get();
         return response()->json(["success" => true, "message" => "Structure List", "data" => $structures]);
         
     }
@@ -52,6 +53,7 @@ class StructureController extends Controller
         $array_departements = $request->departements;
         $array_regions = $request->regions;
         $array_dimensions = $request->dimensions;
+        $array_type_zones = $request->type_zone_interventions;
 
         if(!empty($array_departements)){
             foreach($array_departements as $departement){
@@ -74,6 +76,13 @@ class StructureController extends Controller
             }
         }
 
+        if(!empty($array_type_zones)){
+            foreach($array_type_zones as $type_zone){
+                $type_zoneObj = Dimension::where('id',$type_zone)->first();
+                $structure->type_zone_interventions()->attach($type_zoneObj);
+            }
+        }
+
         return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $structure]);
     }
     /**
@@ -84,7 +93,7 @@ class StructureController extends Controller
      */
     public function show($id)
     {
-        $structure = Structure::with('regions')->with('departements')->with('dimensions')->get()->find($id);
+        $structure = Structure::with('regions')->with('departements')->with('dimensions')->with('type_zone_interventions')->get()->find($id);
         if (is_null($structure))
         {
    /*          return $this->sendError('Product not found.'); */
@@ -117,9 +126,12 @@ class StructureController extends Controller
         $array_departements = $request->departements;
         $array_regions = $request->regions;
         $array_dimensions = $request->dimensions;
+        $array_type_zones = $request->type_zone_interventions;
+
         $old_departements = $structure->departements();
         $old_regions = $structure->regions();
         $old_dimensions = $structure->dimensions();
+        $old_type_zones = $structure->type_zone_interventions();
 
         if(!empty($array_departements)){
             foreach($old_departements as $departement){
@@ -151,6 +163,17 @@ class StructureController extends Controller
             foreach($array_dimensions as $dimension){
                 $dimensionObj = Dimension::where('id',$dimension)->first();
                 $structure->dimensions()->attach($dimensionObj);
+            }
+        }
+
+        if(!empty($array_type_zones)){
+            foreach($old_type_zones as $type_zone){
+                $type_zoneObj = TypeZoneIntervention::where('id',$type_zone)->first();
+                $structure->type_zone_interventions()->detach($type_zoneObj);
+            }
+            foreach($array_type_zones as $type_zone){
+                $type_zoneObj = Dimension::where('id',$type_zone)->first();
+                $structure->type_zone_interventions()->attach($type_zoneObj);
             }
         }
 

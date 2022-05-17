@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\RegionController;
 use App\Http\Controllers\Api\DepartementController;
 use App\Http\Controllers\Api\StructureController;
 use App\Http\Controllers\Api\DimensionController;
+use App\Http\Controllers\Api\TypeZoneInterventionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,4 +37,5 @@ Route::middleware('auth:api')->group(function () {
     Route::resource('departements', DepartementController::class);
     Route::resource('structures', StructureController::class);
     Route::resource('dimensions', DimensionController::class);
+    Route::resource('type_zones', TypeZoneInterventionController::class);
 });
