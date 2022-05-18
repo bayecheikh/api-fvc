@@ -23,11 +23,20 @@ class UserController extends Controller
      */
     public function index()
     {
- 
-        $users = User::all();
-        return response()->json(["success" => true, "message" => "Users List", "data" => $users]);
+        $users = User::with('roles')->paginate(10);
+        $total = $users->total();
+        return response()->json(["success" => true, "message" => "Users List", "data" => $users,"total"=> $total]);   
+    }
 
-        
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function userMultipleSearch($term)
+    {
+        $users = User::where('id', 'like', '%'.$term.'%')->orWhere('email', 'like', '%'.$term.'%')->orWhere('name', 'like', '%'.$term.'%')->with('roles')->paginate(5);
+        return response()->json(["success" => true, "message" => "Users List", "data" => $users]);   
     }
     /**
      * Store a newly created resource in storagrolee.
@@ -38,7 +47,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-        $validator = Validator::make($input, ['name' => 'required', 'email' => 'required','password' => 'required']);
+        $validator = Validator::make($input, ['name' => 'required', 'email' => 'required|unique:users,email']);
         if ($validator->fails())
         {
             //return $this->sendError('Validation Error.', $validator->errors());
@@ -49,7 +58,7 @@ class UserController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => bcrypt($request->password)
+            'password' => bcrypt("@12345678")
         ]);
 
         $array_roles = $request->roles;
@@ -71,7 +80,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::find($id);
+        $user = User::with('roles')->get()->find($id);
         if (is_null($user))
         {
    /*          return $this->sendError('Product not found.'); */
@@ -127,7 +136,7 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        $role->delete();
+        $user->delete();
         return response()
             ->json(["success" => true, "message" => "User deleted successfully.", "data" => $user]);
     }

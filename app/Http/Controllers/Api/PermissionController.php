@@ -36,7 +36,7 @@ class PermissionController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-        $validator = Validator::make($input, ['name' => 'required', 'description' => 'required']);
+        $validator = Validator::make($input, ['name' => 'required|unique:permissions', 'description' => 'required']);
         if ($validator->fails())
         {
             //return $this->sendError('Validation Error.', $validator->errors());
@@ -74,12 +74,12 @@ class PermissionController extends Controller
     public function update(Request $request, Permission $permission)
     {
         $input = $request->all();
-        $validator = Validator::make($input, ['name' => 'required', 'description' => 'required']);
+        $validator = Validator::make($input, ['description' => 'required']);
         if ($validator->fails())
         {
             return response() ->json($validator->errors());
         }
-        $permission->name = $input['name'];
+        //$permission->name = $input['name'];
         $permission->description = $input['description'];
         $permission->save();
         return response()

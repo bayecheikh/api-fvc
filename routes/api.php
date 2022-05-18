@@ -28,14 +28,34 @@ Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
   
 Route::middleware('auth:api')->group(function () {
-    Route::get('get-user', [AuthController::class, 'userInfo']);
     Route::resource('products', ProductController::class);
+
+    /**Gestion des authentification */
+    Route::get('get-user', [AuthController::class, 'userInfo']);
+    Route::post('logout', [AuthController::class, 'logout']);
+
+    /**Gestion des utilisateurs */
     Route::resource('users', UserController::class);
+    Route::get('user-multiple-search/{term}', [UserController::class, 'userMultipleSearch']);
+
+    /**Gestion des roles */
     Route::resource('roles', RoleController::class);
+
+    /**Gestion des permissions */
     Route::resource('permissions', PermissionController::class);
+
+    /**Gestion des regions */
     Route::resource('regions', RegionController::class);
+
+    /**Gestion des departements */
     Route::resource('departements', DepartementController::class);
+
+    /**Gestion des structures */
     Route::resource('structures', StructureController::class);
+
+    /**Gestion des dimensions */
     Route::resource('dimensions', DimensionController::class);
+
+    /**Gestion des types de zone */
     Route::resource('type_zones', TypeZoneInterventionController::class);
 });

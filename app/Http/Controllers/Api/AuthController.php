@@ -43,8 +43,10 @@ class AuthController extends Controller
         ];
   
         if (auth()->attempt($data)) {
+            $user = auth()->user();
+            $user->load('roles.permissions');
             $token = auth()->user()->createToken('Laravel9PassportAuth')->accessToken;
-            return response()->json(['token' => $token], 200);
+            return response()->json(['token' => $token,'user' => $user], 200);
         } else {
             return response()->json(['error' => 'Unauthorised'], 401);
         }
@@ -56,6 +58,15 @@ class AuthController extends Controller
      $user = auth()->user();
       
      return response()->json(['user' => $user], 200);
+ 
+    }
+
+    public function logout() 
+    {
+ 
+     //$user = auth()->user()->token()->revoke();
+      
+     return response()->json(['message' => 'User Logout'], 200);
  
     }
 }

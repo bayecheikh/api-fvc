@@ -23,7 +23,7 @@ class RoleController extends Controller
     public function index()
     {
  
-        $roles = Role::all();
+        $roles = Role::with('permissions')->get();
         return response()->json(["success" => true, "message" => "Role List", "data" => $roles]);
 
         
@@ -37,7 +37,7 @@ class RoleController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-        $validator = Validator::make($input, ['name' => 'required', 'description' => 'required']);
+        $validator = Validator::make($input, ['name' => 'required|unique:roles', 'description' => 'required']);
         if ($validator->fails())
         {
             //return $this->sendError('Validation Error.', $validator->errors());
@@ -65,7 +65,7 @@ class RoleController extends Controller
      */
     public function show($id)
     {
-        $role = Role::find($id);
+        $role = Role::with('permissions')->get()->find($id);
         if (is_null($role))
         {
    /*          return $this->sendError('Product not found.'); */
@@ -85,12 +85,11 @@ class RoleController extends Controller
     public function update(Request $request, Role $role)
     {
         $input = $request->all();
-        $validator = Validator::make($input, ['name' => 'required', 'description' => 'required']);
+        $validator = Validator::make($input, ['description' => 'required']);
         if ($validator->fails())
         {
             return response() ->json($validator->errors());
         }
-        $role->name = $input['name'];
         $role->description = $input['description'];
         $role->save();
 
