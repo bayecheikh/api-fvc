@@ -12,6 +12,8 @@ use App\Models\Departement;
 use App\Models\Structure;
 use App\Models\Dimension;
 use App\Models\TypeZoneIntervention;
+use App\Models\TypeSource;
+use App\Models\SourceFinancement;
 
 class StructureController extends Controller
 {
@@ -28,7 +30,13 @@ class StructureController extends Controller
      */
     public function index()
     {
-        $structures = Structure::with('regions')->with('departements')->with('dimensions')->with('type_zone_interventions')->get();
+        $structures = Structure::with('regions')
+        ->with('departements')
+        ->with('dimensions')
+        ->with('type_zone_interventions')
+        ->with('type_sources')
+        ->with('source_financements')
+        ->get();
         return response()->json(["success" => true, "message" => "Structure List", "data" => $structures]);
         
     }
@@ -54,6 +62,8 @@ class StructureController extends Controller
         $array_regions = $request->regions;
         $array_dimensions = $request->dimensions;
         $array_type_zones = $request->type_zone_interventions;
+        $array_source_financements = $request->source_financements;
+        $array_type_sources = $request->type_sources;
 
         if(!empty($array_departements)){
             foreach($array_departements as $departement){
@@ -83,6 +93,20 @@ class StructureController extends Controller
             }
         }
 
+        if(!empty($array_type_sources)){
+            foreach($array_type_sources as $type_source){
+                $type_sourceObj = TypeSource::where('id',$type_source)->first();
+                $structure->type_sources()->attach($type_sourceObj);
+            }
+        }
+
+        if(!empty($array_source_financements)){
+            foreach($array_source_financements as $source_financement){
+                $source_financementObj = SourceFinancement::where('id',$source_financement)->first();
+                $structure->source_financements()->attach($source_financementObj);
+            }
+        }
+
         return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $structure]);
     }
     /**
@@ -93,7 +117,14 @@ class StructureController extends Controller
      */
     public function show($id)
     {
-        $structure = Structure::with('regions')->with('departements')->with('dimensions')->with('type_zone_interventions')->get()->find($id);
+        $structure = Structure::with('regions')
+        ->with('departements')
+        ->with('dimensions')
+        ->with('type_zone_interventions')
+        ->with('type_sources')
+        ->with('source_financements')
+        ->get()
+        ->find($id);
         if (is_null($structure))
         {
    /*          return $this->sendError('Product not found.'); */
@@ -127,11 +158,15 @@ class StructureController extends Controller
         $array_regions = $request->regions;
         $array_dimensions = $request->dimensions;
         $array_type_zones = $request->type_zone_interventions;
+        $array_source_financements = $request->source_financements;
+        $array_type_sources = $request->type_sources;
 
         $old_departements = $structure->departements();
         $old_regions = $structure->regions();
         $old_dimensions = $structure->dimensions();
         $old_type_zones = $structure->type_zone_interventions();
+        $old_source_financements = $structure->source_financements();
+        $old_type_sources = $structure->type_sources();
 
         if(!empty($array_departements)){
             foreach($old_departements as $departement){
@@ -174,6 +209,28 @@ class StructureController extends Controller
             foreach($array_type_zones as $type_zone){
                 $type_zoneObj = Dimension::where('id',$type_zone)->first();
                 $structure->type_zone_interventions()->attach($type_zoneObj);
+            }
+        }
+
+        if(!empty($array_type_sources)){
+            foreach($old_type_sources as $type_source){
+                $type_sourceObj = TypeSource::where('id',$type_source)->first();
+                $structure->type_sources()->detach($type_sourceObj);
+            }
+            foreach($array_type_sources as $type_source){
+                $type_sourceObj = TypeSource::where('id',$type_source)->first();
+                $structure->type_sources()->attach($type_sourceObj);
+            }
+        }
+
+        if(!empty($array_source_financements)){
+            foreach($old_source_financements as $source_financement){
+                $source_financementObj = SourceFinancement::where('id',$source_financement)->first();
+                $structure->source_financements()->detach($source_financementObj);
+            }
+            foreach($array_source_financements as $source_financement){
+                $source_financementObj = SourceFinancement::where('id',$source_financement)->first();
+                $structure->source_financements()->attach($source_financementObj);
             }
         }
 

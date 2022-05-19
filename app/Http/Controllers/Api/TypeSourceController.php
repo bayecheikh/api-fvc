@@ -5,12 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Validator;
-use App\Models\Role;
-use App\Models\Permission;
-use App\Models\Region;
-use App\Models\Departement;
+use App\Models\TypeSource;
+use App\Models\SourceFinancement;
+use App\Models\Structure;
 
-class DepartementController extends Controller
+class TypeSourceController extends Controller
 {
     public function __construct()
     {
@@ -25,8 +24,8 @@ class DepartementController extends Controller
     public function index()
     {
  
-        $departements = Departement::with('region')->get();
-        return response()->json(["success" => true, "message" => "Departement List", "data" => $departements]);
+        $typesources = TypeSource::with('structures')->with('sources')->get();
+        return response()->json(["success" => true, "message" => "Type source List", "data" => $typesources]);
 
         
     }
@@ -39,16 +38,16 @@ class DepartementController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-        $validator = Validator::make($input, ['nom_departement' => 'required', 'slug' => 'required']);
+        $validator = Validator::make($input, ['libelle_type_source' => 'required']);
         if ($validator->fails())
         {
             //return $this->sendError('Validation Error.', $validator->errors());
             return response()
             ->json($validator->errors());
         }
-        $departement = Departement::create($input);
+        $type_source = TypeSource::create($input);
 
-        return response()->json(["success" => true, "message" => "Departement created successfully.", "data" => $departement]);
+        return response()->json(["success" => true, "message" => "Type source created successfully.", "data" => $type_source]);
     }
     /**
      * Display the specified resource.
@@ -58,15 +57,15 @@ class DepartementController extends Controller
      */
     public function show($id)
     {
-        $departement = Departement::find($id);
-        if (is_null($departement))
+        $type_source = TypeSource::with('structures')->with('sources')->get()->find($id);
+        if (is_null($type_source))
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "departement not found."]);
+            ->json(["success" => true, "message" => "Type source not found."]);
         }
         return response()
-            ->json(["success" => true, "message" => "departement retrieved successfully.", "data" => $departement]);
+            ->json(["success" => true, "message" => "Type source retrieved successfully.", "data" => $type_source]);
     }
     /**
      * Update the specified resource in storage.
@@ -75,24 +74,20 @@ class DepartementController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Departement $departement)
+    public function update(Request $request, TypeSource $type_source)
     {
         $input = $request->all();
-        $validator = Validator::make($input, ['nom_departement' => 'required', 'slug' => 'required']);
+        $validator = Validator::make($input, ['libelle_type_source' => 'required']);
         if ($validator->fails())
         {
             //return $this->sendError('Validation Error.', $validator->errors());
             return response()
             ->json($validator->errors());
         }
-        $departement->nom_departement = $input['nom_departement'];
-        $departement->slug = $input['slug'];
-        $departement->latitude = $input['latitude'];
-        $departement->longitude = $input['longitude'];
-        $departement->svg = $input['svg'];
-        $departement->save();
+        $type_source->libelle_type_source = $input['libelle_type_source'];
+        $type_source->save();
         return response()
-            ->json(["success" => true, "message" => "departement updated successfully.", "data" => $departement]);
+            ->json(["success" => true, "message" => "Type source updated successfully.", "data" => $type_source]);
     }
     /**
      * Remove the specified resource from storage.
@@ -100,10 +95,10 @@ class DepartementController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Departement $departement)
+    public function destroy(TypeSource $type_source)
     {
-        $departement->delete();
+        $type_source->delete();
         return response()
-            ->json(["success" => true, "message" => "departement deleted successfully.", "data" => $departement]);
+            ->json(["success" => true, "message" => "Type source deleted successfully.", "data" => $type_source]);
     }
 }

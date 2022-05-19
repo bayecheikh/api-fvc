@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\DepartementController;
 use App\Http\Controllers\Api\StructureController;
 use App\Http\Controllers\Api\DimensionController;
 use App\Http\Controllers\Api\TypeZoneInterventionController;
+use App\Http\Controllers\Api\SourceFinancementController;
+use App\Http\Controllers\Api\TypeSourceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,4 +60,10 @@ Route::middleware('auth:api')->group(function () {
 
     /**Gestion des types de zone */
     Route::resource('type_zones', TypeZoneInterventionController::class);
+
+    /**Gestion des sources de financement */
+    Route::resource('source_financements', SourceFinancementController::class);
+
+    /**Gestion des types de source */
+    Route::resource('type_sources', TypeSourceController::class);
 });
