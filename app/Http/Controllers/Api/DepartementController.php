@@ -87,6 +87,9 @@ class DepartementController extends Controller
         }
         $departement->nom_departement = $input['nom_departement'];
         $departement->slug = $input['slug'];
+        $departement->latitude = $input['latitude'];
+        $departement->longitude = $input['longitude'];
+        $departement->svg = $input['svg'];
         $departement->save();
         return response()
             ->json(["success" => true, "message" => "departement updated successfully.", "data" => $departement]);
