@@ -23,21 +23,19 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->user()->hasPermission('afficher_tout')) {
-            $users = $request->user()->usersByStructure->with('roles')->paginate(10);
-            //$users = User::with('roles')->paginate(10);
+        if ($request->user()->hasRole('super_admin')) {
+            $users = User::with('roles')->paginate(10);
         }
         else{
-            $users = User::whereHas('users', function($q){
-                $q->where('id', 6);
-            })->get();
-            /* $user= User::where('id',$request->user()->id)->first();
-            $structureIds = $user->structures; */
-            //$users = User::whereIn('users_structures', $structureIds)->latest()->paginate(20);
+            $structure_id = User::find($request->user()->id)->structures[0]->id;
+            $users = User::with('roles')->whereHas('structures', function($q) use ($structure_id){
+                $q->where('id', $structure_id);
+            })->paginate(10);
         }
-        //$users = User::with('roles')->paginate(10);
-        //$total = $users->total();
-        return response()->json(["success" => true, "message" => "Users List", "data" => $users/* ,"total"=> $total */]);   
+        
+        $total = $users->total();
+
+        return response()->json(["success" => true, "message" => "Users List", "data" =>$users,"total"=> $total]);   
     }
 
     /**

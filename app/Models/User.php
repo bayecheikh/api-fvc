@@ -43,7 +43,7 @@ class User extends Authenticatable
 
     public function structures() {
 
-      return $this->belongsToMany(Structure::class,'users_structures','user_id','structure_id');
+      return $this->belongsToMany(Structure::class,'users_structures');
             
     }
 
@@ -107,5 +107,10 @@ class User extends Authenticatable
         }
       }
       return false;
+    }
+
+    public function getStructure()
+    {
+      return $this->structures();
     }
 }

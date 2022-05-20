@@ -19,7 +19,7 @@ class Structure extends Model
 
   public function users() {
 
-    return $this->belongsToMany(User::class,'users_structures','user_id','structure_id');
+    return $this->belongsToMany(User::class,'users_structures');
           
   }
 
