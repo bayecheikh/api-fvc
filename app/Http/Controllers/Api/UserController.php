@@ -21,11 +21,23 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('roles')->paginate(10);
-        $total = $users->total();
-        return response()->json(["success" => true, "message" => "Users List", "data" => $users,"total"=> $total]);   
+        if ($request->user()->hasPermission('afficher_tout')) {
+            $users = $request->user()->usersByStructure->with('roles')->paginate(10);
+            //$users = User::with('roles')->paginate(10);
+        }
+        else{
+            $users = User::whereHas('users', function($q){
+                $q->where('id', 6);
+            })->get();
+            /* $user= User::where('id',$request->user()->id)->first();
+            $structureIds = $user->structures; */
+            //$users = User::whereIn('users_structures', $structureIds)->latest()->paginate(20);
+        }
+        //$users = User::with('roles')->paginate(10);
+        //$total = $users->total();
+        return response()->json(["success" => true, "message" => "Users List", "data" => $users/* ,"total"=> $total */]);   
     }
 
     /**

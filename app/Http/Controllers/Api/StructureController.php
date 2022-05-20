@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Models\Role;
 use App\Models\Permission;
+use App\Models\User;
 use App\Models\Region;
 use App\Models\Departement;
 use App\Models\Structure;
@@ -30,7 +31,8 @@ class StructureController extends Controller
      */
     public function index()
     {
-        $structures = Structure::with('regions')
+        $structures = Structure::with('users')
+        ->with('regions')
         ->with('departements')
         ->with('dimensions')
         ->with('type_zone_interventions')
@@ -49,21 +51,32 @@ class StructureController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-        $validator = Validator::make($input, ['nom_structure' => 'required']);
+        $validator = Validator::make($input, ['nom_structure' => 'required','name' => 'required', 'email' => 'required|unique:users,email']);
         if ($validator->fails())
         {
             //return $this->sendError('Validation Error.', $validator->errors());
             return response()
             ->json($validator->errors());
         }
-        $structure = Structure::create($input);
 
+        //Créer le responsable et lui affecter le role responsable structure
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt("@12345678")
+        ]);
+        $roleObj = Role::where('name','responsable_structure')->first();
+        $user->roles()->attach($roleObj);
+
+        $structure = Structure::create($input);
         $array_departements = $request->departements;
         $array_regions = $request->regions;
         $array_dimensions = $request->dimensions;
         $array_type_zones = $request->type_zone_interventions;
         $array_source_financements = $request->source_financements;
         $array_type_sources = $request->type_sources;
+
+        $structure->users()->attach($user);
 
         if(!empty($array_departements)){
             foreach($array_departements as $departement){

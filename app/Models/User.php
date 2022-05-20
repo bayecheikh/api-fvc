@@ -41,6 +41,12 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function structures() {
+
+      return $this->belongsToMany(Structure::class,'users_structures','user_id','structure_id');
+            
+    }
+
     public function roles() {
 
       return $this->belongsToMany(Role::class,'role_user');

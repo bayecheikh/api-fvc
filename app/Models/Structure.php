@@ -17,6 +17,12 @@ class Structure extends Model
     'nom_structure'
   ];
 
+  public function users() {
+
+    return $this->belongsToMany(User::class,'users_structures','user_id','structure_id');
+          
+  }
+
   public function regions() {
     return $this->belongsToMany(Region::class,'structures_regions');          
   }
