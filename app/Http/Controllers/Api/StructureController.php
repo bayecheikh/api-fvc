@@ -38,9 +38,28 @@ class StructureController extends Controller
         ->with('type_zone_interventions')
         ->with('type_sources')
         ->with('source_financements')
-        ->get();
-        return response()->json(["success" => true, "message" => "Structure List", "data" => $structures]);
+        ->paginate(10);
+        $total = $structures->total();
+        return response()->json(["success" => true, "message" => "Structures List", "data" =>$structures,"total"=> $total]);
         
+    }
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function structureMultipleSearch($term)
+    {
+        $structures = Structure::where('id', 'like', '%'.$term.'%')->orWhere('nom_structure', 'like', '%'.$term.'%')
+        ->with('users')
+        ->with('regions')
+        ->with('departements')
+        ->with('dimensions')
+        ->with('type_zone_interventions')
+        ->with('type_sources')
+        ->with('source_financements')->paginate(10);
+        $total = $structures->total();
+        return response()->json(["success" => true, "message" => "Structures List", "data" =>$structures,"total"=> $total]);  
     }
     /**
      * Store a newly created resource in storagrolee.

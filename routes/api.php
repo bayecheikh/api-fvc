@@ -54,6 +54,7 @@ Route::middleware('auth:api')->group(function () {
 
     /**Gestion des structures */
     Route::resource('structures', StructureController::class);
+    Route::get('structure-multiple-search/{term}', [StructureController::class, 'structureMultipleSearch']);
 
     /**Gestion des dimensions */
     Route::resource('dimensions', DimensionController::class);
