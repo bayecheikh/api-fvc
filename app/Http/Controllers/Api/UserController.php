@@ -46,9 +46,7 @@ class UserController extends Controller
     public function userMultipleSearch($term)
     {
         $users = User::where('id', 'like', '%'.$term.'%')->orWhere('email', 'like', '%'.$term.'%')->orWhere('name', 'like', '%'.$term.'%')->with('roles')->paginate(5);
-        $total = $users->total();
-
-        return response()->json(["success" => true, "message" => "Users List", "data" =>$users,"total"=> $total]); 
+        return response()->json(["success" => true, "message" => "Users List", "data" => $users]);   
     }
     /**
      * Store a newly created resource in storagrolee.
