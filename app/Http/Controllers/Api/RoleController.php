@@ -90,6 +90,7 @@ class RoleController extends Controller
         {
             return response() ->json($validator->errors());
         }
+        $role->name = $input['name'];
         $role->description = $input['description'];
         $role->save();
 

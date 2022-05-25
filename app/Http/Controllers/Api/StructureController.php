@@ -70,24 +70,77 @@ class StructureController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
+
+        /* $nom_structure = $input['nom_structure'];
+        $numero_autorisation = $input['numero_autorisation'];
+        $accord_siege = $input['accord_siege'];
+        $numero_agrement = $input['numero_agrement'];
+        $adresse_structure = $input['adresse_structure'];
+        $debut_intervention = $input['debut_intervention'];
+        $fin_intervention = $input['fin_intervention'];
+        $telephone_structure = $input['telephone_structure'];
+        $email_structure = $input['email_structure'];
+
+        $source_financements = $input['source_financements'];
+        $type_sources = $input['type_sources'];
+        $departements = $input['departements'];
+        $regions = $input['regions'];
+        $dimensions = $input['dimensions'];
+        $type_zone_interventions = $input['type_zone_interventions'];
+
+        $firstname_responsable = $input['firstname_responsable'];
+        $lastname_responsable = $input['lastname_responsable'];
+        $email_responsable = $input['email_responsable'];
+        $telephone_responsable = $input['telephone_responsable'];
+        $fonction_responsable = $input['fonction_responsable'];
+
         $validator = Validator::make($input, ['nom_structure' => 'required','name' => 'required', 'email' => 'required|unique:users,email']);
         if ($validator->fails())
         {
-            //return $this->sendError('Validation Error.', $validator->errors());
             return response()
             ->json($validator->errors());
         }
 
-        //Créer le responsable et lui affecter le role responsable structure
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt("@12345678")
+            'firstname_responsable' => $input['firstname_responsable'];
+            'lastname_responsable' => $input['lastname_responsable'];
+            'email_responsable' => $input['email_responsable'];
+            'telephone_responsable' => $input['telephone_responsable'];
+            'fonction_responsable' => $input['fonction_responsable'];
+            'password' => bcrypt("@12345678");
         ]);
-        $roleObj = Role::where('name','responsable_structure')->first();
+        $roleObj = Role::where('name','admin_structure')->first();
         $user->roles()->attach($roleObj);
 
-        $structure = Structure::create($input);
+        $structure = Structure::create(
+            'nom_structure' => $input['nom_structure'];
+            'numero_autorisation' => $input['numero_autorisation'];
+            'accord_siege' => $input['accord_siege'];
+            'numero_agrement' => $input['numero_agrement'];
+            'adresse_structure' => $input['adresse_structure'];
+            'debut_intervention' => $input['debut_intervention'];
+            'fin_intervention' => $input['fin_intervention'];
+            'telephone_structure' => $input['telephone_structure'];
+            'email_structure' => $input['email_structure'];
+        );
+
+        if ($request->hasFile('accord_siege') && $request->file('accord_siege')->isValid()) {
+            $upload_path = public_path('upload');
+            $file = $request->file('accord_siege');
+            $file_name = $file->getClientOriginalName();
+            $file_extension = $file->getClientOriginalExtension();
+            $url_file = $upload_path . '/' . $file_name;
+            $generated_new_name = 'accord_siege_' . time() . '.' . $file_extension;
+            $file->move($upload_path, $generated_new_name);
+
+            $fichierObj = Fichier::create([
+                'name' => $generated_new_name;
+                'url' => $url_file;
+            ]);
+            $structure->fichiers()->attach($fichierObj);
+        }
+        
+
         $array_departements = $request->departements;
         $array_regions = $request->regions;
         $array_dimensions = $request->dimensions;
@@ -139,7 +192,8 @@ class StructureController extends Controller
             }
         }
 
-        return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $structure]);
+        return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $structure]); */
+        return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $input]);
     }
     /**
      * Display the specified resource.
