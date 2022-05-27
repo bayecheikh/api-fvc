@@ -70,7 +70,7 @@ class StructureController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-
+//a ajouter
         /* $nom_structure = $input['nom_structure'];
         $numero_autorisation = $input['numero_autorisation'];
         $accord_siege = $input['accord_siege'];
@@ -80,18 +80,19 @@ class StructureController extends Controller
         $fin_intervention = $input['fin_intervention'];
         $telephone_structure = $input['telephone_structure'];
         $email_structure = $input['email_structure'];
-
+//fin
         $source_financements = $input['source_financements'];
         $type_sources = $input['type_sources'];
         $departements = $input['departements'];
         $regions = $input['regions'];
         $dimensions = $input['dimensions'];
         $type_zone_interventions = $input['type_zone_interventions'];
-
+//a ajouter
         $firstname_responsable = $input['firstname_responsable'];
         $lastname_responsable = $input['lastname_responsable'];
         $email_responsable = $input['email_responsable'];
         $telephone_responsable = $input['telephone_responsable'];
+//fin
         $fonction_responsable = $input['fonction_responsable'];
 
         $validator = Validator::make($input, ['nom_structure' => 'required','name' => 'required', 'email' => 'required|unique:users,email']);
