@@ -23,6 +23,12 @@ class Structure extends Model
           
   }
 
+  public function fichiers() {
+
+    return $this->belongsToMany(Fichier::class,'fichiers_structures');
+          
+  }
+
   public function regions() {
     return $this->belongsToMany(Region::class,'structures_regions');          
   }

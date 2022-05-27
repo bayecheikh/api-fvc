@@ -102,11 +102,11 @@ class StructureController extends Controller
         }
 
         $user = User::create([
-            'firstname_responsable' => $input['firstname_responsable'];
-            'lastname_responsable' => $input['lastname_responsable'];
-            'email_responsable' => $input['email_responsable'];
-            'telephone_responsable' => $input['telephone_responsable'];
-            'fonction_responsable' => $input['fonction_responsable'];
+            'firstname' => $input['firstname_responsable'];
+            'lastname' => $input['lastname_responsable'];
+            'email' => $input['email_responsable'];
+            'telephone' => $input['telephone_responsable'];
+            'fonction' => $input['fonction_responsable'];
             'password' => bcrypt("@12345678");
         ]);
         $roleObj = Role::where('name','admin_structure')->first();
@@ -136,6 +136,8 @@ class StructureController extends Controller
             $fichierObj = Fichier::create([
                 'name' => $generated_new_name;
                 'url' => $url_file;
+                'extension' => $file_extension;
+                'description' => 'Accord de siège';
             ]);
             $structure->fichiers()->attach($fichierObj);
         }
