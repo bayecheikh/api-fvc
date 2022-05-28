@@ -14,14 +14,14 @@ return new class extends Migration
     public function up()
     {
         Schema::table('structures', function (Blueprint $table) {
-            $table->string('numero_autorisation');
-            $table->string('accord_siege');
-            $table->string('numero_agrement');
-            $table->string('adresse_structure');
-            $table->string('debut_intervention');
-            $table->string('fin_intervention');
-            $table->string('telephone_structure');
-            $table->string('email_structure');
+            $table->string('numero_autorisation')->nullable();
+            $table->string('accord_siege')->nullable();
+            $table->string('numero_agrement')->nullable();
+            $table->string('adresse_structure')->nullable();
+            $table->string('debut_intervention')->nullable();
+            $table->string('fin_intervention')->nullable();
+            $table->string('telephone_structure')->nullable();
+            $table->string('email_structure')->nullable();
         });
     }
 
