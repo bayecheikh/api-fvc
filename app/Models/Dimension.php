@@ -15,7 +15,7 @@ class Dimension extends Model
    * @var array
    */
   protected $fillable = [
-    'libelle_dimension'
+    'libelle_dimension','status'
   ];
 
   public function structures() {

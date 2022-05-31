@@ -14,7 +14,7 @@ class Structure extends Model
    * @var array
    */
   protected $fillable = [
-    'nom_structure','numero_autorisation','accord_siege','numero_agrement','adresse_structure','debut_intervention','fin_intervention','telephone_structure','email_structure'
+    'nom_structure','numero_autorisation','accord_siege','numero_agrement','adresse_structure','debut_intervention','fin_intervention','telephone_structure','email_structure','status'
   ];
 
   public function users() {

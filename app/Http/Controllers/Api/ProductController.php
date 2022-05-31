@@ -80,6 +80,7 @@ class ProductController extends Controller
         }
         $product->name = $input['name'];
         $product->detail = $input['detail'];
+        $product->status = $input['status'];
         $product->save();
         return response()
             ->json(["success" => true, "message" => "Product updated successfully.", "data" => $product]);

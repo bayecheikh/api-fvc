@@ -86,6 +86,7 @@ class DimensionController extends Controller
             ->json($validator->errors());
         }
         $dimension->libelle_dimension = $input['libelle_dimension'];
+        $dimension->status = $input['status'];
         $dimension->save();
         return response()
             ->json(["success" => true, "message" => "Dimension updated successfully.", "data" => $dimension]);

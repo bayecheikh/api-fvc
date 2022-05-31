@@ -15,7 +15,7 @@ class Departement extends Model
    * @var array
    */
   protected $fillable = [
-    'nom_departement', 'slug','latitude','longitude','svg'
+    'nom_departement', 'slug','latitude','longitude','svg','status'
   ];
 
   public function region() {

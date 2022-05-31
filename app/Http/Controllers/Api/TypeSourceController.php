@@ -85,6 +85,7 @@ class TypeSourceController extends Controller
             ->json($validator->errors());
         }
         $type_source->libelle_type_source = $input['libelle_type_source'];
+        $type_source->status = $input['status'];
         $type_source->save();
         return response()
             ->json(["success" => true, "message" => "Type source updated successfully.", "data" => $type_source]);

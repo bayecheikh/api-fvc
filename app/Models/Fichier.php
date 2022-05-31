@@ -15,7 +15,7 @@ class Fichier extends Model
      * @var array
      */
     protected $fillable = [
-        'name','url', 'extension', 'description',
+        'name','url', 'extension', 'description','status'
     ];
 
     public function structures() {

@@ -81,6 +81,7 @@ class PermissionController extends Controller
         }
         //$permission->name = $input['name'];
         $permission->description = $input['description'];
+        $permission->status = $input['status'];
         $permission->save();
         return response()
             ->json(["success" => true, "message" => "Permission updated successfully.", "data" => $permission]);
