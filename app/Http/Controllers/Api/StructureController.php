@@ -210,7 +210,8 @@ class StructureController extends Controller
      */
     public function show($id)
     {
-        $structure = Structure::with('regions')
+        $structure = Structure::with('users')
+        ->with('regions')
         ->with('departements')
         ->with('dimensions')
         ->with('type_zone_interventions')
