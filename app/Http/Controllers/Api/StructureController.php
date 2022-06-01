@@ -220,6 +220,7 @@ class StructureController extends Controller
         ->with('fichiers')
         ->get()
         ->find($id);
+        $structure->load('source_financements.type_sources');
         if (is_null($structure))
         {
    /*          return $this->sendError('Product not found.'); */
@@ -246,15 +247,24 @@ class StructureController extends Controller
             return response()
             ->json($validator->errors());
         }
+        else{
         $structure->nom_structure = $input['nom_structure'];
+        $structure->numero_autorisation = $input['numero_autorisation'];
+        $structure->numero_agrement = $input['numero_agrement'];
+        $structure->accord_siege = '';
+        $structure->adresse_structure = $input['adresse_structure'];
+        $structure->debut_intervention = $input['debut_intervention'];
+        $structure->fin_intervention = $input['fin_intervention'];
+        $structure->telephone_structure = $input['telephone_structure'];
+        $structure->email_structure = $input['email_structure'];
         $structure->save();
 
-        $array_departements = $request->departements;
-        $array_regions = $request->regions;
-        $array_dimensions = $request->dimensions;
-        $array_type_zones = $request->type_zone_interventions;
-        $array_source_financements = $request->source_financements;
-        $array_type_sources = $request->type_sources;
+        $array_source_financements = explode (",", $input['source_financements']);
+        $array_type_sources = explode (",", $input['type_sources']);
+        $array_departements = explode (",", $input['departements']);
+        $array_regions = explode (",", $input['regions']);
+        $array_dimensions = explode (",", $input['dimensions']);
+        $array_type_zones = explode (",", $input['type_zone_interventions']);
 
         $old_departements = $structure->departements();
         $old_regions = $structure->regions();
@@ -262,6 +272,31 @@ class StructureController extends Controller
         $old_type_zones = $structure->type_zone_interventions();
         $old_source_financements = $structure->source_financements();
         $old_type_sources = $structure->type_sources();
+        $old_fichiers = $structure->fichiers();
+
+        if ($request->hasFile('accord_siege') && $request->file('accord_siege')->isValid()) {
+
+            foreach($old_fichiers as $fichier){
+                $fichierObj = Fichier::where('id',$fichier)->first();
+                $structure->fichiers()->detach($fichierObj);
+            }
+            
+            $upload_path = public_path('upload');
+            $file = $request->file('accord_siege');
+            $file_name = $file->getClientOriginalName();
+            $file_extension = $file->getClientOriginalExtension();
+            $url_file = $upload_path . '/' . $file_name;
+            $generated_new_name = 'accord_siege_' . time() . '.' . $file_extension;
+            $file->move($upload_path, $generated_new_name);
+
+            $fichierObj = Fichier::create([
+                'name' => $generated_new_name,
+                'url' => $url_file,
+                'extension' => $file_extension,
+                'description' => 'Accord de siège'
+            ]);
+            $structure->fichiers()->attach($fichierObj);
+        }
 
         if(!empty($array_departements)){
             foreach($old_departements as $departement){
@@ -331,6 +366,7 @@ class StructureController extends Controller
 
         return response()
             ->json(["success" => true, "message" => "structure updated successfully.", "data" => $structure]);
+    }
     }
     /**
      * Remove the specified resource from storage.
