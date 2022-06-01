@@ -259,6 +259,7 @@ class StructureController extends Controller
         $structure->fin_intervention = $input['fin_intervention'];
         $structure->telephone_structure = $input['telephone_structure'];
         $structure->email_structure = $input['email_structure'];
+        $structure->status = 'actif';
         $structure->save();
 
         $array_source_financements = explode (",", $input['source_financements']);
