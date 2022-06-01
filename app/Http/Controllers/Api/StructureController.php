@@ -111,7 +111,7 @@ class StructureController extends Controller
                 'email' => $input['email_responsable'],
                 'telephone' => $input['telephone_responsable'],
                 'fonction' => $input['fonction_responsable'],
-                'status' => $input['status'],
+                'status' => 'actif',
                 'password' => bcrypt("@12345678")
             ]);
             $roleObj = Role::where('name','admin_structure')->first();
@@ -127,7 +127,7 @@ class StructureController extends Controller
                 'fin_intervention' => $input['fin_intervention'],
                 'telephone_structure' => $input['telephone_structure'],
                 'email_structure' => $input['email_structure'],
-                'status' => $input['status']]
+                'status' => 'actif']
             );
     
             if ($request->hasFile('accord_siege') && $request->file('accord_siege')->isValid()) {
