@@ -73,7 +73,7 @@ class StructureController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-
+//a ajouter
         /* $nom_structure = $input['nom_structure'];
         $numero_autorisation = $input['numero_autorisation'];
         $accord_siege = $input['accord_siege'];
@@ -111,6 +111,7 @@ class StructureController extends Controller
                 'email' => $input['email_responsable'],
                 'telephone' => $input['telephone_responsable'],
                 'fonction' => $input['fonction_responsable'],
+                'status' => $input['status'],
                 'password' => bcrypt("@12345678")
             ]);
             $roleObj = Role::where('name','admin_structure')->first();
@@ -125,7 +126,8 @@ class StructureController extends Controller
                 'debut_intervention' => $input['debut_intervention'],
                 'fin_intervention' => $input['fin_intervention'],
                 'telephone_structure' => $input['telephone_structure'],
-                'email_structure' => $input['email_structure']]
+                'email_structure' => $input['email_structure'],
+                'status' => $input['status']]
             );
     
             if ($request->hasFile('accord_siege') && $request->file('accord_siege')->isValid()) {

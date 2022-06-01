@@ -92,6 +92,7 @@ class RoleController extends Controller
         }
         $role->name = $input['name'];
         $role->description = $input['description'];
+        $role->status = $input['status'];
         $role->save();
 
         $array_permissions = $request->permissions;

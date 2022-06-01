@@ -66,9 +66,14 @@ class UserController extends Controller
         }
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt("@12345678")
+                'name' => $input['firstname'].' '.$input['lastname'],
+                'firstname' => $input['firstname'],
+                'lastname' => $input['lastname'],
+                'email' => $input['email'],
+                'telephone' => $input['telephone'],
+                'fonction' => $input['fonction'],
+                'status' => $input['status'],
+                'password' => bcrypt("@12345678")
         ]);
 
         $array_roles = $request->roles;
@@ -119,6 +124,13 @@ class UserController extends Controller
         }
 
         $user->name = $input['name'];
+        $user->firstname = $input['firstname'];
+        $user->lastname = $input['lastname'];
+        $user->email = $input['email'];
+        $user->telephone = $input['telephone'];
+        $user->fonction = $input['fonction'];
+        $user->status = $input['status'];
+        $user->password = $input['password'];
         $user->save();
 
         $array_roles = $request->roles;

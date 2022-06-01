@@ -16,7 +16,7 @@ class TypeZoneIntervention extends Model
   * @var array
   */
  protected $fillable = [
-   'libelle_zone'
+   'libelle_zone','status'
  ];
 
  public function structures() {

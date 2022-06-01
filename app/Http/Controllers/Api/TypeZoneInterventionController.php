@@ -87,6 +87,7 @@ class TypeZoneInterventionController extends Controller
             ->json($validator->errors());
         }
         $type_zone->libelle_zone = $input['libelle_zone'];
+        $type_zone->status = $input['status'];
         $type_zone->save();
         return response()
             ->json(["success" => true, "message" => "Type Zone Intervention updated successfully.", "data" => $type_zone]);

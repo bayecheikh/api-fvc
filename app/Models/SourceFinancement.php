@@ -14,7 +14,7 @@ class SourceFinancement extends Model
    * @var array
    */
   protected $fillable = [
-    'libelle_source'
+    'libelle_source','status'
   ];
 
   public function type_sources() {

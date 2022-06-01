@@ -14,7 +14,7 @@ class TypeSource extends Model
    * @var array
    */
   protected $fillable = [
-    'libelle_type_source'
+    'libelle_type_source','status'
   ];
 
   public function sources() {
