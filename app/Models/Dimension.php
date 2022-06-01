@@ -21,4 +21,7 @@ class Dimension extends Model
   public function structures() {
     return $this->belongsToMany(Structure::class,'dimensions_structures');          
   }
+  public function investissements() {
+    return $this->belongsToMany(Investissement::class,'dimensions_investissements');          
+}
 }

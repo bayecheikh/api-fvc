@@ -52,4 +52,7 @@ class Structure extends Model
   public function type_sources() {
     return $this->belongsToMany(TypeSource::class,'structures_type_sources','type_id','structure_id');          
   }
+  public function investissements() {
+    return $this->belongsToMany(Investissement::class,'structures_investissements');          
+}
 }

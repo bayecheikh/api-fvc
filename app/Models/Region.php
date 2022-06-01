@@ -25,6 +25,8 @@ class Region extends Model
   public function structures() {
     return $this->belongsToMany(Structure::class,'structures_regions');          
   }
-
+  public function investissements() {
+    return $this->belongsToMany(Investissement::class,'regions_investissements');          
+  }
 
 }

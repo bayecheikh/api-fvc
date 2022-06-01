@@ -14,6 +14,12 @@ use App\Http\Controllers\Api\DimensionController;
 use App\Http\Controllers\Api\TypeZoneInterventionController;
 use App\Http\Controllers\Api\SourceFinancementController;
 use App\Http\Controllers\Api\TypeSourceController;
+use App\Http\Controllers\Api\AxeController;
+use App\Http\Controllers\Api\InvestissementController;
+use App\Http\Controllers\Api\LigneFinancementController;
+use App\Http\Controllers\Api\ModeFinancementController;
+use App\Http\Controllers\Api\PilierController;
+use App\Http\Controllers\Api\TypeLigneController;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,4 +73,22 @@ Route::middleware('auth:api')->group(function () {
 
     /**Gestion des types de source */
     Route::resource('type_sources', TypeSourceController::class);
+
+    /**Gestion des axes */
+    Route::resource('axes', AxeController::class);
+
+    /**Gestion des investissements */
+    Route::resource('investissements', InvestissementController::class);
+
+    /**Gestion des lignes de financement */
+    Route::resource('ligne_financements', LigneFinancementController::class);
+
+    /**Gestion des modes de financement */
+    Route::resource('mode_financements', ModeFinancementController::class);
+
+    /**Gestion des piliers */
+    Route::resource('piliers', PilierController::class);
+
+    /**Gestion des types de ligne */
+    Route::resource('type_lignes', TypeLigneController::class);
 });

@@ -23,4 +23,9 @@ class Fichier extends Model
         return $this->belongsToMany(Structure::class,'fichiers_structures');
               
     }
+    public function investissements() {
+
+        return $this->belongsToMany(Investissement::class,'fichiers_investissements');
+              
+    }
 }
