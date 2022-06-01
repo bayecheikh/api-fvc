@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('piliers_ligne_financements', function (Blueprint $table) {
             $table->unsignedInteger('pilier_id');
             $table->unsignedInteger('ligne_financement_id');
-            $table->primary(['pilier_id','ligne_financement_id']);
+            $table->primary(['pilier_id','ligne_financement_id'],'pilier_ligne_id');
             $table->timestamps();
         });
     }

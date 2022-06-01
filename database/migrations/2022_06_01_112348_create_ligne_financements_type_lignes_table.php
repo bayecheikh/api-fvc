@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('ligne_financements_type_lignes', function (Blueprint $table) {
             $table->unsignedInteger('ligne_financement_id');
             $table->unsignedInteger('type_ligne_id');
-            $table->primary(['ligne_financement_id','type_ligne_id']);
+            $table->primary(['ligne_financement_id','type_ligne_id'],'lign_type_ligne_id');
             $table->timestamps();
         });
     }

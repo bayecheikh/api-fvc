@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('dimensions_investissements', function (Blueprint $table) {
             $table->unsignedInteger('dimension_id');
             $table->unsignedInteger('investissement_id');
-            $table->primary(['dimension_id','investissement_id']);
+            $table->primary(['dimension_id','investissement_id'],'dim_investissement_id');
             $table->timestamps();
         });
     }

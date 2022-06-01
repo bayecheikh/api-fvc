@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('mode_financements_investissements', function (Blueprint $table) {
             $table->unsignedInteger('mode_financement_id');
             $table->unsignedInteger('investissement_id');
-            $table->primary(['mode_financement_id','investissement_id']);
+            $table->primary(['mode_financement_id','investissement_id'],'mode_investissement_id');
             $table->timestamps();
         });
     }

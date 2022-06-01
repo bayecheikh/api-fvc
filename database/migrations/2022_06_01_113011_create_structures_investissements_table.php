@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('structures_investissements', function (Blueprint $table) {
             $table->unsignedInteger('structure_id');
             $table->unsignedInteger('investissement_id');
-            $table->primary(['structure_id','investissement_id']);
+            $table->primary(['structure_id','investissement_id'],'struct_investissement_id');
             $table->timestamps();
         });
     }
