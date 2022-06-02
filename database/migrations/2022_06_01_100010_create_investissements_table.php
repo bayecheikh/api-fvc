@@ -15,8 +15,9 @@ return new class extends Migration
     {
         Schema::create('investissements', function (Blueprint $table) {
             $table->id();
-            $table->string('lib_autremode');
-            $table->string('mnt_autremode');
+            $table->string('lib_autremode')->nullable();
+            $table->string('mnt_autremode')->nullable();
+            $table->string('lib_autremonnaie')->nullable();
             $table->string('status')->nullable();
             $table->timestamps();
         });
