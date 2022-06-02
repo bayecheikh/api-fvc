@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('lib_autremode');
             $table->string('mnt_autremode');
-            $table->string('status');
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

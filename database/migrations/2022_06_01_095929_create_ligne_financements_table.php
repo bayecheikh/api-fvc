@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('mnt_prevu');
             $table->string('mnt_mobilise');
             $table->string('mnt_execute');
-            $table->string('status');
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

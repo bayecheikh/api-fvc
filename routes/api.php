@@ -20,6 +20,9 @@ use App\Http\Controllers\Api\LigneFinancementController;
 use App\Http\Controllers\Api\ModeFinancementController;
 use App\Http\Controllers\Api\PilierController;
 use App\Http\Controllers\Api\TypeLigneController;
+use App\Http\Controllers\Api\MonnaieController;
+use App\Http\Controllers\Api\AnneeController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -91,4 +94,10 @@ Route::middleware('auth:api')->group(function () {
 
     /**Gestion des types de ligne */
     Route::resource('type_lignes', TypeLigneController::class);
+
+    /**Gestion des monnaies */
+    Route::resource('monnaies', MonnaieController::class);
+
+    /**Gestion des annees */
+    Route::resource('annees', AnneeController::class);
 });

@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('piliers', function (Blueprint $table) {
             $table->id();
             $table->string('nom_pilier');
-            $table->string('status');
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

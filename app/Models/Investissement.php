@@ -34,4 +34,10 @@ class Investissement extends Model
     public function fichiers() {
         return $this->belongsToMany(Fichier::class,'fichiers_investissements');       
     }
+    public function monnaie() {
+        return $this->belongsToMany(Monnaie::class,'monnaies_investissements');          
+    }
+    public function annee() {
+        return $this->belongsToMany(Annee::class,'annees_investissements');          
+    }
 }

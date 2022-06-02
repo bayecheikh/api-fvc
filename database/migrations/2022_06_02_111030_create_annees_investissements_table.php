@@ -13,11 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('mode_financements', function (Blueprint $table) {
-            $table->id();
-            $table->string('libelle');
-            $table->string('montant');
-            $table->string('status')->nullable();
+        Schema::create('annees_investissements', function (Blueprint $table) {
+            $table->unsignedInteger('annee_id');
+            $table->unsignedInteger('investissement_id');
+            $table->primary(['annee_id','investissement_id']);
             $table->timestamps();
         });
     }
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('mode_financements');
+        Schema::dropIfExists('annees_investissements');
     }
 };

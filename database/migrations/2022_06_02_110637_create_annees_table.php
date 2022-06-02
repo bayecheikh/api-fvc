@@ -13,10 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('mode_financements', function (Blueprint $table) {
+        Schema::create('annees', function (Blueprint $table) {
             $table->id();
             $table->string('libelle');
-            $table->string('montant');
             $table->string('status')->nullable();
             $table->timestamps();
         });
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('mode_financements');
+        Schema::dropIfExists('annees');
     }
 };

@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('type_lignes', function (Blueprint $table) {
             $table->id();
             $table->string('libelle');
-            $table->string('status');
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }
