@@ -27,14 +27,12 @@ class PilierController extends Controller
      */
     public function index()
     {
- 
         $piliers = Pilier::with('axes')->get();
         return response()->json(["success" => true, "message" => "pilier List", "data" => $piliers]);
-
         
     }
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created resource in storagrolee.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -51,6 +49,15 @@ class PilierController extends Controller
         }
         $pilier = Pilier::create($input);
 
+        $array_axes = $request->axes;
+
+        if(!empty($array_axes)){
+            foreach($array_axes as $axe){
+                $axeObj = Axe::where('id',$axe)->first();
+                $pilier->axes()->attach($axeObj);
+            }
+        }
+
         return response()->json(["success" => true, "message" => "pilier created successfully.", "data" => $pilier]);
     }
     /**
@@ -61,7 +68,7 @@ class PilierController extends Controller
      */
     public function show($id)
     {
-        $pilier = Pilier::find($id);
+        $pilier = Pilier::with('axes')->find($id);
         if (is_null($pilier))
         {
    /*          return $this->sendError('Product not found.'); */
@@ -90,6 +97,21 @@ class PilierController extends Controller
         }
         $pilier->nom_pilier = $input['nom_pilier'];
         $pilier->save();
+
+        $array_axes = $request->axes;
+        $old_axes = $pilier->axes();
+
+        if(!empty($array_axes)){
+            foreach($old_axes as $axe){
+                $axeObj = Axe::where('id',$axe)->first();
+                $pilier->axes()->detach($axeObj);
+            }
+            foreach($array_axes as $axe){
+                $axeObj = Axe::where('id',$axe)->first();
+                $pilier->axes()->attach($axeObj);
+            }
+        }
+
         return response()
             ->json(["success" => true, "message" => "pilier updated successfully.", "data" => $pilier]);
     }
