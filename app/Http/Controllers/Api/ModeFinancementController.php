@@ -77,8 +77,9 @@ class ModeFinancementController extends Controller
      */
     public function update(Request $request, ModeFinancement $modefinancement)
     {
+        $modefinancement = ModeFinancement::find($input['lid']);
         $input = $request->all();
-        $validator = Validator::make($input, ['libelle' => 'required', 'montant' => 'required']);
+        /* $validator = Validator::make($input, ['libelle' => 'required', 'montant' => 'required']);
         if ($validator->fails())
         {
             //return $this->sendError('Validation Error.', $validator->errors());
@@ -87,7 +88,7 @@ class ModeFinancementController extends Controller
         }
         $modefinancement->libelle = $input['libelle'];
         $modefinancement->montant = $input['montant'];
-        $modefinancement->save();
+        $modefinancement->save(); */
         return response()
             ->json(["success" => true, "message" => "modefinancement updated successfully.", "data" => $modefinancement]);
     }
