@@ -26,7 +26,7 @@ class AnneeController extends Controller
     {
  
         $annees = Annee::with('investissements')->get();
-        return response()->json(["success" => true, "message" => "Annee List", "data" => $annees]);
+        return response()->json(["success" => true, "message" => "Liste des années", "data" => $annees]);
 
         
     }
@@ -48,7 +48,7 @@ class AnneeController extends Controller
         }
         $annee = Annee::create($input);
 
-        return response()->json(["success" => true, "message" => "annee created successfully.", "data" => $annee]);
+        return response()->json(["success" => true, "message" => "Année créée avec succès.", "data" => $annee]);
     }
     /**
      * Display the specified resource.
@@ -63,10 +63,10 @@ class AnneeController extends Controller
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "annee not found."]);
+            ->json(["success" => true, "message" => "Année introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "annee retrieved successfully.", "data" => $annee]);
+            ->json(["success" => true, "message" => "Année retrouvée avec succès.", "data" => $annee]);
     }
     /**
      * Update the specified resource in storage.
@@ -89,7 +89,7 @@ class AnneeController extends Controller
 
         $annee->save();
         return response()
-            ->json(["success" => true, "message" => "annee updated successfully.", "data" => $annee]);
+            ->json(["success" => true, "message" => "Année modifiée avec succès.", "data" => $annee]);
     }
     /**
      * Remove the specified resource from storage.
@@ -101,6 +101,6 @@ class AnneeController extends Controller
     {
         $annee->delete();
         return response()
-            ->json(["success" => true, "message" => "annee deleted successfully.", "data" => $annee]);
+            ->json(["success" => true, "message" => "Année supprimée avec succès.", "data" => $annee]);
     }
 }

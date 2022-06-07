@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\PilierController;
 use App\Http\Controllers\Api\TypeLigneController;
 use App\Http\Controllers\Api\MonnaieController;
 use App\Http\Controllers\Api\AnneeController;
+use App\Http\Controllers\Api\LigneModeInvestissementController;
 
 
 /*
@@ -100,4 +101,7 @@ Route::middleware('auth:api')->group(function () {
 
     /**Gestion des annees */
     Route::resource('annees', AnneeController::class);
+
+    /**Gestion des lignes mode investissements */
+    Route::resource('ligne_mode_investissements', LigneModeInvestissementController::class);
 });

@@ -66,7 +66,7 @@ class AuthController extends Controller
  
      //$user = auth()->user()->token()->revoke();
       
-     return response()->json(['message' => 'User Logout'], 200);
+     return response()->json(['message' => 'Utilisateur déconnecté'], 200);
  
     }
 }

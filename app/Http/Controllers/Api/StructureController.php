@@ -42,7 +42,7 @@ class StructureController extends Controller
         ->with('fichiers')
         ->paginate(10);
         $total = $structures->total();
-        return response()->json(["success" => true, "message" => "Structures List", "data" =>$structures,"total"=> $total]);
+        return response()->json(["success" => true, "message" => "Liste des structures", "data" =>$structures,"total"=> $total]);
         
     }
     /**
@@ -62,7 +62,7 @@ class StructureController extends Controller
         ->with('fichiers')
         ->with('source_financements')->paginate(10);
         $total = $structures->total();
-        return response()->json(["success" => true, "message" => "Structures List", "data" =>$structures,"total"=> $total]);  
+        return response()->json(["success" => true, "message" => "liste des structures", "data" =>$structures,"total"=> $total]);  
     }
     /**
      * Store a newly created resource in storagrolee.
@@ -200,7 +200,7 @@ class StructureController extends Controller
                 }
             }
     
-            return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $structure]);
+            return response()->json(["success" => true, "message" => "Structure créée avec succès.", "data" => $structure]);
             //return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $input]);
         }
     }
@@ -227,10 +227,10 @@ class StructureController extends Controller
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "Structure not found."]);
+            ->json(["success" => true, "message" => "Structure introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "Structure retrieved successfully.", "data" => $structure]);
+            ->json(["success" => true, "message" => "Structure retrouvée avec succès.", "data" => $structure]);
     }
     /**
      * Update the specified resource in storage.
@@ -368,7 +368,7 @@ class StructureController extends Controller
         }
 
         return response()
-            ->json(["success" => true, "message" => "structure updated successfully.", "data" => $structure]);
+            ->json(["success" => true, "message" => "structure modifiée avec succès.", "data" => $structure]);
     }
     }
     /**
@@ -381,6 +381,6 @@ class StructureController extends Controller
     {
         $structure->delete();
         return response()
-            ->json(["success" => true, "message" => "Structure deleted successfully.", "data" => $structure]);
+            ->json(["success" => true, "message" => "Structure supprimée avec succès.", "data" => $structure]);
     }
 }

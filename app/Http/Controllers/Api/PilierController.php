@@ -28,7 +28,7 @@ class PilierController extends Controller
     public function index()
     {
         $piliers = Pilier::with('axes')->get();
-        return response()->json(["success" => true, "message" => "pilier List", "data" => $piliers]);
+        return response()->json(["success" => true, "message" => "Liste des piliers", "data" => $piliers]);
         
     }
     /**
@@ -58,7 +58,7 @@ class PilierController extends Controller
             }
         }
 
-        return response()->json(["success" => true, "message" => "pilier created successfully.", "data" => $pilier]);
+        return response()->json(["success" => true, "message" => "pilier créé avec succès.", "data" => $pilier]);
     }
     /**
      * Display the specified resource.
@@ -73,10 +73,10 @@ class PilierController extends Controller
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "pilier not found."]);
+            ->json(["success" => true, "message" => "pilier introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "pilier retrieved successfully.", "data" => $pilier]);
+            ->json(["success" => true, "message" => "pilier retrouvé avec succès.", "data" => $pilier]);
     }
     /**
      * Update the specified resource in storage.
@@ -113,7 +113,7 @@ class PilierController extends Controller
         }
 
         return response()
-            ->json(["success" => true, "message" => "pilier updated successfully.", "data" => $pilier]);
+            ->json(["success" => true, "message" => "pilier modifié avec succès.", "data" => $pilier]);
     }
     /**
      * Remove the specified resource from storage.
@@ -125,6 +125,6 @@ class PilierController extends Controller
     {
         $pilier->delete();
         return response()
-            ->json(["success" => true, "message" => "pilier deleted successfully.", "data" => $pilier]);
+            ->json(["success" => true, "message" => "pilier supprimé avec succès.", "data" => $pilier]);
     }
 }

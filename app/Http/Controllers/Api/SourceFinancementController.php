@@ -33,7 +33,7 @@ class SourceFinancementController extends Controller
     public function index()
     {
         $source_inancement = SourceFinancement::with('type_sources')->with('structures')->get();
-        return response()->json(["success" => true, "message" => "Source financement List", "data" => $source_inancement]);
+        return response()->json(["success" => true, "message" => "Liste des sources de financement", "data" => $source_inancement]);
         
     }
     /**
@@ -63,7 +63,7 @@ class SourceFinancementController extends Controller
             }
         }
 
-        return response()->json(["success" => true, "message" => "Source financement created successfully.", "data" => $source]);
+        return response()->json(["success" => true, "message" => "Source de financement créée avec succès.", "data" => $source]);
     }
     /**
      * Display the specified resource.
@@ -78,10 +78,10 @@ class SourceFinancementController extends Controller
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "Source financement not found."]);
+            ->json(["success" => true, "message" => "Source de financement introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "Structure retrieved successfully.", "data" => $source_financement]);
+            ->json(["success" => true, "message" => "Source de financement retrouvée avec succès.", "data" => $source_financement]);
     }
     /**
      * Update the specified resource in storage.
@@ -120,7 +120,7 @@ class SourceFinancementController extends Controller
         }
 
         return response()
-            ->json(["success" => true, "message" => "structure updated successfully.", "data" =>  $source_financement]);
+            ->json(["success" => true, "message" => "Source de financement modifiée avec succès.", "data" =>  $source_financement]);
     }
     /**
      * Remove the specified resource from storage.
@@ -132,6 +132,6 @@ class SourceFinancementController extends Controller
     {
         $source_financement->delete();
         return response()
-            ->json(["success" => true, "message" => "Structure deleted successfully.", "data" => $source_financement]);
+            ->json(["success" => true, "message" => "Source de financement supprimée avec succès.", "data" => $source_financement]);
     }
 }

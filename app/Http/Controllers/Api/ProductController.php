@@ -20,7 +20,7 @@ class ProductController extends Controller
     {
         if ($request->user()->hasPermission('create-task')) {
             $products = Product::all();
-            return response()->json(["success" => true, "message" => "Product List", "data" => $products]);
+            return response()->json(["success" => true, "message" => "liste des produits", "data" => $products]);
         }
         else
         return response()->json(["success" => true, "message" => "Vous n'etes pas autorisé"]);
@@ -43,7 +43,7 @@ class ProductController extends Controller
             ->json(["success" => true, "message" => "Validation Error."],$validator->errors());
         }
         $product = Product::create($input);
-        return response()->json(["success" => true, "message" => "Product created successfully.", "data" => $product]);
+        return response()->json(["success" => true, "message" => "Produit créé avec succès.", "data" => $product]);
     }
     /**
      * Display the specified resource.
@@ -58,10 +58,10 @@ class ProductController extends Controller
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "Product not found."]);
+            ->json(["success" => true, "message" => "Produit introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "Product retrieved successfully.", "data" => $product]);
+            ->json(["success" => true, "message" => "Produit retrouvé avec succès.", "data" => $product]);
     }
     /**
      * Update the specified resource in storage.
@@ -83,7 +83,7 @@ class ProductController extends Controller
         $product->status = $input['status'];
         $product->save();
         return response()
-            ->json(["success" => true, "message" => "Product updated successfully.", "data" => $product]);
+            ->json(["success" => true, "message" => "Produit modifié avec succès.", "data" => $product]);
     }
     /**
      * Remove the specified resource from storage.
@@ -95,7 +95,7 @@ class ProductController extends Controller
     {
         $product->delete();
         return response()
-            ->json(["success" => true, "message" => "Product deleted successfully.", "data" => $product]);
+            ->json(["success" => true, "message" => "Produit supprimé avec succès.", "data" => $product]);
     }
 }
 

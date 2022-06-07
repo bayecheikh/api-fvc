@@ -26,7 +26,7 @@ class MonnaieController extends Controller
     {
  
         $monnaies = Monnaie::with('investissements')->get();
-        return response()->json(["success" => true, "message" => "monnaie List", "data" => $monnaies]);
+        return response()->json(["success" => true, "message" => "Liste des monnaies", "data" => $monnaies]);
 
         
     }
@@ -48,7 +48,7 @@ class MonnaieController extends Controller
         }
         $monnaie = Monnaie::create($input);
 
-        return response()->json(["success" => true, "message" => "monnaie created successfully.", "data" => $monnaie]);
+        return response()->json(["success" => true, "message" => "monnaie créée avec succès.", "data" => $monnaie]);
     }
     /**
      * Display the specified resource.
@@ -63,10 +63,10 @@ class MonnaieController extends Controller
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "monnaie not found."]);
+            ->json(["success" => true, "message" => "monnaie introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "monnaie retrieved successfully.", "data" => $monnaie]);
+            ->json(["success" => true, "message" => "monnaie retrouvée avec succès.", "data" => $monnaie]);
     }
     /**
      * Update the specified resource in storage.
@@ -89,7 +89,7 @@ class MonnaieController extends Controller
 
         $monnaie->save();
         return response()
-            ->json(["success" => true, "message" => "monnaie updated successfully.", "data" => $monnaie]);
+            ->json(["success" => true, "message" => "monnaie modifiée avec succès.", "data" => $monnaie]);
     }
     /**
      * Remove the specified resource from storage.
@@ -101,6 +101,6 @@ class MonnaieController extends Controller
     {
         $monnaie->delete();
         return response()
-            ->json(["success" => true, "message" => "monnaie deleted successfully.", "data" => $monnaie]);
+            ->json(["success" => true, "message" => "monnaie supprimée avec succès.", "data" => $monnaie]);
     }
 }

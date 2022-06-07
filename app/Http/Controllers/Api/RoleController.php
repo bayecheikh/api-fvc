@@ -24,7 +24,7 @@ class RoleController extends Controller
     {
  
         $roles = Role::with('permissions')->get();
-        return response()->json(["success" => true, "message" => "Role List", "data" => $roles]);
+        return response()->json(["success" => true, "message" => "Liste des rôles", "data" => $roles]);
 
         
     }
@@ -55,7 +55,7 @@ class RoleController extends Controller
             }
         }
 
-        return response()->json(["success" => true, "message" => "Role created successfully.", "data" => $role]);
+        return response()->json(["success" => true, "message" => "Rôle créé avec succès.", "data" => $role]);
     }
     /**
      * Display the specified resource.
@@ -70,10 +70,10 @@ class RoleController extends Controller
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "Role not found."]);
+            ->json(["success" => true, "message" => "Rôle introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "Role retrieved successfully.", "data" => $role]);
+            ->json(["success" => true, "message" => "Rôle retrouvé avec succès.", "data" => $role]);
     }
     /**
      * Update the specified resource in storage.
@@ -109,7 +109,7 @@ class RoleController extends Controller
         }
 
         return response()
-            ->json(["success" => true, "message" => "Role updated successfully.", "data" => $role]);
+            ->json(["success" => true, "message" => "Rôle modifié avec succès.", "data" => $role]);
     }
     /**
      * Remove the specified resource from storage.
@@ -121,6 +121,6 @@ class RoleController extends Controller
     {
         $role->delete();
         return response()
-            ->json(["success" => true, "message" => "Role deleted successfully.", "data" => $role]);
+            ->json(["success" => true, "message" => "Rôle supprimé avec succès.", "data" => $role]);
     }
 }

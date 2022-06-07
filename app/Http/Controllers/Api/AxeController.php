@@ -29,7 +29,7 @@ class AxeController extends Controller
     {
  
         $axes = Axe::with('pilier')->get();
-        return response()->json(["success" => true, "message" => "axe List", "data" => $axes]);
+        return response()->json(["success" => true, "message" => "Liste des axes", "data" => $axes]);
 
         
     }
@@ -51,7 +51,7 @@ class AxeController extends Controller
         }
         $axe = axe::create($input);
 
-        return response()->json(["success" => true, "message" => "axe created successfully.", "data" => $axe]);
+        return response()->json(["success" => true, "message" => "axe créée avec succès.", "data" => $axe]);
     }
     /**
      * Display the specified resource.
@@ -66,10 +66,10 @@ class AxeController extends Controller
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "axe not found."]);
+            ->json(["success" => true, "message" => "axe introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "axe retrieved successfully.", "data" => $axe]);
+            ->json(["success" => true, "message" => "axe retrouvée avec succès.", "data" => $axe]);
     }
     /**
      * Update the specified resource in storage.
@@ -91,7 +91,7 @@ class AxeController extends Controller
         $axe->nom_axe = $input['nom_axe'];
         $axe->save();
         return response()
-            ->json(["success" => true, "message" => "axe updated successfully.", "data" => $axe]);
+            ->json(["success" => true, "message" => "axe modifiée avec succès.", "data" => $axe]);
     }
     /**
      * Remove the specified resource from storage.
@@ -103,6 +103,6 @@ class AxeController extends Controller
     {
         $axe->delete();
         return response()
-            ->json(["success" => true, "message" => "axe deleted successfully.", "data" => $axe]);
+            ->json(["success" => true, "message" => "axe supprimée avec succès.", "data" => $axe]);
     }
 }

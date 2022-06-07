@@ -26,7 +26,7 @@ class ModeFinancementController extends Controller
     {
  
         $modefinancements = ModeFinancement::with('investissements')->get();
-        return response()->json(["success" => true, "message" => "modefinancement List", "data" => $modefinancements]);
+        return response()->json(["success" => true, "message" => "Liste des modes de financement ", "data" => $modefinancements]);
 
         
     }
@@ -48,7 +48,7 @@ class ModeFinancementController extends Controller
         }
         $modefinancement = ModeFinancement::create($input);
 
-        return response()->json(["success" => true, "message" => "modefinancement created successfully.", "data" => $modefinancement]);
+        return response()->json(["success" => true, "message" => "mode de financement créé avec succès.", "data" => $modefinancement]);
     }
     /**
      * Display the specified resource.
@@ -63,10 +63,10 @@ class ModeFinancementController extends Controller
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "modefinancement not found."]);
+            ->json(["success" => true, "message" => "mode de financement introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "modefinancement retrieved successfully.", "data" => $modefinancement]);
+            ->json(["success" => true, "message" => "mode de financement retrouvé avec succès.", "data" => $modefinancement]);
     }
     /**
      * Update the specified resource in storage.
@@ -90,7 +90,7 @@ class ModeFinancementController extends Controller
         $modefinancement->montant = $input['montant'];
         $modefinancement->save(); */
         return response()
-            ->json(["success" => true, "message" => "modefinancement updated successfully.", "data" => $modefinancement]);
+            ->json(["success" => true, "message" => "mode de financement modifié avec succès.", "data" => $modefinancement]);
     }
     /**
      * Remove the specified resource from storage.
@@ -102,6 +102,6 @@ class ModeFinancementController extends Controller
     {
         $modefinancement->delete();
         return response()
-            ->json(["success" => true, "message" => "mode de financement deleted successfully.", "data" => $modefinancement]);
+            ->json(["success" => true, "message" => "mode de financement supprimé avec succès.", "data" => $modefinancement]);
     }
 }

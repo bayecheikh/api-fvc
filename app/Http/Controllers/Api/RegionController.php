@@ -25,7 +25,7 @@ class RegionController extends Controller
     public function index()
     {
         $regions = Region::with('departements')->get();
-        return response()->json(["success" => true, "message" => "Region List", "data" => $regions]);
+        return response()->json(["success" => true, "message" => "Liste des régions", "data" => $regions]);
         
     }
     /**
@@ -55,7 +55,7 @@ class RegionController extends Controller
             }
         }
 
-        return response()->json(["success" => true, "message" => "Region created successfully.", "data" => $region]);
+        return response()->json(["success" => true, "message" => "Région créée avec succès.", "data" => $region]);
     }
     /**
      * Display the specified resource.
@@ -70,10 +70,10 @@ class RegionController extends Controller
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "Region not found."]);
+            ->json(["success" => true, "message" => "Région introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "Region retrieved successfully.", "data" => $region]);
+            ->json(["success" => true, "message" => "Région retrouvée avec succès.", "data" => $region]);
     }
     /**
      * Update the specified resource in storage.
@@ -112,7 +112,7 @@ class RegionController extends Controller
         }
 
         return response()
-            ->json(["success" => true, "message" => "Region updated successfully.", "data" => $region]);
+            ->json(["success" => true, "message" => "Région modifiée avec succès.", "data" => $region]);
     }
     /**
      * Remove the specified resource from storage.
@@ -124,6 +124,6 @@ class RegionController extends Controller
     {
         $region->delete();
         return response()
-            ->json(["success" => true, "message" => "Region deleted successfully.", "data" => $region]);
+            ->json(["success" => true, "message" => "Région supprimée avec succès.", "data" => $region]);
     }
 }

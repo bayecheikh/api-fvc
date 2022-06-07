@@ -23,7 +23,7 @@ class PermissionController extends Controller
     {
  
         $permissions = Permission::all();
-        return response()->json(["success" => true, "message" => "Permission List", "data" => $permissions]);
+        return response()->json(["success" => true, "message" => "Liste des permissions", "data" => $permissions]);
 
         
     }
@@ -44,7 +44,7 @@ class PermissionController extends Controller
             ->json($validator->errors());
         }
         $permission = Permission::create($input);
-        return response()->json(["success" => true, "message" => "Permission created successfully.", "data" => $permission]);
+        return response()->json(["success" => true, "message" => "Permission créée avec succès.", "data" => $permission]);
     }
     /**
      * Display the specified resource.
@@ -59,10 +59,10 @@ class PermissionController extends Controller
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "Permission not found."]);
+            ->json(["success" => true, "message" => "Permission introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "Permission retrieved successfully.", "data" => $permission]);
+            ->json(["success" => true, "message" => "Permission retrouvée avec succès.", "data" => $permission]);
     }
     /**
      * Update the specified resource in storage.
@@ -84,7 +84,7 @@ class PermissionController extends Controller
         $permission->status = $input['status'];
         $permission->save();
         return response()
-            ->json(["success" => true, "message" => "Permission updated successfully.", "data" => $permission]);
+            ->json(["success" => true, "message" => "Permission modifiée avec succès.", "data" => $permission]);
     }
     /**
      * Remove the specified resource from storage.
@@ -96,6 +96,6 @@ class PermissionController extends Controller
     {
         $permission->delete();
         return response()
-            ->json(["success" => true, "message" => "Permission deleted successfully.", "data" => $permission]);
+            ->json(["success" => true, "message" => "Permission supprimée avec succès.", "data" => $permission]);
     }
 }

@@ -26,7 +26,7 @@ class DimensionController extends Controller
     {
  
         $dimensions = Dimension::with('structures')->get();
-        return response()->json(["success" => true, "message" => "Dimension List", "data" => $dimensions]);
+        return response()->json(["success" => true, "message" => "Liste des dimensions ", "data" => $dimensions]);
 
         
     }
@@ -48,7 +48,7 @@ class DimensionController extends Controller
         }
         $dimension = Dimension::create($input);
 
-        return response()->json(["success" => true, "message" => "Dimension created successfully.", "data" => $dimension]);
+        return response()->json(["success" => true, "message" => "Dimension créée avec succès.", "data" => $dimension]);
     }
     /**
      * Display the specified resource.
@@ -63,10 +63,10 @@ class DimensionController extends Controller
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "Dimension not found."]);
+            ->json(["success" => true, "message" => "Dimension introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "Dimension retrieved successfully.", "data" => $dimension]);
+            ->json(["success" => true, "message" => "Dimension retrouvée avec succès.", "data" => $dimension]);
     }
     /**
      * Update the specified resource in storage.
@@ -89,7 +89,7 @@ class DimensionController extends Controller
         $dimension->status = $input['status'];
         $dimension->save();
         return response()
-            ->json(["success" => true, "message" => "Dimension updated successfully.", "data" => $dimension]);
+            ->json(["success" => true, "message" => "Dimension modifiée avec succès.", "data" => $dimension]);
     }
     /**
      * Remove the specified resource from storage.
@@ -101,6 +101,6 @@ class DimensionController extends Controller
     {
         $dimension->delete();
         return response()
-            ->json(["success" => true, "message" => "Dimension deleted successfully.", "data" => $dimension]);
+            ->json(["success" => true, "message" => "Dimension supprimée avec succès.", "data" => $dimension]);
     }
 }

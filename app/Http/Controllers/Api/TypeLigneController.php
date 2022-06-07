@@ -25,7 +25,7 @@ class TypeLigneController extends Controller
     {
  
         $type_lignes = TypeLigne::with('ligne_financements')->get();
-        return response()->json(["success" => true, "message" => "type ligne List", "data" => $type_lignes]);
+        return response()->json(["success" => true, "message" => "Liste des types de ligne", "data" => $type_lignes]);
 
         
     }
@@ -47,7 +47,7 @@ class TypeLigneController extends Controller
         }
         $type_ligne = TypeLigne::create($input);
 
-        return response()->json(["success" => true, "message" => "type ligne created successfully.", "data" => $type_ligne]);
+        return response()->json(["success" => true, "message" => "type de ligne créé avec succès.", "data" => $type_ligne]);
     }
     /**
      * Display the specified resource.
@@ -62,10 +62,10 @@ class TypeLigneController extends Controller
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "type ligne not found."]);
+            ->json(["success" => true, "message" => "type de ligne introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "type ligne retrieved successfully.", "data" => $type_ligne]);
+            ->json(["success" => true, "message" => "type de ligne retrouvé avec succès.", "data" => $type_ligne]);
     }
     /**
      * Update the specified resource in storage.
@@ -87,7 +87,7 @@ class TypeLigneController extends Controller
         $type_ligne->libelle = $input['libelle'];
         $type_ligne->save();
         return response()
-            ->json(["success" => true, "message" => "type ligne updated successfully.", "data" => $type_ligne]);
+            ->json(["success" => true, "message" => "type de ligne modifié avec succès.", "data" => $type_ligne]);
     }
     /**
      * Remove the specified resource from storage.
@@ -99,6 +99,6 @@ class TypeLigneController extends Controller
     {
         $type_ligne->delete();
         return response()
-            ->json(["success" => true, "message" => "type ligne deleted successfully.", "data" => $type_ligne]);
+            ->json(["success" => true, "message" => "type de ligne supprimé avec succès.", "data" => $type_ligne]);
     }
 }

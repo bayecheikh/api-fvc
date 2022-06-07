@@ -27,7 +27,7 @@ class TypeZoneInterventionController extends Controller
     {
  
         $type_zones = TypeZoneIntervention::with('structures')->get();
-        return response()->json(["success" => true, "message" => "Type Zone Intervention List", "data" => $type_zones]);
+        return response()->json(["success" => true, "message" => "Liste des types de zone d'intervention", "data" => $type_zones]);
 
         
     }
@@ -49,7 +49,7 @@ class TypeZoneInterventionController extends Controller
         }
         $type_zone = TypeZoneIntervention::create($input);
 
-        return response()->json(["success" => true, "message" => "Type Zone Intervention created successfully.", "data" => $type_zone]);
+        return response()->json(["success" => true, "message" => "Type Zone Intervention créé avec succès.", "data" => $type_zone]);
     }
     /**
      * Display the specified resource.
@@ -64,10 +64,10 @@ class TypeZoneInterventionController extends Controller
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "type_zone not found."]);
+            ->json(["success" => true, "message" => "type zone intervention introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "Type Zone Intervention retrieved successfully.", "data" => $type_zone]);
+            ->json(["success" => true, "message" => "Type Zone Intervention retrouvé avec succès.", "data" => $type_zone]);
     }
     /**
      * Update the specified resource in storage.
@@ -90,7 +90,7 @@ class TypeZoneInterventionController extends Controller
         $type_zone->status = $input['status'];
         $type_zone->save();
         return response()
-            ->json(["success" => true, "message" => "Type Zone Intervention updated successfully.", "data" => $type_zone]);
+            ->json(["success" => true, "message" => "Type Zone Intervention modifié avec succès.", "data" => $type_zone]);
     }
     /**
      * Remove the specified resource from storage.
@@ -102,6 +102,6 @@ class TypeZoneInterventionController extends Controller
     {
         $type_zone->delete();
         return response()
-            ->json(["success" => true, "message" => "Type Zone Intervention deleted successfully.", "data" => $type_zone]);
+            ->json(["success" => true, "message" => "Type Zone Intervention supprimé avec succès.", "data" => $type_zone]);
     }
 }

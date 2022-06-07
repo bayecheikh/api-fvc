@@ -35,7 +35,7 @@ class UserController extends Controller
         
         $total = $users->total();
 
-        return response()->json(["success" => true, "message" => "Users List", "data" =>$users,"total"=> $total]);   
+        return response()->json(["success" => true, "message" => "Liste des utilisateurs", "data" =>$users,"total"=> $total]);   
     }
 
     /**
@@ -46,7 +46,7 @@ class UserController extends Controller
     public function userMultipleSearch($term)
     {
         $users = User::where('id', 'like', '%'.$term.'%')->orWhere('email', 'like', '%'.$term.'%')->orWhere('name', 'like', '%'.$term.'%')->with('roles')->paginate(5);
-        return response()->json(["success" => true, "message" => "Users List", "data" => $users]);   
+        return response()->json(["success" => true, "message" => "Liste des utilisateurs", "data" => $users]);   
     }
     /**
      * Store a newly created resource in storagrolee.
@@ -85,7 +85,7 @@ class UserController extends Controller
             }
         }
 
-        return response()->json(["success" => true, "message" => "User created successfully.", "data" => $user]);
+        return response()->json(["success" => true, "message" => "Utilisateur créé avec succès.", "data" => $user]);
     }
     /**
      * Display the specified resource.
@@ -100,10 +100,10 @@ class UserController extends Controller
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "User not found."]);
+            ->json(["success" => true, "message" => "Utilisateur introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "User retrieved successfully.", "data" => $user]);
+            ->json(["success" => true, "message" => "Utilisateur trouvé avec succès.", "data" => $user]);
     }
     /**
      * Update the specified resource in storage.
@@ -148,7 +148,7 @@ class UserController extends Controller
         }
 
         return response()
-            ->json(["success" => true, "message" => "User updated successfully.", "data" => $user]);
+            ->json(["success" => true, "message" => "Utilisateur modifié avec succès.", "data" => $user]);
     }
     /**
      * Remove the specified resource from storage.
@@ -160,6 +160,6 @@ class UserController extends Controller
     {
         $user->delete();
         return response()
-            ->json(["success" => true, "message" => "User deleted successfully.", "data" => $user]);
+            ->json(["success" => true, "message" => "Utilisateur supprimé avec succès.", "data" => $user]);
     }
 }

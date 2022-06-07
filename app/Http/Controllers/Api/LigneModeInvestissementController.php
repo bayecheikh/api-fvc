@@ -4,13 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Validator;
 use App\Models\Role;
 use App\Models\Permission;
-use App\Models\Region;
-use App\Models\Departement;
+use App\Models\LigneModeInvestissement;
+use App\Models\Investissement;
 
-class DepartementController extends Controller
+class LigneModeInvestissementController extends Controller
 {
     public function __construct()
     {
@@ -25,8 +24,8 @@ class DepartementController extends Controller
     public function index()
     {
  
-        $departements = Departement::with('region')->get();
-        return response()->json(["success" => true, "message" => "Liste des départements", "data" => $departements]);
+        $ligne_mode_investissements = LigneModeInvestissement::with('investissements')->get();
+        return response()->json(["success" => true, "message" => "Liste ligne mode d'investissement ", "data" => $ligne_mode_investissements]);
 
         
     }
@@ -39,16 +38,16 @@ class DepartementController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-        $validator = Validator::make($input, ['nom_departement' => 'required', 'slug' => 'required']);
+        $validator = Validator::make($input, ['libelle' => 'required']);
         if ($validator->fails())
         {
             //return $this->sendError('Validation Error.', $validator->errors());
             return response()
             ->json($validator->errors());
         }
-        $departement = Departement::create($input);
+        $ligne_mode_investissement = LigneModeInvestissement::create($input);
 
-        return response()->json(["success" => true, "message" => "Département créé avec succès.", "data" => $departement]);
+        return response()->json(["success" => true, "message" => "Ligne mode d'investissement créée avec succès.", "data" => $ligne_mode_investissement]);
     }
     /**
      * Display the specified resource.
@@ -58,15 +57,15 @@ class DepartementController extends Controller
      */
     public function show($id)
     {
-        $departement = Departement::find($id);
-        if (is_null($departement))
+        $ligne_mode_investissement = LigneModeInvestissement::with('investissements')->find($id);
+        if (is_null($ligne_mode_investissement))
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "Département introuvable."]);
+            ->json(["success" => true, "message" => "Ligne mode d'investissement introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "Département  retrouvé avec succès.", "data" => $departement]);
+            ->json(["success" => true, "message" => "Ligne mode d'investissement retrouvée avec succès.", "data" => $ligne_mode_investissement]);
     }
     /**
      * Update the specified resource in storage.
@@ -75,25 +74,21 @@ class DepartementController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Departement $departement)
+    public function update(Request $request, LigneModeInvestissement $ligne_mode_investissement)
     {
         $input = $request->all();
-        $validator = Validator::make($input, ['nom_departement' => 'required', 'slug' => 'required']);
+        $validator = Validator::make($input, ['libelle' => 'required']);
         if ($validator->fails())
         {
             //return $this->sendError('Validation Error.', $validator->errors());
             return response()
             ->json($validator->errors());
         }
-        $departement->nom_departement = $input['nom_departement'];
-        $departement->slug = $input['slug'];
-        $departement->latitude = $input['latitude'];
-        $departement->longitude = $input['longitude'];
-        $departement->svg = $input['svg'];
-        $departement->status = $input['status'];
-        $departement->save();
+        $ligne_mode_investissement->libelle = $input['libelle'];
+
+        $ligne_mode_investissement->save();
         return response()
-            ->json(["success" => true, "message" => "Département modifié avec succès.", "data" => $departement]);
+            ->json(["success" => true, "message" => "Ligne mode d'investissement modifiée avec succès.", "data" => $ligne_mode_investissement]);
     }
     /**
      * Remove the specified resource from storage.
@@ -101,10 +96,10 @@ class DepartementController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Departement $departement)
+    public function destroy(LigneModeInvestissement $ligne_mode_investissement)
     {
-        $departement->delete();
+        $ligne_mode_investissement->delete();
         return response()
-            ->json(["success" => true, "message" => "Département supprimée avec succès.", "data" => $departement]);
+            ->json(["success" => true, "message" => "Ligne mode d'investissement supprimée avec succès.", "data" => $ligne_mode_investissement]);
     }
 }

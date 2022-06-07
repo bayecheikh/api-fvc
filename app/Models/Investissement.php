@@ -14,7 +14,7 @@ class Investissement extends Model
     * @var array
     */
     protected $fillable = [
-       'lib_autremode','mnt_autremode','lib_autremonnaie','status'
+       'lib_autremode','mnt_autremode','lib_autremonnaie','status','state','motif_rejet', 'brouillon'
     ];
     public function ligne_financements() {
         return $this->belongsToMany(LigneFinancement::class,'ligne_financements_investissements');          
@@ -39,5 +39,8 @@ class Investissement extends Model
     }
     public function annee() {
         return $this->belongsToMany(Annee::class,'annees_investissements');          
+    }
+    public function ligne_mode_investissements() {
+        return $this->belongsToMany(LigneModeInvestissement::class,'ligne_mode_investissements_investissements');          
     }
 }

@@ -25,7 +25,7 @@ class TypeSourceController extends Controller
     {
  
         $typesources = TypeSource::with('structures')->with('sources')->get();
-        return response()->json(["success" => true, "message" => "Type source List", "data" => $typesources]);
+        return response()->json(["success" => true, "message" => "Liste des types source", "data" => $typesources]);
 
         
     }
@@ -47,7 +47,7 @@ class TypeSourceController extends Controller
         }
         $type_source = TypeSource::create($input);
 
-        return response()->json(["success" => true, "message" => "Type source created successfully.", "data" => $type_source]);
+        return response()->json(["success" => true, "message" => "Type source créé avec succès.", "data" => $type_source]);
     }
     /**
      * Display the specified resource.
@@ -62,10 +62,10 @@ class TypeSourceController extends Controller
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "Type source not found."]);
+            ->json(["success" => true, "message" => "Type source introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "Type source retrieved successfully.", "data" => $type_source]);
+            ->json(["success" => true, "message" => "Type source retrouvé avec succès.", "data" => $type_source]);
     }
     /**
      * Update the specified resource in storage.
@@ -88,7 +88,7 @@ class TypeSourceController extends Controller
         $type_source->status = $input['status'];
         $type_source->save();
         return response()
-            ->json(["success" => true, "message" => "Type source updated successfully.", "data" => $type_source]);
+            ->json(["success" => true, "message" => "Type source modifié avec succès.", "data" => $type_source]);
     }
     /**
      * Remove the specified resource from storage.
@@ -100,6 +100,6 @@ class TypeSourceController extends Controller
     {
         $type_source->delete();
         return response()
-            ->json(["success" => true, "message" => "Type source deleted successfully.", "data" => $type_source]);
+            ->json(["success" => true, "message" => "Type source supprimé avec succès.", "data" => $type_source]);
     }
 }
