@@ -25,6 +25,8 @@ use App\Models\LigneModeInvestissement;
 use App\Models\Dimension;
 use App\Models\Region;
 use App\Models\Departement;
+use App\Models\Pilier;
+use App\Models\Axe;
 
 class InvestissementController extends Controller
 {
@@ -39,17 +41,39 @@ class InvestissementController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $investissements = Investissement::with('region')
-        ->with('annee')
-        ->with('monnaie')
-        ->with('structure')
-        ->with('dimension')
-        ->with('mode_financements')
-        ->with('ligne_financements')
-        ->with('fichiers')
-        ->paginate(10);
+        if ($request->user()->hasRole('super_admin')) {
+            $investissements = Investissement::with('region')
+            ->with('annee')
+            ->with('monnaie')
+            ->with('structure')
+            ->with('dimension')
+            ->with('piliers')
+            ->with('axes')
+            ->with('mode_financements')
+            ->with('ligne_financements')
+            ->with('fichiers')
+            ->paginate(10);
+        }
+        else{
+            $structure_id = User::find($request->user()->id)->structures[0]->id;
+            $investissements = Investissement::with('region')
+            ->with('annee')
+            ->with('monnaie')
+            ->with('structure')
+            ->with('dimension')
+            ->with('piliers')
+            ->with('axes')
+            ->with('mode_financements')
+            ->with('ligne_financements')
+            ->with('fichiers')
+            ->whereHas('structure', function($q) use ($structure_id){
+                $q->where('id', $structure_id);
+            })->paginate(10);
+        }
+
+        
         $total = $investissements->total();
         return response()->json(["success" => true, "message" => "Structures List", "data" =>$investissements,"total"=> $total]);
         
@@ -71,7 +95,7 @@ class InvestissementController extends Controller
         ->with('ligne_financements')
         ->with('fichiers')->paginate(10);
         $total = $investissements->total();
-        return response()->json(["success" => true, "message" => "Structures List", "data" =>$investissements,"total"=> $total]);  
+        return response()->json(["success" => true, "message" => "Liste des investissements", "data" =>$investissements,"total"=> $total]);  
     }
     /**
      * Store a newly created resource in storagrolee.
@@ -105,6 +129,8 @@ class InvestissementController extends Controller
         $email_responsable = $input['email_responsable'];
         $telephone_responsable = $input['telephone_responsable'];
         $fonction_responsable = $input['fonction_responsable']; */
+
+        $structure_id = User::find($request->user()->id)->structures[0]->id;
 
         $validator = Validator::make($input, ['annee' => 'required','monnaie' => 'required']);
         if ($validator->fails())
@@ -144,6 +170,11 @@ class InvestissementController extends Controller
 
             $fichiers = $input['fichiers'];
 
+            if($structure_id!=null){               
+                $structureObj = Structure::where('id',intval($structure_id))->first();
+                $investissement->structure()->attach($structureObj);
+            }
+
             if($annee!=null){               
                 $anneeObj = Annee::where('id',$annee)->first();
                 $investissement->annee()->attach($anneeObj);
@@ -175,9 +206,15 @@ class InvestissementController extends Controller
             $ifinance=0;
             if(!empty($piliers)){
                 foreach($piliers as $pilier){
+                    $pilierObj = Pilier::where('id',intval($pilier))->first();
+                    $investissement->piliers()->attach($pilierObj);
+
+                    $axeObj = Axe::where('id',$axes[$ifinance])->first();
+                    $investissement->axes()->attach($axeObj);
+
                     $ligneFinancementObj = LigneFinancement::create([                      
-                        'id_pilier'=> $pilier, 
-                        'id_axe'=> $axes[$ifinance], 
+                        'id_pilier'=> intval($pilier), 
+                        'id_axe'=> intval($axes[$ifinance]), 
                         'montantBienServicePrevus'=> $montantBienServicePrevus[$ifinance],
                         'montantBienServiceMobilises'=> $montantBienServiceMobilises[$ifinance],
                         'montantBienServiceExecutes'=> $montantBienServiceExecutes[$ifinance],
@@ -273,7 +310,7 @@ class InvestissementController extends Controller
                 }
             } */
     
-            return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $investissement]);
+            return response()->json(["success" => true, "message" => "Investissement enregistré avec succès.", "data" => $investissement]);
             //return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $input]);
         }
     }

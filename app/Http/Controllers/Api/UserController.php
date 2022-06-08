@@ -8,6 +8,7 @@ use Validator;
 use App\Models\Role;
 use App\Models\Permission;
 use App\Models\User;
+use App\Models\Structure;
 
 class UserController extends Controller
 {
@@ -24,11 +25,11 @@ class UserController extends Controller
     public function index(Request $request)
     {
         if ($request->user()->hasRole('super_admin')) {
-            $users = User::with('roles')->paginate(10);
+            $users = User::with('roles')->with('structures')->paginate(10);
         }
         else{
             $structure_id = User::find($request->user()->id)->structures[0]->id;
-            $users = User::with('roles')->whereHas('structures', function($q) use ($structure_id){
+            $users = User::with('roles')->with('structures')->whereHas('structures', function($q) use ($structure_id){
                 $q->where('id', $structure_id);
             })->paginate(10);
         }
@@ -66,14 +67,19 @@ class UserController extends Controller
         }
 
         $user = User::create([
-                'name' => $input['firstname'].' '.$input['lastname'],
-                'firstname' => $input['firstname'],
-                'lastname' => $input['lastname'],
-                'email' => $input['email'],
-                'telephone' => $input['telephone'],
-                'status' => 'actif',
-                'password' => bcrypt("@12345678")
+            'name' => $input['firstname'].' '.$input['lastname'],
+            'firstname' => $input['firstname'],
+            'lastname' => $input['lastname'],
+            'email' => $input['email'],
+            'telephone' => $input['telephone'],
+            'status' => 'actif',
+            'password' => bcrypt("@12345678")
         ]);
+
+        if(isset($input['structure_id'])){
+            $structureObj = Structure::where('id',$input['structure_id'])->first();
+            $user->structures()->attach($structureObj);
+        }
 
         $array_roles = $request->roles;
 
@@ -94,7 +100,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::with('roles')->get()->find($id);
+        $user = User::with('roles')->with('structures')->get()->find($id);
         if (is_null($user))
         {
    /*          return $this->sendError('Product not found.'); */

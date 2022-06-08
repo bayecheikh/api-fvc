@@ -24,4 +24,7 @@ class Axe extends Model
     public function ligne_financements() {
         return $this->belongsToMany(LigneFinancement::class,'axes_ligne_financements');          
     }
+    public function investissements() {
+        return $this->belongsToMany(Investissement::class,'axes_investissements');          
+    }
 }

@@ -233,6 +233,7 @@ class StructureController extends Controller
         ->get()
         ->find($id);
         $structure->load('source_financements.type_sources');
+        $structure->load('users.roles');
         if (is_null($structure))
         {
    /*          return $this->sendError('Product not found.'); */

@@ -43,4 +43,11 @@ class Investissement extends Model
     public function ligne_mode_investissements() {
         return $this->belongsToMany(LigneModeInvestissement::class,'ligne_mode_investissements_investissements');          
     }
+
+    public function piliers() {
+        return $this->belongsToMany(Pilier::class,'piliers_investissements');          
+    }
+    public function axes() {
+        return $this->belongsToMany(Axe::class,'axes_investissements');          
+    }
 }

@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\TypeLigneController;
 use App\Http\Controllers\Api\MonnaieController;
 use App\Http\Controllers\Api\AnneeController;
 use App\Http\Controllers\Api\LigneModeInvestissementController;
+use App\Http\Controllers\Api\StatistiqueController;
 
 
 /*
@@ -38,6 +39,25 @@ use App\Http\Controllers\Api\LigneModeInvestissementController;
  
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+
+ /**Statistique*/
+ Route::get('allPiliers', [StatistiqueController::class, 'allPilier']);
+ Route::get('allAxes', [StatistiqueController::class, 'allAxe']);
+ Route::get('allAnnees', [StatistiqueController::class, 'allAnnee']);
+ Route::get('allRegions', [StatistiqueController::class, 'allRegion']);
+ Route::get('allMonnaies', [StatistiqueController::class, 'allMonnaie']);
+ Route::get('allStructures', [StatistiqueController::class, 'allStructure']);
+ Route::get('allDimensions', [StatistiqueController::class, 'allDimension']);
+ Route::get('allSources', [StatistiqueController::class, 'allSource']);
+
+ Route::get('investissementByPilier/{idPilier}', [StatistiqueController::class, 'investissementByPilier']);
+ Route::get('investissementByAxe/{idAxe}', [StatistiqueController::class, 'investissementByAxe']);
+ Route::get('investissementByAnnee/{idAnnee}', [StatistiqueController::class, 'investissementByAnnee']);
+ Route::get('investissementByRegion/{idRegion}', [StatistiqueController::class, 'investissementByRegion']);
+ Route::get('investissementByMonnaie/{idMonnaie}', [StatistiqueController::class, 'investissementByMonnaie']);
+ Route::get('investissementByStructure/{idStructure}', [StatistiqueController::class, 'investissementByStructure']);
+ Route::get('investissementByDimension/{idDimension}', [StatistiqueController::class, 'investissementByDimension']);
+ Route::get('investissementBySource/{idSource}', [StatistiqueController::class, 'investissementBySource']);
   
 Route::middleware('auth:api')->group(function () {
     Route::resource('products', ProductController::class);
@@ -105,4 +125,7 @@ Route::middleware('auth:api')->group(function () {
 
     /**Gestion des lignes mode investissements */
     Route::resource('ligne_mode_investissements', LigneModeInvestissementController::class);
+
+    /**Statistique*/
+    Route::resource('statistiques', LigneModeInvestissementController::class);
 });
