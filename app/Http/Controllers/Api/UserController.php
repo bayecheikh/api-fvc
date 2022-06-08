@@ -57,7 +57,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-        $validator = Validator::make($input, ['name' => 'required', 'email' => 'required|unique:users,email']);
+        $validator = Validator::make($input, ['firstname' => 'required','lastname' => 'required', 'email' => 'required|unique:users,email']);
         if ($validator->fails())
         {
             //return $this->sendError('Validation Error.', $validator->errors());
@@ -71,8 +71,7 @@ class UserController extends Controller
                 'lastname' => $input['lastname'],
                 'email' => $input['email'],
                 'telephone' => $input['telephone'],
-                'fonction' => $input['fonction'],
-                'status' => $input['status'],
+                'status' => 'actif',
                 'password' => bcrypt("@12345678")
         ]);
 

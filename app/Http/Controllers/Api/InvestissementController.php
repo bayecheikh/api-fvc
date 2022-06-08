@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\TypeZoneIntervention;
 use App\Models\TypeSource;
 use App\Models\SourceFinancement;
+use Validator;
 
 use App\Models\Role;
 use App\Models\Permission;
@@ -20,6 +21,7 @@ use App\Models\Annee;
 use App\Models\Monnaie;
 use App\Models\LigneFinancement;
 use App\Models\ModeFinancement;
+use App\Models\LigneModeInvestissement;
 use App\Models\Dimension;
 use App\Models\Region;
 use App\Models\Departement;
@@ -39,8 +41,7 @@ class InvestissementController extends Controller
      */
     public function index()
     {
-        $investissements = Investissement::with('users')
-        ->with('region')
+        $investissements = Investissement::with('region')
         ->with('annee')
         ->with('monnaie')
         ->with('structure')
@@ -58,7 +59,7 @@ class InvestissementController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function structureMultipleSearch($term)
+    public function investissementMultipleSearch($term)
     {
         $investissements = Investissement::where('id', 'like', '%'.$term.'%')->orWhere('nom_investissement', 'like', '%'.$term.'%')
         ->with('region')
@@ -105,14 +106,92 @@ class InvestissementController extends Controller
         $telephone_responsable = $input['telephone_responsable'];
         $fonction_responsable = $input['fonction_responsable']; */
 
-        $validator = Validator::make($input, ['nom_structure' => 'required','firstname_responsable' => 'required','lastname_responsable' => 'required', 'email_responsable' => 'required|unique:users,email']);
+        $validator = Validator::make($input, ['annee' => 'required','monnaie' => 'required']);
         if ($validator->fails())
         {
             return response()
             ->json($validator->errors());
         }
-        else{
-            $user = User::create([
+        else{   
+            $investissement = Investissement::create(
+                ['status' => 'ENCOURS'],
+                ['brouillon' => '1'],
+                ['state' => 'INITIER_INVESTISSEMENT'],
+            );
+
+            $annee = $input['annee'];
+            $monnaie = $input['monnaie'];
+            $region = $input['region'];
+            $dimension = $input['dimension'];
+
+            $libelleModeFinancements = explode (",", $input['libelleModeFinancements']);
+            $montantModeFinancements = explode (",", $input['montantModeFinancements']);
+
+            $piliers = explode (",", $input['piliers']); 
+            $axes = explode (",", $input['axes']); 
+            $montantBienServicePrevus = explode (",", $input['montantBienServicePrevus']);
+            $montantBienServiceMobilises = explode (",", $input['montantBienServiceMobilises']);
+            $montantBienServiceExecutes = explode (",", $input['montantBienServiceExecutes']);
+            $montantInvestissementPrevus = explode (",", $input['montantInvestissementPrevus']);
+            $montantInvestissementMobilises = explode (",", $input['montantInvestissementMobilises']);
+            $montantInvestissementExecutes = explode (",", $input['montantInvestissementExecutes']);
+
+            $tempLigneModeFinancements = str_replace("\\", "",$input['ligneModeFinancements']);
+            $ligneModeFinancements = json_decode($tempLigneModeFinancements);
+ 
+            $tempLigneFinancements = str_replace("\\", "",$input['ligneModeFinancements']);
+            $ligneFinancements = json_decode($tempLigneFinancements);
+
+            $fichiers = $input['fichiers'];
+
+            if($annee!=null){               
+                $anneeObj = Annee::where('id',$annee)->first();
+                $investissement->annee()->attach($anneeObj);
+            }
+            if($monnaie!=null){               
+                $monnaieObj = Monnaie::where('id',$monnaie)->first();
+                $investissement->monnaie()->attach($monnaieObj);
+            }
+            if($region!=null){               
+                $regionObj = Region::where('id',$region)->first();
+                $investissement->region()->attach($regionObj);
+            }
+            if($dimension!=null){               
+                $dimensionObj = Dimension::where('id',$dimension)->first();
+                $investissement->dimension()->attach($dimensionObj);
+            }
+            $imode=0;
+            if(!empty($libelleModeFinancements)){
+                foreach($libelleModeFinancements as $libelleModeFinancement){
+                    $ligneModeFinancementObj = ModeFinancement::create([
+                        'libelle' => $libelleModeFinancement,
+                        'montant' => $montantModeFinancements[$imode],
+                        'status' => 'actif'
+                    ]);
+                    $investissement->mode_financements()->attach($ligneModeFinancementObj);
+                    $imode++;
+                }
+            }
+            $ifinance=0;
+            if(!empty($piliers)){
+                foreach($piliers as $pilier){
+                    $ligneFinancementObj = LigneFinancement::create([                      
+                        'id_pilier'=> $pilier, 
+                        'id_axe'=> $axes[$ifinance], 
+                        'montantBienServicePrevus'=> $montantBienServicePrevus[$ifinance],
+                        'montantBienServiceMobilises'=> $montantBienServiceMobilises[$ifinance],
+                        'montantBienServiceExecutes'=> $montantBienServiceExecutes[$ifinance],
+                        'montantInvestissementPrevus'=> $montantInvestissementPrevus[$ifinance],
+                        'montantInvestissementMobilises'=> $montantInvestissementMobilises[$ifinance],
+                        'montantInvestissementExecutes'=> $montantInvestissementExecutes[$ifinance], 
+                        'status' => 'actif'
+                    ]);
+                    $investissement->ligne_financements()->attach($ligneFinancementObj);
+                    $ifinance++;
+                }
+            }
+
+            /* $user = User::create([
                 'name' => $input['firstname_responsable'].' '.$input['lastname_responsable'],
                 'firstname' => $input['firstname_responsable'],
                 'lastname' => $input['lastname_responsable'],
@@ -122,21 +201,7 @@ class InvestissementController extends Controller
                 'status' => 'actif',
                 'password' => bcrypt("@12345678")
             ]);
-            $roleObj = Role::where('name','admin_structure')->first();
-            $user->roles()->attach($roleObj);
-    
-            $structure = Structure::create(
-                ['nom_structure' => $input['nom_structure'],
-                'numero_autorisation' => $input['numero_autorisation'],
-                'numero_agrement' => $input['numero_agrement'],
-                'accord_siege' => '',
-                'adresse_structure' => $input['adresse_structure'],
-                'debut_intervention' => $input['debut_intervention'],
-                'fin_intervention' => $input['fin_intervention'],
-                'telephone_structure' => $input['telephone_structure'],
-                'email_structure' => $input['email_structure'],
-                'status' => 'actif']
-            );
+            $structure->users()->attach($user);
     
             if ($request->hasFile('accord_siege') && $request->file('accord_siege')->isValid()) {
                 $upload_path = public_path('upload');
@@ -155,16 +220,16 @@ class InvestissementController extends Controller
                 ]);
                 $structure->fichiers()->attach($fichierObj);
             }
-            
+             */
 
-            $array_source_financements = explode (",", $input['source_financements']);
+            /* $array_source_financements = explode (",", $input['source_financements']);
             $array_type_sources = explode (",", $input['type_sources']);
             $array_departements = explode (",", $input['departements']);
             $array_regions = explode (",", $input['regions']);
             $array_dimensions = explode (",", $input['dimensions']);
             $array_type_zones = explode (",", $input['type_zone_interventions']);
     
-            $structure->users()->attach($user);
+            
     
             if(!empty($array_departements)){
                 foreach($array_departements as $departement){
@@ -206,9 +271,9 @@ class InvestissementController extends Controller
                     $source_financementObj = SourceFinancement::where('id',$source_financement)->first();
                     $structure->source_financements()->attach($source_financementObj);
                 }
-            }
+            } */
     
-            return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $structure]);
+            return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $investissement]);
             //return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $input]);
         }
     }

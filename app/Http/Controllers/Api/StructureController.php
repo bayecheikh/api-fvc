@@ -65,6 +65,16 @@ class StructureController extends Controller
         return response()->json(["success" => true, "message" => "liste des structures", "data" =>$structures,"total"=> $total]);  
     }
     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function selectstructure()
+    {
+        $structures = Structure::all();
+        return response()->json(["success" => true, "message" => "liste des structures", "data" =>$structures]);  
+    }
+    /**
      * Store a newly created resource in storagrolee.
      *
      * @param  \Illuminate\Http\Request  $request
