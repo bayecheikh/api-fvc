@@ -16,6 +16,9 @@ use App\Models\TypeZoneIntervention;
 use App\Models\TypeSource;
 use App\Models\SourceFinancement;
 use App\Models\Fichier;
+use Mail;
+ 
+use App\Mail\NotifyMail;
 
 class StructureController extends Controller
 {
@@ -114,6 +117,7 @@ class StructureController extends Controller
             ->json($validator->errors());
         }
         else{
+            $pwd = bin2hex(openssl_random_pseudo_bytes(4));
             $user = User::create([
                 'name' => $input['firstname_responsable'].' '.$input['lastname_responsable'],
                 'firstname' => $input['firstname_responsable'],
@@ -121,11 +125,16 @@ class StructureController extends Controller
                 'email' => $input['email_responsable'],
                 'telephone' => $input['telephone_responsable'],
                 'fonction' => $input['fonction_responsable'],
-                'status' => 'actif',
-                'password' => bcrypt("@12345678")
+                'password' => bcrypt($pwd)
             ]);
             $roleObj = Role::where('name','admin_structure')->first();
             $user->roles()->attach($roleObj);
+
+            $email = $input['email_responsable'];
+            Mail::send('mail',  ['data' => $pwd] , function($message) use($email)
+            {   
+                $message->to($email)->subject('Nouvelle inscription');
+            });
     
             $structure = Structure::create(
                 ['nom_structure' => $input['nom_structure'],

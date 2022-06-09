@@ -10,6 +10,10 @@ use App\Models\Permission;
 use App\Models\User;
 use App\Models\Structure;
 
+use Mail;
+ 
+use App\Mail\NotifyMail;
+
 class UserController extends Controller
 {
     public function __construct()
@@ -66,6 +70,8 @@ class UserController extends Controller
             ->json($validator->errors());
         }
 
+        $pwd = bin2hex(openssl_random_pseudo_bytes(4));
+
         $user = User::create([
             'name' => $input['firstname'].' '.$input['lastname'],
             'firstname' => $input['firstname'],
@@ -73,8 +79,14 @@ class UserController extends Controller
             'email' => $input['email'],
             'telephone' => $input['telephone'],
             'status' => 'actif',
-            'password' => bcrypt("@12345678")
+            'password' => bcrypt($pwd)
         ]);
+
+        $email = $input['email'];
+        Mail::send('mail',  ['data' => $pwd] , function($message) use($email)
+        {   
+            $message->to($email)->subject('Nouvelle inscription');
+        });
 
         if(isset($input['structure_id'])){
             $structureObj = Structure::where('id',$input['structure_id'])->first();
@@ -134,8 +146,6 @@ class UserController extends Controller
         $user->email = $input['email'];
         $user->telephone = $input['telephone'];
         $user->fonction = $input['fonction'];
-        $user->status = $input['status'];
-        $user->password = $input['password'];
         $user->save();
 
         $array_roles = $request->roles;
