@@ -104,6 +104,8 @@ Route::middleware('auth:api')->group(function () {
 
     /**Gestion des investissements */
     Route::resource('investissements', InvestissementController::class);
+    Route::get('validation_investissement/{id}', [InvestissementController::class, 'validation_investissement']);
+    Route::get('rejet_investissement/{id}', [InvestissementController::class, 'rejet_investissement']);
 
     /**Gestion des lignes de financement */
     Route::resource('ligne_financements', LigneFinancementController::class);

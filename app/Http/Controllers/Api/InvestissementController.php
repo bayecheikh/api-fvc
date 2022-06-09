@@ -487,10 +487,66 @@ class InvestissementController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Structure $structure)
+    public function destroy(Investissement $investissement)
     {
-        $structure->delete();
+        $investissement->delete();
         return response()
-            ->json(["success" => true, "message" => "Structure deleted successfully.", "data" => $structure]);
+            ->json(["success" => true, "message" => "Investissement supprimé.", "data" => $investissement]);
+    }
+
+
+    /////////////////////////////////////////   WORKFLOW / ///////////////////////////
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function validation_investissement(Request $request, $id)
+    {
+        $investissement = Investissement::where('id',$id)->first();
+        $structure = Investissement::where('id',$id)->first();
+
+        if ($request->user()->hasRole('point_focal')){
+            $investissement->state = 'INITIER_INVESTISSEMENT';
+        }
+        if ($request->user()->hasRole('admin_structure')){
+            $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
+        }
+        if ($request->user()->hasRole('directeur_eps')){
+            $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
+        }
+        if ($request->user()->hasRole('admin_dprs')){
+            $investissement->state = 'VALIDATION_ADMIN_DPRS';
+        }
+        $investissement->save();
+
+        return response()->json(["success" => true, "message" => "Investissement validé", "data" =>$investissement]);  
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function rejet_investissement(Request $request, $id)
+    {
+        $investissement = Investissement::where('id',$id)->first();
+        $structure = Investissement::where('id',$id)->first();
+
+        if ($request->user()->hasRole('admin_structure')){
+            $investissement->state = 'INITIER_INVESTISSEMENT';
+            $investissement->motif_rejet = $input['motif_rejet'];
+        }
+        if ($request->user()->hasRole('directeur_eps')){
+            $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
+            $investissement->motif_rejet = $input['motif_rejet'];
+        }
+        if ($request->user()->hasRole('admin_dprs')){
+            $investissement->state = 'INITIER_INVESTISSEMENT';
+            $investissement->motif_rejet = $input['motif_rejet'];
+        }
+        $investissement->save();
+
+        return response()->json(["success" => true, "message" => "Investissement validé", "data" =>$investissement]);  
     }
 }
