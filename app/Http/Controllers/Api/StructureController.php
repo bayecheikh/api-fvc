@@ -125,17 +125,13 @@ class StructureController extends Controller
                 'email' => $input['email_responsable'],
                 'telephone' => $input['telephone_responsable'],
                 'fonction' => $input['fonction_responsable'],
-                'password' => bcrypt($pwd)
+                'password' => bcrypt('@12345678')
             ]);
             $roleObj = Role::where('name','admin_structure')->first();
             $user->roles()->attach($roleObj);
 
             $email = $input['email_responsable'];
-            Mail::send('mail',  ['data' => $pwd] , function($message) use($email)
-            {   
-                $message->to($email)->subject('Nouvelle inscription');
-            });
-    
+ 
             $structure = Structure::create(
                 ['nom_structure' => $input['nom_structure'],
                 'numero_autorisation' => $input['numero_autorisation'],
@@ -218,6 +214,11 @@ class StructureController extends Controller
                     $structure->source_financements()->attach($source_financementObj);
                 }
             }
+
+            /* Mail::send('mail',  ['data' => $pwd] , function($message) use($email)
+            {   
+                $message->to($email)->subject('Nouvelle inscription');
+            }); */
     
             return response()->json(["success" => true, "message" => "Structure créée avec succès.", "data" => $structure]);
             //return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $input]);

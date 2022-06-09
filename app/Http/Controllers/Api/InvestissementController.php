@@ -322,25 +322,26 @@ class InvestissementController extends Controller
      */
     public function show($id)
     {
-        $structure = Structure::with('users')
-        ->with('regions')
-        ->with('departements')
-        ->with('dimensions')
-        ->with('type_zone_interventions')
-        ->with('type_sources')
-        ->with('source_financements')
-        ->with('fichiers')
+        $investissement = Investissement::with('region')
+        ->with('annee')
+            ->with('monnaie')
+            ->with('structure')
+            ->with('dimension')
+            ->with('piliers')
+            ->with('axes')
+            ->with('mode_financements')
+            ->with('ligne_financements')
+            ->with('fichiers')
         ->get()
         ->find($id);
-        $structure->load('source_financements.type_sources');
-        if (is_null($structure))
+        if (is_null($investissement))
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "Structure not found."]);
+            ->json(["success" => true, "message" => "investissement not found."]);
         }
         return response()
-            ->json(["success" => true, "message" => "Structure retrieved successfully.", "data" => $structure]);
+            ->json(["success" => true, "message" => "investissement retrieved successfully.", "data" => $investissement]);
     }
     /**
      * Update the specified resource in storage.
@@ -501,10 +502,13 @@ class InvestissementController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function validation_investissement(Request $request, $id)
+    public function validation_investissement(Request $request)
     {
-        $investissement = Investissement::where('id',$id)->first();
-        $structure = Investissement::where('id',$id)->first();
+        $input = $request->all();
+        
+
+        $investissement = Investissement::where('id',$input['id'])->first();
+        $structure = Investissement::where('id',$input['id'])->first();
 
         if ($request->user()->hasRole('point_focal')){
             $investissement->state = 'INITIER_INVESTISSEMENT';

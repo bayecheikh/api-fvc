@@ -79,14 +79,11 @@ class UserController extends Controller
             'email' => $input['email'],
             'telephone' => $input['telephone'],
             'status' => 'actif',
-            'password' => bcrypt($pwd)
+            'password' => bcrypt('@12345678')
         ]);
 
         $email = $input['email'];
-        Mail::send('mail',  ['data' => $pwd] , function($message) use($email)
-        {   
-            $message->to($email)->subject('Nouvelle inscription');
-        });
+       
 
         if(isset($input['structure_id'])){
             $structureObj = Structure::where('id',$input['structure_id'])->first();
@@ -101,6 +98,11 @@ class UserController extends Controller
                 $user->roles()->attach($roleObj);
             }
         }
+
+        /* Mail::send('mail',  ['data' => $pwd] , function($message) use($email)
+        {   
+            $message->to($email)->subject('Nouvelle inscription');
+        }); */
 
         return response()->json(["success" => true, "message" => "Utilisateur créé avec succès.", "data" => $user]);
     }
