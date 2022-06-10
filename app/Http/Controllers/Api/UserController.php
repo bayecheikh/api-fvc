@@ -28,7 +28,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->user()->hasRole('super_admin')) {
+        if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
             $users = User::with('roles')->with('structures')->paginate(10);
         }
         else{
