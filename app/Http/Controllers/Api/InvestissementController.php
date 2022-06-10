@@ -87,16 +87,34 @@ class InvestissementController extends Controller
      */
     public function investissementMultipleSearch($term)
     {
-        $investissements = Investissement::where('id', 'like', '%'.$term.'%')->orWhere('nom_investissement', 'like', '%'.$term.'%')
-        ->with('region')
-        ->with('annee')
-        ->with('monnaie')
-        ->with('structure')
-        ->with('source')
-        ->with('dimension')
-        ->with('mode_financements')
-        ->with('ligne_financements')
-        ->with('fichiers')->paginate(10);
+        if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
+            $investissements = Investissement::where('id', 'like', '%'.$term.'%')->orWhere('nom_investissement', 'like', '%'.$term.'%')
+            ->with('region')
+            ->with('annee')
+            ->with('monnaie')
+            ->with('structure')
+            ->with('source')
+            ->with('dimension')
+            ->with('mode_financements')
+            ->with('ligne_financements')
+            ->with('fichiers')
+            ->paginate(10);
+        }else{
+            $structure_id = User::find($request->user()->id)->structures[0]->id;
+            $investissements = Investissement::where('id', 'like', '%'.$term.'%')->orWhere('nom_investissement', 'like', '%'.$term.'%')
+            ->with('region')
+            ->with('annee')
+            ->with('monnaie')
+            ->with('structure')
+            ->with('source')
+            ->with('dimension')
+            ->with('mode_financements')
+            ->with('ligne_financements')
+            ->with('fichiers')->whereHas('structure', function($q) use ($structure_id){
+                $q->where('id', $structure_id);
+            })
+            ->paginate(10);
+        }
         $total = $investissements->total();
         return response()->json(["success" => true, "message" => "Liste des investissements", "data" =>$investissements,"total"=> $total]);  
     }
