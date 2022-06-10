@@ -58,21 +58,41 @@ class InvestissementController extends Controller
             ->paginate(10);
         }
         else{
-            $structure_id = User::find($request->user()->id)->structures[0]->id;
-            $investissements = Investissement::with('region')
-            ->with('annee')
-            ->with('monnaie')
-            ->with('structure')
-            ->with('source')
-            ->with('dimension')
-            ->with('piliers')
-            ->with('axes')
-            ->with('mode_financements')
-            ->with('ligne_financements')
-            ->with('fichiers')
-            ->whereHas('structure', function($q) use ($structure_id){
-                $q->where('id', $structure_id);
-            })->paginate(10);
+            if($request->user()->hasRole('directeur_eps')){
+                $source_id = User::find($request->user()->id)->structures[0]->source_financements[0]->id;
+                $investissements = Investissement::with('region')
+                ->with('annee')
+                ->with('monnaie')
+                ->with('structure')
+                ->with('source')
+                ->with('dimension')
+                ->with('piliers')
+                ->with('axes')
+                ->with('mode_financements')
+                ->with('ligne_financements')
+                ->with('fichiers')
+                ->whereHas('source', function($q) use ($source_id){
+                    $q->where('id', $sourcee_id);
+                })->paginate(10);
+            }
+            else{
+                $structure_id = User::find($request->user()->id)->structures[0]->id;
+                $investissements = Investissement::with('region')
+                ->with('annee')
+                ->with('monnaie')
+                ->with('structure')
+                ->with('source')
+                ->with('dimension')
+                ->with('piliers')
+                ->with('axes')
+                ->with('mode_financements')
+                ->with('ligne_financements')
+                ->with('fichiers')
+                ->whereHas('structure', function($q) use ($structure_id){
+                    $q->where('id', $structure_id);
+                })->paginate(10);
+            }
+            
         }
 
         
@@ -114,6 +134,43 @@ class InvestissementController extends Controller
                 $q->where('id', $structure_id);
             })
             ->paginate(10);
+
+            if($request->user()->hasRole('directeur_eps')){
+                $source_id = User::find($request->user()->id)->structures[0]->source_financements[0]->id;
+                $investissements = Investissement::where('id', 'like', '%'.$term.'%')->orWhere('nom_investissement', 'like', '%'.$term.'%')
+                ->with('annee')
+                ->with('region')
+                ->with('monnaie')
+                ->with('structure')
+                ->with('source')
+                ->with('dimension')
+                ->with('piliers')
+                ->with('axes')
+                ->with('mode_financements')
+                ->with('ligne_financements')
+                ->with('fichiers')
+                ->whereHas('source', function($q) use ($source_id){
+                    $q->where('id', $sourcee_id);
+                })->paginate(10);
+            }
+            else{
+                $structure_id = User::find($request->user()->id)->structures[0]->id;
+                $investissements = Investissement::where('id', 'like', '%'.$term.'%')->orWhere('nom_investissement', 'like', '%'.$term.'%')
+                ->with('annee')
+                ->with('region')
+                ->with('monnaie')
+                ->with('structure')
+                ->with('source')
+                ->with('dimension')
+                ->with('piliers')
+                ->with('axes')
+                ->with('mode_financements')
+                ->with('ligne_financements')
+                ->with('fichiers')
+                ->whereHas('structure', function($q) use ($structure_id){
+                    $q->where('id', $structure_id);
+                })->paginate(10);
+            }
         }
         $total = $investissements->total();
         return response()->json(["success" => true, "message" => "Liste des investissements", "data" =>$investissements,"total"=> $total]);  
