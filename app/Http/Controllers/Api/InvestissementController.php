@@ -219,7 +219,7 @@ class InvestissementController extends Controller
         }
         else{   
             $investissement = Investissement::create(
-                ['status' => 'ENCOURS'],
+                ['status' => 'brouillon'],
                 ['brouillon' => '1'],
                 ['state' => 'INITIER_INVESTISSEMENT'],
             );
@@ -595,19 +595,22 @@ class InvestissementController extends Controller
 
         if ($request->user()->hasRole('point_focal')){
             $investissement->state = 'INITIER_INVESTISSEMENT';
+            $investissement->status = 'a_valider';
         }
         if ($request->user()->hasRole('admin_structure')){
 
-            if($investissement->source[0]->libelle_source=='EPS')
-            $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
-            else
-            $investissement->state = 'VALIDATION_STRUCTURE';
+            if($investissement->source[0]->libelle_source=='EPS'){
+                $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
+                $investissement->status = 'a_valider';
+            }
+            else{
+                $investissement->state = 'FIN_PROCESS';
+                $investissement->status = 'publie';
+            }
         }
         if ($request->user()->hasRole('directeur_eps')){
-            $investissement->state = 'VALIDATION_STRUCTURE';
-        }
-        if ($request->user()->hasRole('admin_dprs')){
             $investissement->state = 'FIN_PROCESS';
+            $investissement->status = 'publie';
         }
         $investissement->save();
 
@@ -626,14 +629,17 @@ class InvestissementController extends Controller
 
         if ($request->user()->hasRole('admin_structure')){
             $investissement->state = 'INITIER_INVESTISSEMENT';
+            $investissement->status = 'a_valider';
             $investissement->motif_rejet = $input['motif_rejet'];
         }
         if ($request->user()->hasRole('directeur_eps')){
             $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
+            $investissement->status = 'a_valider';
             $investissement->motif_rejet = $input['motif_rejet'];
         }
         if ($request->user()->hasRole('admin_dprs')){
             $investissement->state = 'INITIER_INVESTISSEMENT';
+            $investissement->status = 'a_valider';
             $investissement->motif_rejet = $input['motif_rejet'];
         }
         $investissement->save();
