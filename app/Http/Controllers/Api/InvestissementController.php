@@ -48,6 +48,7 @@ class InvestissementController extends Controller
             ->with('annee')
             ->with('monnaie')
             ->with('structure')
+            ->with('source')
             ->with('dimension')
             ->with('piliers')
             ->with('axes')
