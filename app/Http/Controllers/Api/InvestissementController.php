@@ -43,7 +43,7 @@ class InvestissementController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->user()->hasRole('super_admin')) {
+        if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
             $investissements = Investissement::with('region')
             ->with('annee')
             ->with('monnaie')
