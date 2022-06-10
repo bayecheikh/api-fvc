@@ -28,6 +28,9 @@ class Investissement extends Model
     public function structure() {
         return $this->belongsToMany(Structure::class,'structures_investissements');          
     }
+    public function source() {
+        return $this->belongsToMany(SourceFinancement::class,'sources_investissements');          
+    }
     public function region() {
         return $this->belongsToMany(Region::class,'regions_investissements');          
     }

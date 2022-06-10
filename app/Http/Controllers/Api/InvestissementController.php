@@ -131,6 +131,7 @@ class InvestissementController extends Controller
         $fonction_responsable = $input['fonction_responsable']; */
 
         $structure_id = User::find($request->user()->id)->structures[0]->id;
+        $source_id = User::find($request->user()->id)->structures[0]->source_financements[0]->id;
 
         $validator = Validator::make($input, ['annee' => 'required','monnaie' => 'required']);
         if ($validator->fails())
@@ -173,6 +174,10 @@ class InvestissementController extends Controller
             if($structure_id!=null){               
                 $structureObj = Structure::where('id',intval($structure_id))->first();
                 $investissement->structure()->attach($structureObj);
+            }
+            if($source_id!=null){               
+                $sourceObj = SourceFinancement::where('id',intval($source_id))->first();
+                $investissement->source()->attach($sourceObj);
             }
 
             if($annee!=null){               
@@ -508,19 +513,22 @@ class InvestissementController extends Controller
         
 
         $investissement = Investissement::where('id',$input['id'])->first();
-        $structure = Investissement::where('id',$input['id'])->first();
 
         if ($request->user()->hasRole('point_focal')){
             $investissement->state = 'INITIER_INVESTISSEMENT';
         }
         if ($request->user()->hasRole('admin_structure')){
+
+            if($investissement->source[0]->libelle_source=='EPS')
             $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
+            else
+            $investissement->state = 'VALIDATION_STRUCTURE';
         }
         if ($request->user()->hasRole('directeur_eps')){
-            $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
+            $investissement->state = 'VALIDATION_STRUCTURE';
         }
         if ($request->user()->hasRole('admin_dprs')){
-            $investissement->state = 'VALIDATION_ADMIN_DPRS';
+            $investissement->state = 'FIN_PROCESS';
         }
         $investissement->save();
 
