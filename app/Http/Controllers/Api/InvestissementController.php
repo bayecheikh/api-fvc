@@ -72,7 +72,7 @@ class InvestissementController extends Controller
                 ->with('ligne_financements')
                 ->with('fichiers')
                 ->whereHas('source', function($q) use ($source_id){
-                    $q->where('id', $sourcee_id);
+                    $q->where('id', $source_id);
                 })->paginate(10);
             }
             else{
