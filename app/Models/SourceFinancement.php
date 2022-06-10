@@ -25,6 +25,6 @@ class SourceFinancement extends Model
     return $this->belongsToMany(Structure::class,'source_structures','source_id','structure_id');          
   }
   public function investissements() {
-    return $this->belongsToMany(SourceFinancement::class,'sources_investissements');          
+    return $this->belongsToMany(SourceFinancement::class,'sources_investissements','source_id','investissement_id');          
   }
 }
