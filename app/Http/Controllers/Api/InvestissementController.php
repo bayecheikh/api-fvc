@@ -43,11 +43,12 @@ class InvestissementController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->user()->hasRole('super_admin')) {
+        if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
             $investissements = Investissement::with('region')
             ->with('annee')
             ->with('monnaie')
             ->with('structure')
+            ->with('source')
             ->with('dimension')
             ->with('piliers')
             ->with('axes')
@@ -62,6 +63,7 @@ class InvestissementController extends Controller
             ->with('annee')
             ->with('monnaie')
             ->with('structure')
+            ->with('source')
             ->with('dimension')
             ->with('piliers')
             ->with('axes')
@@ -90,6 +92,7 @@ class InvestissementController extends Controller
         ->with('annee')
         ->with('monnaie')
         ->with('structure')
+        ->with('source')
         ->with('dimension')
         ->with('mode_financements')
         ->with('ligne_financements')
@@ -331,6 +334,7 @@ class InvestissementController extends Controller
         ->with('annee')
             ->with('monnaie')
             ->with('structure')
+            ->with('source')
             ->with('dimension')
             ->with('piliers')
             ->with('axes')
