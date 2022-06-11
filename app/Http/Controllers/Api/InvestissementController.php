@@ -227,17 +227,20 @@ class InvestissementController extends Controller
                 );
             }
             if ($request->user()->hasRole('admin_structure')){  
+                
                 if($source_libelle=='EPS'){
-                    $investissement = Investissement::create(
+                    return response()->json(["success" => true, "message" => "Investissement enregistré avec succès. Source", "data" => $source_libelle]);
+                    /* $investissement = Investissement::create(
                         ['status' => 'brouillon'],
                         ['state' => 'VALIDATION_ADMIN_STRUCTURE']
-                    );
+                    ); */
                 }
                 else{
-                    $investissement = Investissement::create(
+                    /* $investissement = Investissement::create(
                         ['status' => 'brouillon'],
                         ['state' => 'FIN_PROCESS']
-                    );
+                    ); */
+                    return response()->json(["success" => true, "message" => "Investissement enregistré avec succès. Source", "data" => $source_libelle]);
                 }
             }  
             
@@ -419,7 +422,7 @@ class InvestissementController extends Controller
                 }
             } */
     
-            return response()->json(["success" => true, "message" => "Investissement enregistré avec succès.", "data" => $investissement]);
+            return response()->json(["success" => true, "message" => "Investissement enregistré avec succès.", "data" => $source_libelle]);
             //return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $input]);
         }
     }
