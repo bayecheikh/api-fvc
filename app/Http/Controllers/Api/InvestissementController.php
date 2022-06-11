@@ -615,13 +615,13 @@ class InvestissementController extends Controller
         $investissement = Investissement::where('id',$input['id'])->first();
 
         if ($request->user()->hasRole('point_focal')){
-            $investissement->state = 'INITIER_INVESTISSEMENT';
+            $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
             $investissement->status = 'a_valider';
         }
         if ($request->user()->hasRole('admin_structure')){
 
             if($investissement->source[0]->libelle_source=='EPS'){
-                $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
+                $investissement->state = 'FIN_PROCESS';
                 $investissement->status = 'a_valider';
             }
             else{
