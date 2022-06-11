@@ -236,11 +236,11 @@ class InvestissementController extends Controller
                     ); */
                 }
                 else{
-                    /* $investissement = Investissement::create(
+                    $investissement = Investissement::create(
                         ['status' => 'brouillon'],
                         ['state' => 'FIN_PROCESS']
-                    ); */
-                    return response()->json(["success" => true, "message" => "Investissement enregistré avec succès. Source CT", "data" => $source_libelle]);
+                    );
+                    return response()->json(["success" => true, "message" => "Investissement enregistré avec succès. Source CT", "data" => $investissement]);
                 }
             }  
             
