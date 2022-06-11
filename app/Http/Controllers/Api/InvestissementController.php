@@ -288,9 +288,14 @@ class InvestissementController extends Controller
             if(!empty($piliers)){
                 foreach($piliers as $pilier){
                     $pilierObj = Pilier::where('id',intval($pilier))->first();
+                    $investissement_id = $investissement->id;
+                    
+                    $existingPiliers = Pilier::whereHas('investissements', function($q) use ($investissement_id){
+                        $q->where('id', $structure_id);
+                    });
 
                     //verifie si le pilier n'est pas deja enregistré
-                    if(in_array($pilierObj,$investissement->piliers()))
+                    if(empty($existingPiliers))
                     $investissement->piliers()->attach($pilierObj);
 
                     $axeObj = Axe::where('id',$axes[$ifinance])->first();
