@@ -217,10 +217,28 @@ class InvestissementController extends Controller
             return response()
             ->json($validator->errors());
         }
-        else{   
-            $investissement = Investissement::create(
-                ['status' => 'brouillon']
-            );
+        else{ 
+            if ($request->user()->hasRole('point_focal')){             
+                $investissement = Investissement::create(
+                    ['status' => 'brouillon'],
+                    ['state' => 'INITIER_INVESTISSEMENT']
+                );
+            }
+            if ($request->user()->hasRole('admin_structure')){  
+                if($investissement->source[0]->libelle_source=='EPS'){
+                    $investissement = Investissement::create(
+                        ['status' => 'brouillon'],
+                        ['state' => 'VALIDATION_ADMIN_STRUCTURE']
+                    );
+                }
+                else{
+                    $investissement = Investissement::create(
+                        ['status' => 'brouillon'],
+                        ['state' => 'FIN_PROCESS']
+                    );
+                }
+            }  
+            
 
             $annee = $input['annee'];
             $monnaie = $input['monnaie'];
