@@ -646,6 +646,7 @@ class InvestissementController extends Controller
     public function rejet_investissement(Request $request)
     {
         $input = $request->all();
+        $motif_rejet = $input['motif_rejet'];
         
 
         $investissement = Investissement::where('id',$input['id'])->first();
@@ -653,14 +654,17 @@ class InvestissementController extends Controller
         if ($request->user()->hasRole('admin_structure')){          
             $investissement->state = 'INITIER_INVESTISSEMENT';
             $investissement->status = 'rejete';          
+            $investissement->motif_rejet = $motif_rejet;          
         }
         if ($request->user()->hasRole('directeur_eps')){
             $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
             $investissement->status = 'rejete';
+            $investissement->motif_rejet = $motif_rejet; 
         }
         if ($request->user()->hasRole('admin_dprs')){
             $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
             $investissement->status = 'rejete';
+            $investissement->motif_rejet = $motif_rejet; 
         }
         $investissement->save();
 
