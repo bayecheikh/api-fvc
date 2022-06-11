@@ -237,7 +237,7 @@ class InvestissementController extends Controller
                 }
                 else{
                     $investissement = Investissement::create(
-                        ['status' => 'brouillon'],
+                        //['status' => 'brouillon'],
                         ['state' => 'FIN_PROCESS']
                     );
                     return response()->json(["success" => true, "message" => "Investissement enregistré avec succès. Source CT", "data" => $investissement]);
