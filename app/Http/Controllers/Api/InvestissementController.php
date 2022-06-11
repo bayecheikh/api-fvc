@@ -288,6 +288,9 @@ class InvestissementController extends Controller
             if(!empty($piliers)){
                 foreach($piliers as $pilier){
                     $pilierObj = Pilier::where('id',intval($pilier))->first();
+
+                    //verifie si le pilier n'est pas deja enregistré
+                    if(in_array($pilierObj,$investissement->piliers()))
                     $investissement->piliers()->attach($pilierObj);
 
                     $axeObj = Axe::where('id',$axes[$ifinance])->first();
