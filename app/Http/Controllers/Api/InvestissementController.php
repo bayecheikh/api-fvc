@@ -209,7 +209,9 @@ class InvestissementController extends Controller
         $fonction_responsable = $input['fonction_responsable']; */
 
         $structure_id = User::find($request->user()->id)->structures[0]->id;
-        $source_id = User::find($request->user()->id)->structures[0]->source_financements[0]->id;
+        $source = User::find($request->user()->id)->structures[0]->source_financements[0];
+        $source_id = $source->id;
+        $source_libelle = $source->libelle_source;
 
         $validator = Validator::make($input, ['annee' => 'required','monnaie' => 'required']);
         if ($validator->fails())
@@ -225,7 +227,7 @@ class InvestissementController extends Controller
                 );
             }
             if ($request->user()->hasRole('admin_structure')){  
-                if($investissement->source[0]->libelle_source=='EPS'){
+                if($source_libelle=='EPS'){
                     $investissement = Investissement::create(
                         ['status' => 'brouillon'],
                         ['state' => 'VALIDATION_ADMIN_STRUCTURE']
