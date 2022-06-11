@@ -289,9 +289,9 @@ class InvestissementController extends Controller
                 foreach($piliers as $pilier){
                     $pilierObj = Pilier::where('id',intval($pilier))->first();
                     $investissement_id = $investissement->id;
-                    
+
                     $existingPiliers = Pilier::whereHas('investissements', function($q) use ($investissement_id){
-                        $q->where('id', $structure_id);
+                        $q->where('id', $investissement_id);
                     });
 
                     //verifie si le pilier n'est pas deja enregistré
