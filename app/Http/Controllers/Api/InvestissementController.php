@@ -222,26 +222,13 @@ class InvestissementController extends Controller
         else{ 
             if ($request->user()->hasRole('point_focal')){             
                 $investissement = Investissement::create(
-                    ['status' => 'brouillon'],
                     ['state' => 'INITIER_INVESTISSEMENT']
                 );
             }
             if ($request->user()->hasRole('admin_structure')){  
-                
-                if($source_libelle=='EPS'){
-                    return response()->json(["success" => true, "message" => "Investissement enregistré avec succès. Source", "data" => $source_libelle]);
-                    /* $investissement = Investissement::create(
-                        ['status' => 'brouillon'],
-                        ['state' => 'VALIDATION_ADMIN_STRUCTURE']
-                    ); */
-                }
-                else{
-                    $investissement = Investissement::create(
-                        //['status' => 'brouillon'],
-                        ['state' => 'FIN_PROCESS']
-                    );
-                    return response()->json(["success" => true, "message" => "Investissement enregistré avec succès. Source CT", "data" => $investissement]);
-                }
+                $investissement = Investissement::create(
+                    ['state' => 'VALIDATION_ADMIN_STRUCTURE']
+                );
             }  
             
 
