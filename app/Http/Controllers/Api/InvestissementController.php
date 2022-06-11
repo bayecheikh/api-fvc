@@ -308,7 +308,12 @@ class InvestissementController extends Controller
                     if(empty($existingPiliers))
                     $investissement->piliers()->attach($pilierObj);
 
+                    //verifie si l'axe' n'est pas deja enregistré
                     $axeObj = Axe::where('id',$axes[$ifinance])->first();
+                    $existingAxes = Axe::whereHas('investissements', function($q) use ($investissement_id){
+                        $q->where('id', $investissement_id);
+                    });
+                    if(empty($existingAxes))
                     $investissement->axes()->attach($axeObj);
 
                     $ligneFinancementObj = LigneFinancement::create([                      
