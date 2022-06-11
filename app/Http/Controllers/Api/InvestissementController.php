@@ -219,9 +219,7 @@ class InvestissementController extends Controller
         }
         else{   
             $investissement = Investissement::create(
-                ['status' => 'brouillon'],
-                ['brouillon' => '1'],
-                ['state' => 'INITIER_INVESTISSEMENT'],
+                ['status' => 'brouillon']
             );
 
             $annee = $input['annee'];
