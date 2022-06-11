@@ -621,11 +621,11 @@ class InvestissementController extends Controller
         if ($request->user()->hasRole('admin_structure')){
 
             if($investissement->source[0]->libelle_source=='EPS'){
-                $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
+                $investissement->state = 'VALIDATION_DIRECTEUR_EPS';
                 $investissement->status = 'a_valider';
             }
             else{
-                $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
+                $investissement->state = 'FIN_PROCESS';
                 $investissement->status = 'publie';
             }
         }
