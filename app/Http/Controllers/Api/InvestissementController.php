@@ -645,26 +645,25 @@ class InvestissementController extends Controller
      */
     public function rejet_investissement(Request $request, $id)
     {
-        $investissement = Investissement::where('id',$id)->first();
-        $structure = Investissement::where('id',$id)->first();
+        $input = $request->all();
+        
 
-        if ($request->user()->hasRole('admin_structure')){
+        $investissement = Investissement::where('id',$input['id'])->first();
+
+        if ($request->user()->hasRole('admin_structure')){          
             $investissement->state = 'INITIER_INVESTISSEMENT';
-            $investissement->status = 'a_valider';
-            $investissement->motif_rejet = $input['motif_rejet'];
+            $investissement->status = 'rejete';          
         }
         if ($request->user()->hasRole('directeur_eps')){
             $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
-            $investissement->status = 'a_valider';
-            $investissement->motif_rejet = $input['motif_rejet'];
+            $investissement->status = 'rejete';
         }
         if ($request->user()->hasRole('admin_dprs')){
-            $investissement->state = 'INITIER_INVESTISSEMENT';
-            $investissement->status = 'a_valider';
-            $investissement->motif_rejet = $input['motif_rejet'];
+            $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
+            $investissement->status = 'rejete';
         }
         $investissement->save();
 
-        return response()->json(["success" => true, "message" => "Investissement validé", "data" =>$investissement]);  
+        return response()->json(["success" => true, "message" => "Investissement rejeté avec succés", "data" =>$investissement]);  
     }
 }
