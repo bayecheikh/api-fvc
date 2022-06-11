@@ -643,7 +643,7 @@ class InvestissementController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function rejet_investissement(Request $request, $id)
+    public function rejet_investissement(Request $request)
     {
         $input = $request->all();
         
