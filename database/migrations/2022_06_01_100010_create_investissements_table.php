@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('investissements', function (Blueprint $table) {
             $table->id();
-            $table->string('status');
-            $table->string('state');
+            $table->string('status')->default('brouillon');
+            $table->string('state')->default('0');
             $table->longText('motif_rejet')->nullable();
             $table->string('brouillon')->nullable();
             $table->timestamps();
