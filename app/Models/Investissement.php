@@ -14,7 +14,7 @@ class Investissement extends Model
     * @var array
     */
     protected $fillable = [
-       'lib_autremode','mnt_autremode','lib_autremonnaie','status','state','motif_rejet', 'brouillon'
+       'status','state','motif_rejet', 'brouillon'
     ];
     public function ligne_financements() {
         return $this->belongsToMany(LigneFinancement::class,'ligne_financements_investissements');          
