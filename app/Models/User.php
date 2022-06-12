@@ -13,7 +13,6 @@ use App\Permissions\HasPermissionsTrait;
 class User extends Authenticatable
 {
     use Notifiable, HasApiTokens, HasPermissionsTrait;
-    protected $primaryKey   = 'Id';
  
     /**
      * The attributes that are mass assignable.
