@@ -54,17 +54,18 @@ class UserController extends Controller
         return response()->json(["success" => true, "message" => "Liste des utilisateurs", "data" => $users]);   
     }
     /**
-     * Display a listing of the resource.
+     * Remove the specified resource from storage.
      *
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function activeUser($id)
+    public function activeUser(User $user)
     {
-        $user = User::where('id',$id)->first();
+        //$user = User::where('id',$id)->first();
 
         $message = '';
 
-        /* if($user->status=='actif'){
+        if($user->status=='actif'){
             $user->status=='inactif';
             $message = 'Utilisateur desactivé';
             $user->save();
@@ -73,7 +74,7 @@ class UserController extends Controller
             $user->status=='actif';
             $message = 'Utilisateur activé';
             $user->save();
-        } */
+        }
 
         return response()->json(["success" => true, "message" => "Utilisateur activé", "data" => $user]);   
     }

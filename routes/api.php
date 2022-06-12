@@ -69,7 +69,7 @@ Route::middleware('auth:api')->group(function () {
     /**Gestion des utilisateurs */
     Route::resource('users', UserController::class);
     Route::get('user-multiple-search/{term}', [UserController::class, 'userMultipleSearch']);
-    Route::get('active_user/{id}', [UserController::class, 'activeUser']);
+    Route::post('active_user', [UserController::class, 'activeUser']);
 
     /**Gestion des roles */
     Route::resource('roles', RoleController::class);
