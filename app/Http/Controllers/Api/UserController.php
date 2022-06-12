@@ -69,7 +69,7 @@ class UserController extends Controller
             $user->update([
                 'status' => 'inactif'
             ]);
-            $user->token()->revoke();
+            $userTokens = $userInstance->tokens;
         }
         else{
             $message = 'Utilisateur activé';
@@ -78,7 +78,7 @@ class UserController extends Controller
             ]);
         }
 
-        return response()->json(["success" => true, "message" => "Utilisateur activé", "data" => $user]);   
+        return response()->json(["success" => true, "message" => "Token Utilisateur activé", "data" => $userTokens]);   
     }
     /**
      * Store a newly created resource in storagrolee.
