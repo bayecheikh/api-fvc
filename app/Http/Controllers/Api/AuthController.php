@@ -37,6 +37,12 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        $user = User::where('email',$request->email)->first();
+        if($user){
+            if($user->status=='inactif')
+            return response()->json(['error' => 'Votre n\'est pas activé'], 401);
+        }
+        
         $data = [
             'email' => $request->email,
             'password' => $request->password
@@ -48,7 +54,7 @@ class AuthController extends Controller
             $token = auth()->user()->createToken('Laravel9PassportAuth')->accessToken;
             return response()->json(['token' => $token,'user' => $user], 200);
         } else {
-            return response()->json(['error' => 'Unauthorised'], 401);
+            return response()->json(['error' => 'Utilisateur ou mot de passe incorrect'], 401);
         }
     }
  
