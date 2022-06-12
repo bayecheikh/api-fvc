@@ -302,10 +302,10 @@ class InvestissementController extends Controller
 
                     $existingPiliers = Pilier::whereHas('investissements', function($q) use ($investissement_id){
                         $q->where('id', $investissement_id);
-                    });
+                    })->get();
 
                     //verifie si le pilier n'est pas deja enregistré
-                    if($existingPiliers==null)
+                    if(!$existingPiliers)
                     $investissement->piliers()->attach($pilierObj);
 
                     //verifie si l'axe' n'est pas deja enregistré
