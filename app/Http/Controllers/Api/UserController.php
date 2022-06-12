@@ -54,6 +54,30 @@ class UserController extends Controller
         return response()->json(["success" => true, "message" => "Liste des utilisateurs", "data" => $users]);   
     }
     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function activeUser($id)
+    {
+        $user = User::where('id',$id)->first();
+
+        $message = '';
+
+        if($user->status=='actif'){
+            $user->status=='inactif';
+            $message = 'Utilisateur desactivé';
+            $user->save();
+        }
+        else{
+            $user->status=='actif';
+            $message = 'Utilisateur activé';
+            $user->save();
+        }
+
+        return response()->json(["success" => true, "message" => "Utilisateur activé", "data" => $user]);   
+    }
+    /**
      * Store a newly created resource in storagrolee.
      *
      * @param  \Illuminate\Http\Request  $request
