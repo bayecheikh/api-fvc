@@ -305,7 +305,7 @@ class InvestissementController extends Controller
                     });
 
                     //verifie si le pilier n'est pas deja enregistré
-                    if(empty($existingPiliers))
+                    if(!empty($existingPiliers))
                     $investissement->piliers()->attach($pilierObj);
 
                     //verifie si l'axe' n'est pas deja enregistré
