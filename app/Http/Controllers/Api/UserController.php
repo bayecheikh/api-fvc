@@ -69,7 +69,7 @@ class UserController extends Controller
             $user->update([
                 'status' => 'inactif'
             ]);
-            $userTokens = $userInstance->tokens;
+            $userTokens = $user->tokens;
         }
         else{
             $message = 'Utilisateur activé';
