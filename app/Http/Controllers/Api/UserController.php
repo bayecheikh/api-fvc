@@ -65,14 +65,16 @@ class UserController extends Controller
         $message = '';
 
         if($user->status=='actif'){
-            $user->status=='inactif';
             $message = 'Utilisateur desactivé';
-            $user->save();
+            $user->update([
+                'status' => 'inactif'
+            ]);
         }
         else{
-            $user->status=='actif';
             $message = 'Utilisateur activé';
-            $user->save();
+            $user->update([
+                'status' => 'actif'
+            ]);
         }
 
         return response()->json(["success" => true, "message" => "Utilisateur activé", "data" => $user]);   
