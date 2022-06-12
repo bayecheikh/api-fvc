@@ -64,7 +64,7 @@ class UserController extends Controller
 
         $message = '';
 
-        if($user->status=='actif'){
+        /* if($user->status=='actif'){
             $user->status=='inactif';
             $message = 'Utilisateur desactivé';
             $user->save();
@@ -73,7 +73,7 @@ class UserController extends Controller
             $user->status=='actif';
             $message = 'Utilisateur activé';
             $user->save();
-        }
+        } */
 
         return response()->json(["success" => true, "message" => "Utilisateur activé", "data" => $user]);   
     }
