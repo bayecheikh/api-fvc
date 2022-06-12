@@ -82,7 +82,7 @@ class UserController extends Controller
             ]);
         }
 
-        return response()->json(["success" => true, "message" => "Token Utilisateur activé", "data" => $userTokens]);   
+        return response()->json(["success" => true, "message" => "Token Utilisateur activé", "data" => $user]);   
     }
     /**
      * Store a newly created resource in storagrolee.
