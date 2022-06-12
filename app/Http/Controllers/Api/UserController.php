@@ -54,14 +54,13 @@ class UserController extends Controller
         return response()->json(["success" => true, "message" => "Liste des utilisateurs", "data" => $users]);   
     }
     /**
-     * Remove the specified resource from storage.
+     * Display a listing of the resource.
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function activeUser(User $user)
+    public function activeUser($id)
     {
-        //$user = User::where('id',$id)->first();
+        $user = User::where('id',$id)->first();
 
         $message = '';
 
