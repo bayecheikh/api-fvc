@@ -40,7 +40,7 @@ class AuthController extends Controller
         $user = User::where('email',$request->email)->first();
         if($user){
             if($user->status=='inactif')
-            return response()->json(['message' => 'Votre n\'est pas activé'], 401);
+            return response()->json(['message' => 'Votre compte n\'est pas activé'], 401);
         }
 
         $data = [
