@@ -69,7 +69,11 @@ class UserController extends Controller
             $user->update([
                 'status' => 'inactif'
             ]);
+            //trouver et supprimer tout les token de l'utilisateur
             $userTokens = $user->tokens;
+            foreach($userTokens as $token) {
+                $token->revoke();   
+            }
         }
         else{
             $message = 'Utilisateur activé';
