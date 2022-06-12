@@ -69,6 +69,7 @@ class UserController extends Controller
             $user->update([
                 'status' => 'inactif'
             ]);
+            $user->token()->revoke();
         }
         else{
             $message = 'Utilisateur activé';
