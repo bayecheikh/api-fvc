@@ -46,6 +46,15 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        $input = $request->all();
+        $validator = Validator::make($input, [
+            'email' => "required|email",'password' => "required"
+        ]);
+
+        if ($validator->fails()) {
+            return response(['errors'=>$validator->errors()->all()], 422);
+        }
+
         $user = User::where('email',$request->email)->first();
         if($user){
             if($user->status=='inactif')
@@ -70,7 +79,7 @@ class AuthController extends Controller
     /**
      * Login Req
      */
-    public function reset_password(Request $request)
+    public function forget_password(Request $request)
     {
         $input = $request->only('email');
         $validator = Validator::make($input, [
@@ -101,24 +110,30 @@ class AuthController extends Controller
         }
     }
 
-    public function sendResetLinkResponse(Request $request)
+    /**
+     * Login Req
+     */
+    public function update_password(Request $request)
     {
-        $input = $request->only('email');
+        $input = $request->all();
         $validator = Validator::make($input, [
-            'email' => "required|email"
+            'email' => "required|email",'password' => "required",'password_confirmation' => "required"
         ]);
+        
         if ($validator->fails()) {
-        return response(['errors'=>$validator->errors()->all()], 422);
+            return response(['errors'=>$validator->errors()->all()], 422);
         }
-        $response =  Password::sendResetLink($input);
-        if($response == Password::RESET_LINK_SENT){
-        $message = "Mail send successfully";
-        }else{
-        $message = "Email could not be sent to this email address";
+
+        $user = User::where('email',$request->email)->first();
+        if($user){
+            $user ->update([
+                'password' => bcrypt($request->password)
+            ]);
+            return response()->json(['message' => 'Mot de passe modifié avec succés'], 200);
         }
-        //$message = $response == Password::RESET_LINK_SENT ? 'Mail send successfully' : GLOBAL_SOMETHING_WANTS_TO_WRONG;
-        $response = ['data'=>'','message' => $message];
-        return response($response, 200);
+        else {
+            return response()->json(['message' => 'Echec de la modification. Veuillez contacter l\'administrateur.'], 401);
+        }
     }
  
  
