@@ -96,7 +96,7 @@ class AuthController extends Controller
                     $message->to($email)->subject('Réinitialisation mot de passe | MSAS');
                 }); */
                 Mail::to('bayecheikhgueye2@gmail.com')->send(new NotifyMail($mailData));
-                return response()->json(['message' => 'Veuillez vérifier votre boite de réception ('.$email.')'], 200);
+                return response()->json(['message' => 'Veuillez vérifier votre boite de réception ('.$link.')'], 200);
             }
         }
         else {
