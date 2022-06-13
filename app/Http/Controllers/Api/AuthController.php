@@ -87,15 +87,15 @@ class AuthController extends Controller
             else{
                 $email = $user->email;
                 $token = $user->createToken($email)->accessToken;
-                $link = env('FORGET_PW_FRONT_ENDPOINT').'/?token='.$token;
+                $link = env('FORGET_PW_FRONT_ENDPOINT').'/token='.$token;
 
-                $mailData = ['data' => $link];
+                $mailData = ['link' => $link, 'message'=>'Cliquez sur le lien ci-dessous pour créer un nouveau mot de passe'];
 
                 /* Mail::send('mail',  ['data' => $link] , function($message) use($email)
                 {   
                     $message->to($email)->subject('Réinitialisation mot de passe | MSAS');
                 }); */
-                Mail::to('bayecheikhgueye2@gmail.com')->send(new NotifyMail($mailData));
+                Mail::to($email)->send(new NotifyMail($mailData));
                 return response()->json(['message' => 'Veuillez vérifier votre boite de réception ('.$link.')'], 200);
             }
         }
