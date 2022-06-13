@@ -88,13 +88,9 @@ class AuthController extends Controller
                 $email = $user->email;
                 $token = $user->createToken($email)->accessToken;
                 $link = env('FORGET_PW_FRONT_ENDPOINT').'/token='.$token;
-                $messages = 'Cliquez sur le lien ci-dessous pour créer un nouveau mot de passe';
-                $mailData = ['link' => $link];
+                $messages = 'Cliquez sur le lien ci-dessous pour créer un nouveau mot de passe : ';
+                $mailData = ['link' => $link, 'messages' => $messages];
 
-                /* Mail::send('mail',  ['data' => $link] , function($message) use($email)
-                {   
-                    $message->to($email)->subject('Réinitialisation mot de passe | MSAS');
-                }); */
                 Mail::to($email)->send(new NotifyMail($mailData));
                 return response()->json(['message' => 'Veuillez vérifier votre boite de réception ('.$link.')'], 200);
             }

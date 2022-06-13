@@ -1,3 +1,5 @@
 <div>
+    {{$messages}}
+    
     {{$link}}
 </div>
