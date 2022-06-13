@@ -1,5 +1,3 @@
 <div>
-    {{$message}}
-    
     {{$link}}
 </div>

@@ -88,8 +88,8 @@ class AuthController extends Controller
                 $email = $user->email;
                 $token = $user->createToken($email)->accessToken;
                 $link = env('FORGET_PW_FRONT_ENDPOINT').'/token='.$token;
-                $message = 'Cliquez sur le lien ci-dessous pour créer un nouveau mot de passe';
-                $mailData = ['link' => $link, 'message'=>$message];
+                $messages = 'Cliquez sur le lien ci-dessous pour créer un nouveau mot de passe';
+                $mailData = ['link' => $link];
 
                 /* Mail::send('mail',  ['data' => $link] , function($message) use($email)
                 {   
