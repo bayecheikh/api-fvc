@@ -90,7 +90,7 @@ class AuthController extends Controller
 
                 Mail::send('mail',  ['data' => $link] , function($message) use($email)
                 {   
-                    $message->to($email)->subject('Nouvelle inscription | MSAS');
+                    $message->to($request->email)->subject('Nouvelle inscription | MSAS');
                 });
             }
         }
