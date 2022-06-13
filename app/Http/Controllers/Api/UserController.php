@@ -110,7 +110,7 @@ class UserController extends Controller
             'email' => $input['email'],
             'telephone' => $input['telephone'],
             'status' => 'actif',
-            'password' => bcrypt('@12345678')
+            'password' => bcrypt($pwd)
         ]);
 
         $email = $input['email'];
@@ -132,7 +132,7 @@ class UserController extends Controller
 
         Mail::send('mail',  ['data' => $pwd] , function($message) use($email)
         {   
-            $message->to($email)->subject('Nouvelle inscription');
+            $message->to($email)->subject('Nouvelle inscription | MSAS');
         });
 
         return response()->json(["success" => true, "message" => "Utilisateur créé avec succès.", "data" => $user]);

@@ -7,6 +7,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
  
 use App\Models\User;
+
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Events\PasswordReset;
  
 class AuthController extends Controller
 {
@@ -57,6 +62,51 @@ class AuthController extends Controller
             return response()->json(['message' => 'Utilisateur ou mot de passe incorrect'], 401);
         }
     }
+
+    /**
+     * Login Req
+     */
+    public function reset_password(Request $request)
+    {
+        $user = User::where('email',$request->email)->first();
+        if($user){
+            if($user->status=='inactif')
+            return response()->json(['message' => 'Votre compte n\'est pas activé. Veuillez contacter l\'administrateur'], 401);
+            else{
+                $token = auth()->user()->createToken($request->email)->accessToken;
+                $link = 'https://admin-msas.vercel.app/?token='.$token;
+
+                Mail::send('mail',  ['data' => $link] , function($message) use($email)
+                {   
+                    $message->to($email)->subject('Nouvelle inscription | MSAS');
+                });
+            }
+        }
+        else {
+            return response()->json(['message' => 'Email invalide'], 401);
+        }
+    }
+
+    public function sendResetLinkResponse(Request $request)
+    {
+        $input = $request->only('email');
+        $validator = Validator::make($input, [
+            'email' => "required|email"
+        ]);
+        if ($validator->fails()) {
+        return response(['errors'=>$validator->errors()->all()], 422);
+        }
+        $response =  Password::sendResetLink($input);
+        if($response == Password::RESET_LINK_SENT){
+        $message = "Mail send successfully";
+        }else{
+        $message = "Email could not be sent to this email address";
+        }
+        //$message = $response == Password::RESET_LINK_SENT ? 'Mail send successfully' : GLOBAL_SOMETHING_WANTS_TO_WRONG;
+        $response = ['data'=>'','message' => $message];
+        return response($response, 200);
+    }
+ 
  
     public function userInfo() 
     {
