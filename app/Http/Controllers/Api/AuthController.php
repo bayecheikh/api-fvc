@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\PasswordReset;
+
+use Mail;
+ 
+use App\Mail\NotifyMail;
  
 class AuthController extends Controller
 {
