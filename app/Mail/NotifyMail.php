@@ -33,6 +33,7 @@ class NotifyMail extends Mailable
     public function build()
     {
         //return $this->view('emails.demoMail');
-        return $this->from(env('MAIL_FROM_ADDRESS'))->subject('Plateforme MSAS')->view('mail',$this->mailData); //view load
+        //return $this->from(env('MAIL_FROM_ADDRESS'))->subject('Plateforme MSAS')->view('mail',$this->mailData); //view load
+        return $this->from('msas@ip3dev.com')->subject('Plateforme MSAS')->view('mail',$this->mailData); //view load
     }
 }
