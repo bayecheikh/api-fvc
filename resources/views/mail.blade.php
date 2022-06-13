@@ -1,4 +1,5 @@
 <div>
-    {{$message}}</br></br>
+    {{$message}}
+    
     {{$link}}
 </div>
