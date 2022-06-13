@@ -1,4 +1,4 @@
 <div>
-    {{Message}}</br></br>
+    {{$message}}</br></br>
     {{$link}}
 </div>
