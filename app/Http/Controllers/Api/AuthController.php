@@ -68,6 +68,14 @@ class AuthController extends Controller
      */
     public function reset_password(Request $request)
     {
+        $input = $request->only('email');
+        $validator = Validator::make($input, [
+            'email' => "required|email"
+        ]);
+        if ($validator->fails()) {
+            return response(['errors'=>$validator->errors()->all()], 422);
+        }
+        
         $user = User::where('email',$request->email)->first();
         if($user){
             if($user->status=='inactif')

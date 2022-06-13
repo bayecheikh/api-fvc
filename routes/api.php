@@ -39,7 +39,7 @@ use App\Http\Controllers\Api\StatistiqueController;
  
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
-Route::post('forget_password', [AuthController::class, 'sendResetLinkResponse']);
+Route::post('forget_password', [AuthController::class, 'reset_password']);
 
  /**Statistique*/
  Route::get('allPiliers', [StatistiqueController::class, 'allPilier']);
