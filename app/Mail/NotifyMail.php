@@ -7,6 +7,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
+public $mailData;
+
 class NotifyMail extends Mailable
 {
     use Queueable, SerializesModels;
@@ -16,9 +18,9 @@ class NotifyMail extends Mailable
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(array $mailData)
     {
-        //
+        $this->mailData = $mailData;
     }
 
     /**
@@ -28,6 +30,7 @@ class NotifyMail extends Mailable
      */
     public function build()
     {
-        return $this->view('emails.demoMail');
+        //return $this->view('emails.demoMail');
+        return $this->from(env('MAIL_FROM'))->subject('Plateforme MSAS')->view('mail'); //view load
     }
 }
