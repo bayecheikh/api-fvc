@@ -87,7 +87,7 @@ class AuthController extends Controller
             else{
                 $email = $user->email;
                 $token = $user->createToken($email)->accessToken;
-                $link = 'https://admin-msas.vercel.app/?token='.$token;
+                $link = env('FORGET_PW_FRONT_ENDPOINT').'/?token='.$token;
 
                 $mailData = ['data' => $link];
 
