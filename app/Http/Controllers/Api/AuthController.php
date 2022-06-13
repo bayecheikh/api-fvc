@@ -85,15 +85,15 @@ class AuthController extends Controller
             if($user->status=='inactif')
             return response()->json(['message' => 'Votre compte n\'est pas activé. Veuillez contacter l\'administrateur'], 401);
             else{
-                $email = $user->email;
+                $email = $request->email;
                 $token = $user->createToken($email)->accessToken;
                 $link = 'https://admin-msas.vercel.app/?token='.$token;
 
-                Mail::send('mail',  ['data' => $email] , function($message) use($email)
+                Mail::send('mail',  ['data' => $link] , function($message) use($email)
                 {   
                     $message->to($email)->subject('Réinitialisation mot de passe | MSAS');
                 });
-                return response()->json(['message' => 'Veuillez vérifier votre boite de réception '.$email.' lien : '.$link], 200);
+                return response()->json(['message' => 'Veuillez vérifier votre boite de réception '.$email], 200);
             }
         }
         else {
