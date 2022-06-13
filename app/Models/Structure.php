@@ -55,4 +55,8 @@ class Structure extends Model
   public function investissements() {
     return $this->belongsToMany(Investissement::class,'structures_investissements');          
 }
+
+public function demandes() {
+  return $this->belongsToMany(Demande::class,'demandes_structures');          
+}
 }

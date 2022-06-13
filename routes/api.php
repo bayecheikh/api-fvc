@@ -23,6 +23,8 @@ use App\Http\Controllers\Api\TypeLigneController;
 use App\Http\Controllers\Api\MonnaieController;
 use App\Http\Controllers\Api\AnneeController;
 use App\Http\Controllers\Api\LigneModeInvestissementController;
+use App\Http\Controllers\Api\ProfilController;
+use App\Http\Controllers\Api\DemandeController;
 
 
 /*
@@ -104,4 +106,10 @@ Route::middleware('auth:api')->group(function () {
 
     /**Gestion des lignes mode investissements */
     Route::resource('ligne_mode_investissements', LigneModeInvestissementController::class);
+
+    /**Gestion des demandes */
+    Route::resource('demandes', DemandeController::class);
+
+    /**Gestion des profils */
+    Route::resource('profils', ProfilController::class);
 });
