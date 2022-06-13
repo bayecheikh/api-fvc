@@ -100,7 +100,7 @@ class UserController extends Controller
             return response()
             ->json($validator->errors());
         }
-
+        $email = $input['email'];
         $pwd = bin2hex(openssl_random_pseudo_bytes(4));
         Mail::send('mail',  ['data' => $pwd] , function($message) use($email)
         {   
