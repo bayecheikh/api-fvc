@@ -85,9 +85,9 @@ class AuthController extends Controller
             if($user->status=='inactif')
             return response()->json(['message' => 'Votre compte n\'est pas activé. Veuillez contacter l\'administrateur'], 401);
             else{
+                $email = $user->email;
                 $token = $user->createToken($email)->accessToken;
                 $link = 'https://admin-msas.vercel.app/?token='.$token;
-                $email=$user->email;
 
                 Mail::send('mail',  ['data' => $link] , function($message) use($email)
                 {   
