@@ -125,7 +125,7 @@ class StructureController extends Controller
                 'email' => $input['email_responsable'],
                 'telephone' => $input['telephone_responsable'],
                 'fonction' => $input['fonction_responsable'],
-                'password' => bcrypt('$pwd')
+                'password' => bcrypt($pwd)
             ]);
             $roleObj = Role::where('name','admin_structure')->first();
             $user->roles()->attach($roleObj);
@@ -215,11 +215,10 @@ class StructureController extends Controller
                 }
             }
 
-            Mail::send('mail',  ['data' => $pwd] , function($message) use($email)
-            {   
-                $message->to($email)->subject('Nouvelle inscription | MSAS');
-            });
-    
+            $messages = 'Votre mot de passe par défaut sur la plateforme de suivie des investissement du MSAS est : ';
+            $mailData = ['data' => $pwd, 'messages' => $messages];
+            Mail::to($email)->send(new NotifyMail($mailData));
+        
             return response()->json(["success" => true, "message" => "Structure créée avec succès.", "data" => $structure]);
             //return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $input]);
         }

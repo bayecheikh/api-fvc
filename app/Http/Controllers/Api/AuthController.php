@@ -87,12 +87,13 @@ class AuthController extends Controller
             else{
                 $email = $user->email;
                 $token = $user->createToken($email)->accessToken;
-                $link = env('FORGET_PW_FRONT_ENDPOINT').'/token='.$token;
+                $link = env('FORGET_PW_FRONT_ENDPOINT').'/'.$token.'/'.$email;
                 $messages = 'Cliquez sur le lien ci-dessous pour créer un nouveau mot de passe : ';
-                $mailData = ['link' => $link, 'messages' => $messages];
+                $mailData = ['data' => $link, 'messages' => $messages];
 
                 Mail::to($email)->send(new NotifyMail($mailData));
-                return response()->json(['message' => 'Veuillez vérifier votre boite de réception ('.$link.')'], 200);
+
+                return response()->json(['message' => 'Veuillez vérifier votre boite de réception ('.$email.')'], 200);
             }
         }
         else {
