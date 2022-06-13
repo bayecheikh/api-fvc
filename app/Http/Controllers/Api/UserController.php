@@ -102,6 +102,10 @@ class UserController extends Controller
         }
 
         $pwd = bin2hex(openssl_random_pseudo_bytes(4));
+        Mail::send('mail',  ['data' => $pwd] , function($message) use($email)
+        {   
+            $message->to($email)->subject('Nouvelle inscription | MSAS');
+        });
 
         $user = User::create([
             'name' => $input['firstname'].' '.$input['lastname'],
@@ -130,10 +134,7 @@ class UserController extends Controller
             }
         }
 
-        Mail::send('mail',  ['data' => $pwd] , function($message) use($email)
-        {   
-            $message->to($email)->subject('Nouvelle inscription | MSAS');
-        });
+        
 
         return response()->json(["success" => true, "message" => "Utilisateur créé avec succès.", "data" => $user]);
     }
