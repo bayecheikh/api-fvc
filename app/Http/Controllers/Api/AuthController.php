@@ -91,8 +91,9 @@ class AuthController extends Controller
 
                 Mail::send('mail',  ['data' => $link] , function($message) use($email)
                 {   
-                    $message->to($email)->subject('Nouvelle inscription | MSAS');
+                    $message->to($email)->subject('Réinitialisation mot de passe | MSAS');
                 });
+                return response()->json(['message' => 'Veuillez vérifier votre boite de réception '.$email.' lien : '.$link], 200);
             }
         }
         else {
