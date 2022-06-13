@@ -89,6 +89,8 @@ class AuthController extends Controller
                 $token = $user->createToken($email)->accessToken;
                 $link = 'https://admin-msas.vercel.app/?token='.$token;
 
+                $mailData = ['data' => $link];
+
                 /* Mail::send('mail',  ['data' => $link] , function($message) use($email)
                 {   
                     $message->to($email)->subject('Réinitialisation mot de passe | MSAS');
