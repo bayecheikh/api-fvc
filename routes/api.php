@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\SourceFinancementController;
 use App\Http\Controllers\Api\TypeSourceController;
 use App\Http\Controllers\Api\AxeController;
 use App\Http\Controllers\Api\InvestissementController;
+use App\Http\Controllers\Api\RechercheInvestissementController;
 use App\Http\Controllers\Api\LigneFinancementController;
 use App\Http\Controllers\Api\ModeFinancementController;
 use App\Http\Controllers\Api\PilierController;
@@ -109,6 +110,9 @@ Route::middleware('auth:api')->group(function () {
     Route::resource('investissements', InvestissementController::class);
     Route::post('validation_investissement', [InvestissementController::class, 'validation_investissement']);
     Route::post('rejet_investissement', [InvestissementController::class, 'rejet_investissement']);
+
+    /**Recherche avancée sur les investissements */
+    Route::post('recherhce_avance_investissements', [RechercheInvestissementController::class, 'recherche']);
 
     /**Gestion des lignes de financement */
     Route::resource('ligne_financements', LigneFinancementController::class);
