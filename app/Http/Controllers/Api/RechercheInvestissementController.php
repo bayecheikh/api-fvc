@@ -122,9 +122,9 @@ class RechercheInvestissementController extends Controller
                 });
             } */
 
-            $investissements = $investissements->get();
+            $investissements = $investissements->paginate(10);
 
-            $total = '$investissements->total()';
+            $total = $investissements->total();
             return response()->json(["success" => true, "message" => "Liste des investissements", "data" =>$investissements,"total"=> $total]);
         }
     }
