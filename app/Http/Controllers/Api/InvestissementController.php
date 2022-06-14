@@ -303,6 +303,11 @@ class InvestissementController extends Controller
                     $investissement->piliers()->detach($pilierObj);
                     $investissement->piliers()->attach($pilierObj);
 
+                    $axeObj = Axe::where('id',intval($axes[$ifinance]))->first();
+
+                    $investissement->axes()->detach($axeObj);
+                    $investissement->axes()->attach($axeObj);
+
                     $ligneFinancementObj = LigneFinancement::create([                      
                         'id_pilier'=> intval($pilier), 
                         'id_axe'=> intval($axes[$ifinance]), 
