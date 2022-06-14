@@ -90,7 +90,7 @@ class InvestissementController extends Controller
                 ->with('fichiers')
                 ->whereHas('structure', function($q) use ($structure_id){
                     $q->where('id', $structure_id);
-                })->paginate(10);
+                })->orderBy('created_at', 'ASC')->paginate(10);
             }
             
         }
