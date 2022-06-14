@@ -71,8 +71,7 @@ class RechercheInvestissementController extends Controller
                 ->with('axes')
                 ->with('mode_financements')
                 ->with('ligne_financements')
-                ->with('fichiers')
-                ->paginate(10);
+                ->with('fichiers');
             }
             else{
                 if($request->user()->hasRole('directeur_eps')){
