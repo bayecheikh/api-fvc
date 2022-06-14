@@ -72,32 +72,32 @@ class RechercheInvestissementController extends Controller
             ->with('fichiers');
 
             if($annee!=null){               
-                $investissements->whereHas('annee', function($q) use ($annee){
+                $investissements = $investissements->whereHas('annee', function($q) use ($annee){
                     $q->where('id', $annee);
                 });
             }
             if($monnaie!=null){               
-                $investissements->whereHas('monnaie', function($q) use ($monnaie){
+                $investissements = $investissements->whereHas('monnaie', function($q) use ($monnaie){
                     $q->where('id', $monnaie);
                 });
             }
             if($region!=null){               
-                $investissements->whereHas('region', function($q) use ($region){
+                $investissements = $investissements->whereHas('region', function($q) use ($region){
                     $q->where('id', $region);
                 });
             }
             if($dimension!=null){               
-                $investissements->whereHas('dimension', function($q) use ($dimension){
+                $investissements = $investissements->whereHas('dimension', function($q) use ($dimension){
                     $q->where('id', $dimension);
                 });
             }
             if($pilier!=null){               
-                $investissements->whereHas('piliers', function($q) use ($pilier){
+                $investissements = $investissements->whereHas('piliers', function($q) use ($pilier){
                     $q->where('id', $pilier);
                 });
             }
             if($axe!=null){               
-                $investissements->whereHas('axes', function($q) use ($axe){
+                $investissements = $investissements->whereHas('axes', function($q) use ($axe){
                     $q->where('id', $axe);
                 });
             }
@@ -122,7 +122,7 @@ class RechercheInvestissementController extends Controller
                 });
             } */
 
-            $investissements->get();
+            $investissements = $investissements->get();
 
             $total = '$investissements->total()';
             return response()->json(["success" => true, "message" => "Liste des investissements", "data" =>$investissements,"total"=> $total]);
