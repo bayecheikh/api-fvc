@@ -59,8 +59,7 @@ class RechercheInvestissementController extends Controller
             ->json($validator->errors());
         }
         else{ 
-            $investissements = Investissement::where('id', 'like', '%'.$term.'%')->orWhere('nom_investissement', 'like', '%'.$term.'%')
-            ->with('region')
+            $investissements = Investissement::with('region')
             ->with('annee')
             ->with('monnaie')
             ->with('structure')
