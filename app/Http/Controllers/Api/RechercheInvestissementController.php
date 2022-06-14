@@ -124,7 +124,7 @@ class RechercheInvestissementController extends Controller
 
             $investissements->get();
 
-            $total = $investissements->total();
+            $total = '$investissements->total()';
             return response()->json(["success" => true, "message" => "Liste des investissements", "data" =>$investissements,"total"=> $total]);
         }
     }
