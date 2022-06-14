@@ -112,7 +112,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('rejet_investissement', [InvestissementController::class, 'rejet_investissement']);
 
     /**Recherche avancée sur les investissements */
-    Route::post('recherhce_avance_investissements', [RechercheInvestissementController::class, 'recherche']);
+    Route::resource('recherche_avances', InvestissementController::class);
+    Route::post('recherche_avance_investissements', [RechercheInvestissementController::class, 'recherche']);
 
     /**Gestion des lignes de financement */
     Route::resource('ligne_financements', LigneFinancementController::class);
