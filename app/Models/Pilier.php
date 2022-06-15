@@ -22,4 +22,7 @@ class Pilier extends Model
   public function ligne_financements() {
     return $this->belongsToMany(LigneFinancement::class,'piliers_ligne_financements');          
   }
+  public function investissements() {
+    return $this->belongsToMany(Investissement::class,'piliers_investissements');          
+  }
 }

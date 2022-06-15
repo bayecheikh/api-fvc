@@ -14,11 +14,11 @@ class LigneFinancement extends Model
     * @var array
     */
     protected $fillable = [
-       'mnt_prevu','mnt_mobilise', 'mnt_execute', 'status'
+       'id_pilier','id_axe', 'montantBienServicePrevus','montantBienServiceMobilises',
+       'montantBienServiceExecutes','montantInvestissementPrevus',
+       'montantInvestissementMobilises','montantInvestissementExecutes', 'status'
     ];
-    public function pilier() {
-        return $this->belongsToMany(Pilier::class,'piliers_ligne_financements');          
-    }
+              
     public function axe() {
         return $this->belongsToMany(Axe::class,'axes_ligne_financements');          
     }

@@ -13,8 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('ligne_mode_investissements', function (Blueprint $table) {
-            $table->string('status')->nullable();
+        Schema::create('piliers_investissements', function (Blueprint $table) {
+            $table->unsignedInteger('pilier_id');
+            $table->unsignedInteger('investissement_id');
+            $table->primary(['pilier_id','investissement_id']);
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('ligne_mode_investissements', function (Blueprint $table) {
-            $table->dropColumn('status');
-        });
+        Schema::dropIfExists('piliers_investissements');
     }
 };

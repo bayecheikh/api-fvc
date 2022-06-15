@@ -16,6 +16,9 @@ use App\Models\TypeZoneIntervention;
 use App\Models\TypeSource;
 use App\Models\SourceFinancement;
 use App\Models\Fichier;
+use Mail;
+ 
+use App\Mail\NotifyMail;
 
 class StructureController extends Controller
 {
@@ -65,6 +68,16 @@ class StructureController extends Controller
         return response()->json(["success" => true, "message" => "liste des structures", "data" =>$structures,"total"=> $total]);  
     }
     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function selectstructure()
+    {
+        $structures = Structure::all();
+        return response()->json(["success" => true, "message" => "liste des structures", "data" =>$structures]);  
+    }
+    /**
      * Store a newly created resource in storagrolee.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -104,6 +117,7 @@ class StructureController extends Controller
             ->json($validator->errors());
         }
         else{
+            $pwd = bin2hex(openssl_random_pseudo_bytes(4));
             $user = User::create([
                 'name' => $input['firstname_responsable'].' '.$input['lastname_responsable'],
                 'firstname' => $input['firstname_responsable'],
@@ -111,12 +125,13 @@ class StructureController extends Controller
                 'email' => $input['email_responsable'],
                 'telephone' => $input['telephone_responsable'],
                 'fonction' => $input['fonction_responsable'],
-                'status' => 'actif',
-                'password' => bcrypt("@12345678")
+                'password' => bcrypt($pwd)
             ]);
             $roleObj = Role::where('name','admin_structure')->first();
             $user->roles()->attach($roleObj);
-    
+
+            $email = $input['email_responsable'];
+ 
             $structure = Structure::create(
                 ['nom_structure' => $input['nom_structure'],
                 'numero_autorisation' => $input['numero_autorisation'],
@@ -199,7 +214,11 @@ class StructureController extends Controller
                     $structure->source_financements()->attach($source_financementObj);
                 }
             }
-    
+
+            $messages = 'Votre mot de passe par défaut sur la plateforme de suivie des investissement du MSAS est : ';
+            $mailData = ['data' => $pwd, 'messages' => $messages];
+            Mail::to($email)->send(new NotifyMail($mailData));
+        
             return response()->json(["success" => true, "message" => "Structure créée avec succès.", "data" => $structure]);
             //return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $input]);
         }
@@ -223,6 +242,7 @@ class StructureController extends Controller
         ->get()
         ->find($id);
         $structure->load('source_financements.type_sources');
+        $structure->load('users.roles');
         if (is_null($structure))
         {
    /*          return $this->sendError('Product not found.'); */

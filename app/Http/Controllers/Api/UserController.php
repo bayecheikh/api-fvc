@@ -8,6 +8,11 @@ use Validator;
 use App\Models\Role;
 use App\Models\Permission;
 use App\Models\User;
+use App\Models\Structure;
+
+use Mail;
+ 
+use App\Mail\NotifyMail;
 
 class UserController extends Controller
 {
@@ -23,12 +28,12 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->user()->hasRole('super_admin')) {
-            $users = User::with('roles')->paginate(10);
+        if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
+            $users = User::with('roles')->with('structures')->paginate(10);
         }
         else{
             $structure_id = User::find($request->user()->id)->structures[0]->id;
-            $users = User::with('roles')->whereHas('structures', function($q) use ($structure_id){
+            $users = User::with('roles')->with('structures')->whereHas('structures', function($q) use ($structure_id){
                 $q->where('id', $structure_id);
             })->paginate(10);
         }
@@ -49,6 +54,37 @@ class UserController extends Controller
         return response()->json(["success" => true, "message" => "Liste des utilisateurs", "data" => $users]);   
     }
     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function activeUser($id)
+    {
+        $user = User::find($id);
+
+        $message = '';
+
+        if($user->status=='actif'){
+            $message = 'Utilisateur desactivé';
+            $user->update([
+                'status' => 'inactif'
+            ]);
+            //trouver et supprimer tout les token de l'utilisateur
+            $userTokens = $user->tokens;
+            foreach($userTokens as $token) {
+                $token->revoke();   
+            }
+        }
+        else{
+            $message = 'Utilisateur activé';
+            $user->update([
+                'status' => 'actif'
+            ]);
+        }
+
+        return response()->json(["success" => true, "message" => "Token Utilisateur activé", "data" => $user]);   
+    }
+    /**
      * Store a newly created resource in storagrolee.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -57,7 +93,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-        $validator = Validator::make($input, ['name' => 'required', 'email' => 'required|unique:users,email']);
+        $validator = Validator::make($input, ['firstname' => 'required','lastname' => 'required', 'email' => 'required|unique:users,email']);
         if ($validator->fails())
         {
             //return $this->sendError('Validation Error.', $validator->errors());
@@ -65,16 +101,25 @@ class UserController extends Controller
             ->json($validator->errors());
         }
 
+        $pwd = bin2hex(openssl_random_pseudo_bytes(4));
+
         $user = User::create([
-                'name' => $input['firstname'].' '.$input['lastname'],
-                'firstname' => $input['firstname'],
-                'lastname' => $input['lastname'],
-                'email' => $input['email'],
-                'telephone' => $input['telephone'],
-                'fonction' => $input['fonction'],
-                'status' => $input['status'],
-                'password' => bcrypt("@12345678")
+            'name' => $input['firstname'].' '.$input['lastname'],
+            'firstname' => $input['firstname'],
+            'lastname' => $input['lastname'],
+            'email' => $input['email'],
+            'telephone' => $input['telephone'],
+            'status' => 'actif',
+            'password' => bcrypt($pwd)
         ]);
+
+        $email = $input['email'];
+       
+
+        if(isset($input['structure_id'])){
+            $structureObj = Structure::where('id',$input['structure_id'])->first();
+            $user->structures()->attach($structureObj);
+        }
 
         $array_roles = $request->roles;
 
@@ -84,6 +129,10 @@ class UserController extends Controller
                 $user->roles()->attach($roleObj);
             }
         }
+
+        $messages = 'Votre mot de passe par défaut sur la plateforme de suivie des investissement du MSAS est : ';
+        $mailData = ['data' => $pwd, 'messages' => $messages];
+        Mail::to($email)->send(new NotifyMail($mailData));
 
         return response()->json(["success" => true, "message" => "Utilisateur créé avec succès.", "data" => $user]);
     }
@@ -95,7 +144,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::with('roles')->get()->find($id);
+        $user = User::with('roles')->with('structures')->get()->find($id);
         if (is_null($user))
         {
    /*          return $this->sendError('Product not found.'); */
@@ -129,8 +178,6 @@ class UserController extends Controller
         $user->email = $input['email'];
         $user->telephone = $input['telephone'];
         $user->fonction = $input['fonction'];
-        $user->status = $input['status'];
-        $user->password = $input['password'];
         $user->save();
 
         $array_roles = $request->roles;

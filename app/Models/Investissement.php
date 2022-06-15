@@ -14,7 +14,7 @@ class Investissement extends Model
     * @var array
     */
     protected $fillable = [
-       'lib_autremode','mnt_autremode','lib_autremonnaie','status','state','motif_rejet', 'brouillon'
+       'status','state','motif_rejet', 'brouillon'
     ];
     public function ligne_financements() {
         return $this->belongsToMany(LigneFinancement::class,'ligne_financements_investissements');          
@@ -27,6 +27,9 @@ class Investissement extends Model
     }
     public function structure() {
         return $this->belongsToMany(Structure::class,'structures_investissements');          
+    }
+    public function source() {
+        return $this->belongsToMany(SourceFinancement::class,'sources_investissements','source_id','investissement_id');          
     }
     public function region() {
         return $this->belongsToMany(Region::class,'regions_investissements');          
@@ -42,5 +45,12 @@ class Investissement extends Model
     }
     public function ligne_mode_investissements() {
         return $this->belongsToMany(LigneModeInvestissement::class,'ligne_mode_investissements_investissements');          
+    }
+
+    public function piliers() {
+        return $this->belongsToMany(Pilier::class,'piliers_investissements');          
+    }
+    public function axes() {
+        return $this->belongsToMany(Axe::class,'axes_investissements');          
     }
 }

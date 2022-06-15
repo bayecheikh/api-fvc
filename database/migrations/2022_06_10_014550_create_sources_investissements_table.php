@@ -13,12 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('investissements', function (Blueprint $table) {
-            $table->id();
-            $table->string('status')->default('brouillon');
-            $table->string('state')->default('0');
-            $table->longText('motif_rejet')->nullable();
-            $table->string('brouillon')->nullable();
+        Schema::create('sources_investissements', function (Blueprint $table) {
+            $table->unsignedInteger('source_id');
+            $table->unsignedInteger('investissement_id');
+            $table->primary(['source_id','investissement_id']);
             $table->timestamps();
         });
     }
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('investissements');
+        Schema::dropIfExists('sources_investissements');
     }
 };

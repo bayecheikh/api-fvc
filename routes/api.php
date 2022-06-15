@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\SourceFinancementController;
 use App\Http\Controllers\Api\TypeSourceController;
 use App\Http\Controllers\Api\AxeController;
 use App\Http\Controllers\Api\InvestissementController;
+use App\Http\Controllers\Api\RechercheInvestissementController;
 use App\Http\Controllers\Api\LigneFinancementController;
 use App\Http\Controllers\Api\ModeFinancementController;
 use App\Http\Controllers\Api\PilierController;
@@ -25,6 +26,7 @@ use App\Http\Controllers\Api\AnneeController;
 use App\Http\Controllers\Api\LigneModeInvestissementController;
 use App\Http\Controllers\Api\ProfilController;
 use App\Http\Controllers\Api\DemandeController;
+use App\Http\Controllers\Api\StatistiqueController;
 
 
 /*
@@ -40,6 +42,26 @@ use App\Http\Controllers\Api\DemandeController;
  
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+Route::post('forget_password', [AuthController::class, 'forget_password']);
+
+ /**Statistique*/
+ Route::get('allPiliers', [StatistiqueController::class, 'allPilier']);
+ Route::get('allAxes', [StatistiqueController::class, 'allAxe']);
+ Route::get('allAnnees', [StatistiqueController::class, 'allAnnee']);
+ Route::get('allRegions', [StatistiqueController::class, 'allRegion']);
+ Route::get('allMonnaies', [StatistiqueController::class, 'allMonnaie']);
+ Route::get('allStructures', [StatistiqueController::class, 'allStructure']);
+ Route::get('allDimensions', [StatistiqueController::class, 'allDimension']);
+ Route::get('allSources', [StatistiqueController::class, 'allSource']);
+
+ Route::get('investissementByPilier/{idPilier}', [StatistiqueController::class, 'investissementByPilier']);
+ Route::get('investissementByAxe/{idAxe}', [StatistiqueController::class, 'investissementByAxe']);
+ Route::get('investissementByAnnee/{idAnnee}', [StatistiqueController::class, 'investissementByAnnee']);
+ Route::get('investissementByRegion/{idRegion}', [StatistiqueController::class, 'investissementByRegion']);
+ Route::get('investissementByMonnaie/{idMonnaie}', [StatistiqueController::class, 'investissementByMonnaie']);
+ Route::get('investissementByStructure/{idStructure}', [StatistiqueController::class, 'investissementByStructure']);
+ Route::get('investissementByDimension/{idDimension}', [StatistiqueController::class, 'investissementByDimension']);
+ Route::get('investissementBySource/{idSource}', [StatistiqueController::class, 'investissementBySource']);
   
 Route::middleware('auth:api')->group(function () {
     Route::resource('products', ProductController::class);
@@ -47,10 +69,12 @@ Route::middleware('auth:api')->group(function () {
     /**Gestion des authentification */
     Route::get('get-user', [AuthController::class, 'userInfo']);
     Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('update_password', [AuthController::class, 'update_password']);
 
     /**Gestion des utilisateurs */
     Route::resource('users', UserController::class);
     Route::get('user-multiple-search/{term}', [UserController::class, 'userMultipleSearch']);
+    Route::get('active_user/{id}', [UserController::class, 'activeUser']);
 
     /**Gestion des roles */
     Route::resource('roles', RoleController::class);
@@ -67,6 +91,7 @@ Route::middleware('auth:api')->group(function () {
     /**Gestion des structures */
     Route::resource('structures', StructureController::class);
     Route::get('structure-multiple-search/{term}', [StructureController::class, 'structureMultipleSearch']);
+    Route::get('selectstructures', [StructureController::class, 'selectstructure']);
 
     /**Gestion des dimensions */
     Route::resource('dimensions', DimensionController::class);
@@ -85,6 +110,12 @@ Route::middleware('auth:api')->group(function () {
 
     /**Gestion des investissements */
     Route::resource('investissements', InvestissementController::class);
+    Route::post('validation_investissement', [InvestissementController::class, 'validation_investissement']);
+    Route::post('rejet_investissement', [InvestissementController::class, 'rejet_investissement']);
+
+    /**Recherche avancée sur les investissements */
+    Route::resource('recherche_avances', InvestissementController::class);
+    Route::post('recherche_avance_investissements', [RechercheInvestissementController::class, 'recherche']);
 
     /**Gestion des lignes de financement */
     Route::resource('ligne_financements', LigneFinancementController::class);
@@ -112,4 +143,6 @@ Route::middleware('auth:api')->group(function () {
 
     /**Gestion des profils */
     Route::resource('profils', ProfilController::class);
+    /**Statistique*/
+    Route::resource('statistiques', LigneModeInvestissementController::class);
 });
