@@ -170,7 +170,11 @@ class ExportInvestissementController extends Controller
 
         // these are the headers for the csv file. Not required but good to have one incase of system didn't recongize it properly
         $headers = array(
-          'Content-Type' => 'text/csv'
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
         );
 
 
@@ -184,93 +188,28 @@ class ExportInvestissementController extends Controller
         $handle = fopen($filename, 'w');
 
         //adding the first row
-        fputcsv($handle, [
-            'Année',
-            'Monnaie',
-            'Région',
-            'Structure',
-            'Source de financement',
-            'Dimension',
-            'Pilier'
-        ]);
 
-        //adding the data from the array
-        foreach ($investissements as $investissement) {
-            /* fputcsv($handle, [
-                $investissement->annee[0]->libelle,
-                $investissement->monnaie[0]->libelle,
-                $investissement->region[0]->nom_region,
-                $investissement->structure[0]->nom_structure,
-                $investissement->source[0]->libelle_source,
-                $investissement->dimension[0]->libelle_dimension,
-                $investissement->pilier[0]->nom_pilier
-            ]); */
+        $columns = array('Id',
+        'Pilier'
+        );
 
-            $annee ='';
-            if($investissement->annee){
-                foreach ($investissement->annee as $an){
-                    $annee = $annee.nl2br($an->libelle);
-                }
-            }
-            
+       
+        $callback = function() use($tasks, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
 
-            $monnaie ='';
-            if($investissement->monnaie!=null){
-                foreach ($investissement->monnaie as $mon){
-                    $monnaie = $monnaie.nl2br($mon->libelle);
-                  }
-            }           
-
-            $region ='';
-            if($investissement->region!=null){
-                foreach ($investissement->region as $reg){
-                    $region = $region.nl2br($reg->nom_region);
-                }
+            foreach ($investissements[0]->ligne_financements as $investissement) {
+                $row['id']  = $investissement->id;
+                $row['id_pilier']  = $investissement->id_pilier;
+                fputcsv($file, array($row['Id'], $row['Pilier']));
             }
 
-            $structure ='';
-            if($investissement->structure!=null){
-                foreach ($investissement->structure as $str){
-                    $structure = $structure.nl2br($str->nom_structure);
-                  }
-            }           
+            fclose($file);
+        };
 
-            $source ='';
-            if($investissement->source!=null){
-                foreach ($investissement->source as $src){
-                    $source = $source.nl2br($src->libelle_source);
-                }
-            }
-
-            $dimension ='';
-            if($investissement->dimension!=null){
-                foreach ($investissement->dimension as $dim){
-                    $dimension = $dimension.nl2br($dim->libelle_dimension);
-                }
-            }
-
-            $pilier ='';
-            if($investissement->pilier!=null){
-                foreach ($investissement->pilier as $pil){
-                    $pilier = $pilier.nl2br($pil->nom_pilier);
-                }
-            }
-
-            fputcsv($handle, [
-                $annee,
-                $monnaie,
-                $region,
-                $structure,
-                $source,
-                $dimension,
-                $pilier
-            ]);
-        }
-        fclose($handle);
 
         //download command
-        //return response()->stream($callback, 200, $headers);
-        return Response::stream($filename, "investissements.csv", $headers);
+        return response()->stream($callback, 200, $headers);
         }
     }
 
