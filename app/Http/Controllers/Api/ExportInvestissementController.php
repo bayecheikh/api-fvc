@@ -180,8 +180,15 @@ class ExportInvestissementController extends Controller
 
         //adding the first row
 
-        $columns = array('Id',
-        'Pilier'
+        $columns = array(
+            'Pilier',
+            'Axe', 
+            'Montant Bien Service Prevus',
+            'Montant Bien Service Mobilises',
+            'Montant Bien Service Executes',
+            'Montant Investissement Prevus',
+            'Montant Investissement Mobilises',
+            'Montant Investissement Executes',
         );
 
        $lignefinacements = $investissements[0]->ligne_financements;
@@ -192,7 +199,24 @@ class ExportInvestissementController extends Controller
             foreach ($lignefinacements as $investissement) {
                 $row['id']  = $investissement->id;
                 $row['id_pilier']  = $investissement->id_pilier;
-                fputcsv($file, array($row['id'], $row['id_pilier']));
+                $row['id_axe']  = $investissement->id_axe; 
+                $row['montantBienServicePrevus']  = $investissement->montantBienServicePrevus;
+                $row['montantBienServiceMobilises']  = $investissement->montantBienServiceMobilises;
+                $row['montantBienServiceExecutes']  = $investissement->montantBienServiceExecutes;
+                $row['montantInvestissementPrevus']  = $investissement->montantInvestissementPrevus;
+                $row['montantInvestissementMobilises']  = $investissement->montantInvestissementMobilises;
+                $row['montantInvestissementExecutes']  = $investissement->montantInvestissementExecutes;
+
+                fputcsv($file, array($row['id'], 
+                $row['id_pilier'],
+                $row['id_axe'],
+                $row['montantBienServicePrevus'],
+                $row['montantBienServiceMobilises'],
+                $row['montantBienServiceExecutes'],
+                $row['montantInvestissementPrevus'],
+                $row['montantInvestissementMobilises'],
+                $row['montantInvestissementExecutes']
+            ));
             }
 
             fclose($file);
