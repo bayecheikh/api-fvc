@@ -192,7 +192,7 @@ class ExportInvestissementController extends Controller
             foreach ($lignefinacements as $investissement) {
                 $row['id']  = $investissement->id;
                 $row['id_pilier']  = $investissement->id_pilier;
-                fputcsv($file, array($row['Id'], $row['Pilier']));
+                fputcsv($file, array($row['id'], $row['id_pilier']));
             }
 
             fclose($file);
