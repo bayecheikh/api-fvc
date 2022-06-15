@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\TypeSourceController;
 use App\Http\Controllers\Api\AxeController;
 use App\Http\Controllers\Api\InvestissementController;
 use App\Http\Controllers\Api\RechercheInvestissementController;
+use App\Http\Controllers\Api\ExportInvestissementController;
 use App\Http\Controllers\Api\LigneFinancementController;
 use App\Http\Controllers\Api\ModeFinancementController;
 use App\Http\Controllers\Api\PilierController;
