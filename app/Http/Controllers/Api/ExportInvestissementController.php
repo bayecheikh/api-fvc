@@ -178,23 +178,14 @@ class ExportInvestissementController extends Controller
         );
 
 
-        //I am storing the csv file in public >> files folder.
-        if (!File::exists(public_path()."/files")) {
-            File::makeDirectory(public_path() . "/files");
-        }
-
-        //creating the download file
-        $filename =  public_path("files/investissements.csv");
-        $handle = fopen($filename, 'w');
-
         //adding the first row
 
         $columns = array('Id',
         'Pilier'
         );
 
-       
-        $callback = function() use($tasks, $columns) {
+       $lignefinacements = $investissements[0]->ligne_financements;
+        $callback = function() use($lignefinacements, $columns) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
 
