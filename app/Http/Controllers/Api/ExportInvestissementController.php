@@ -209,7 +209,7 @@ class ExportInvestissementController extends Controller
             $annee ='';
             if($investissement->annee){
                 foreach ($investissement->annee as $an){
-                    $annee = $annee.' '.$an->libelle ;
+                    $annee = $annee.'\r\n'.$an->libelle ;
                 }
             }
             
@@ -217,42 +217,42 @@ class ExportInvestissementController extends Controller
             $monnaie ='';
             if($investissement->monnaie!=null){
                 foreach ($investissement->monnaie as $mon){
-                    $monnaie = $monnaie.' '.$mon->libelle ;
+                    $monnaie = $monnaie.'\r\n'.$mon->libelle ;
                   }
             }           
 
             $region ='';
             if($investissement->region!=null){
                 foreach ($investissement->region as $reg){
-                    $region = $region.' '.$reg->nom_region ;
+                    $region = $region.'\r\n'.$reg->nom_region ;
                 }
             }
 
             $structure ='';
             if($investissement->structure!=null){
                 foreach ($investissement->structure as $str){
-                    $structure = $structure.' '.$str->libelle ;
+                    $structure = $structure.'\r\n'.$str->nom_structure ;
                   }
             }           
 
             $source ='';
             if($investissement->source!=null){
                 foreach ($investissement->source as $src){
-                    $source = $source.' '.$src->libelle_source ;
+                    $source = $source.'\r\n'.$src->libelle_source ;
                 }
             }
 
             $dimension ='';
             if($investissement->dimension!=null){
                 foreach ($investissement->dimension as $dim){
-                    $dimension = $dimension.' '.$dim->libelle_dimension ;
+                    $dimension = $dimension.'\r\n'.$dim->libelle_dimension ;
                 }
             }
 
             $pilier ='';
             if($investissement->pilier!=null){
                 foreach ($investissement->pilier as $pil){
-                    $pilier = $pilier.' '.$pil->nom_pilier ;
+                    $pilier = $pilier.'\r\n'.$pil->nom_pilier ;
                 }
             }
 
