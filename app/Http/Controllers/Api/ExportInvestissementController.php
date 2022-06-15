@@ -207,38 +207,53 @@ class ExportInvestissementController extends Controller
             ]); */
 
             $annee ='';
-            foreach ($investissement->annee as $an){
-              $annee = $annee.' '.$an->libelle ;
+            if($investissement->annee){
+                foreach ($investissement->annee as $an){
+                    $annee = $annee.' '.$an->libelle ;
+                }
             }
+            
 
             $monnaie ='';
-            foreach ($investissement->monnaie as $mon){
-              $monnaie = $monnaie.' '.$mon->libelle ;
-            }
+            if($investissement->monnaie!=null){
+                foreach ($investissement->monnaie as $mon){
+                    $monnaie = $monnaie.' '.$mon->libelle ;
+                  }
+            }           
 
             $region ='';
-            foreach ($investissement->region as $reg){
-              $region = $region.' '.$reg->nom_region ;
+            if($investissement->region!=null){
+                foreach ($investissement->region as $reg){
+                    $region = $region.' '.$reg->nom_region ;
+                }
             }
 
             $structure ='';
-            foreach ($investissement->structure as $str){
-              $structure = $structure.' '.$str->libelle ;
-            }
+            if($investissement->structure!=null){
+                foreach ($investissement->structure as $str){
+                    $structure = $structure.' '.$str->libelle ;
+                  }
+            }           
 
             $source ='';
-            foreach ($investissement->source as $src){
-              $source = $source.' '.$src->libelle_source ;
+            if($investissement->source!=null){
+                foreach ($investissement->source as $src){
+                    $source = $source.' '.$src->libelle_source ;
+                }
             }
 
             $dimension ='';
-            foreach ($investissement->dimension as $dim){
-              $dimension = $dimension.' '.$dim->libelle_source ;
+            if($investissement->dimension!=null){
+                foreach ($investissement->dimension as $dim){
+                    $dimension = $dimension.' '.$dim->libelle_dimension ;
+                }
             }
 
             $pilier ='';
-            foreach ($investissement->pilier as $pil){
-              $pilier = $pilier.' '.$pil->nom_pilier ;
+            if($investissement->pilier!=null){
+                foreach ($investissement->pilier as $pil){
+                    $pilier = $pilier.' '.$pil->nom_pilier ;
+                }
             }
 
             fputcsv($handle, [
