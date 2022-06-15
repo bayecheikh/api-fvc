@@ -196,7 +196,7 @@ class ExportInvestissementController extends Controller
 
         //adding the data from the array
         foreach ($investissements as $investissement) {
-            fputcsv($handle, [
+            /* fputcsv($handle, [
                 $investissement->annee[0]->libelle,
                 $investissement->monnaie[0]->libelle,
                 $investissement->region[0]->nom_region,
@@ -204,6 +204,51 @@ class ExportInvestissementController extends Controller
                 $investissement->source[0]->libelle_source,
                 $investissement->dimension[0]->libelle_dimension,
                 $investissement->pilier[0]->nom_pilier
+            ]); */
+
+            $annee ='';
+            foreach ($investissement->annee as $an){
+              $annee = $annee.' '.$an->libelle ;
+            }
+
+            $monnaie ='';
+            foreach ($investissement->monnaie as $mon){
+              $monnaie = $monnaie.' '.$mon->libelle ;
+            }
+
+            $region ='';
+            foreach ($investissement->region as $reg){
+              $region = $region.' '.$reg->nom_region ;
+            }
+
+            $structure ='';
+            foreach ($investissement->structure as $str){
+              $structure = $structure.' '.$str->libelle ;
+            }
+
+            $source ='';
+            foreach ($investissement->source as $src){
+              $source = $source.' '.$src->libelle_source ;
+            }
+
+            $dimension ='';
+            foreach ($investissement->dimension as $dim){
+              $dimension = $dimension.' '.$dim->libelle_source ;
+            }
+
+            $pilier ='';
+            foreach ($investissement->pilier as $pil){
+              $pilier = $pilier.' '.$pil->nom_pilier ;
+            }
+
+            fputcsv($handle, [
+                $annee,
+                $monnaie,
+                $region,
+                $structure,
+                $source,
+                $dimension,
+                $pilier
             ]);
         }
         fclose($handle);
