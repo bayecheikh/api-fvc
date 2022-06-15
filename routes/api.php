@@ -116,6 +116,8 @@ Route::middleware('auth:api')->group(function () {
     /**Recherche avancée sur les investissements */
     Route::resource('recherche_avances', InvestissementController::class);
     Route::post('recherche_avance_investissements', [RechercheInvestissementController::class, 'recherche']);
+    Route::post('export_csv_investissements', [ExportInvestissementController::class, 'exportCSV']);
+    Route::post('export_pdf_investissements', [ExportInvestissementController::class, 'exportPDF']);
 
     /**Gestion des lignes de financement */
     Route::resource('ligne_financements', LigneFinancementController::class);
