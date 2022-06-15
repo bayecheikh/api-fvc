@@ -269,7 +269,8 @@ class ExportInvestissementController extends Controller
         fclose($handle);
 
         //download command
-        return Response::download($filename, "investissements.csv", $headers);
+        //return response()->stream($callback, 200, $headers);
+        return Response::stream($filename, "investissements.csv", $headers);
         }
     }
 
