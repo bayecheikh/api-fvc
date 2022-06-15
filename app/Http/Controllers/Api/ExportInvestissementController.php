@@ -189,7 +189,7 @@ class ExportInvestissementController extends Controller
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
 
-            foreach ($investissements[0]->ligne_financements as $investissement) {
+            foreach ($lignefinacements as $investissement) {
                 $row['id']  = $investissement->id;
                 $row['id_pilier']  = $investissement->id_pilier;
                 fputcsv($file, array($row['Id'], $row['Pilier']));
