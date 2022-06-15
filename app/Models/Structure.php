@@ -54,13 +54,10 @@ class Structure extends Model
   }
   public function investissements() {
     return $this->belongsToMany(Investissement::class,'structures_investissements');          
-<<<<<<< HEAD
 }
 
 public function demandes() {
   return $this->belongsToMany(Demande::class,'demandes_structures');          
 }
-=======
-  }
->>>>>>> dev
+
 }
