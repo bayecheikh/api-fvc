@@ -28,6 +28,8 @@ use App\Models\Departement;
 use App\Models\Pilier;
 use App\Models\Axe;
 
+use File;
+
 class ExportInvestissementController extends Controller
 {
     //
@@ -71,6 +73,6 @@ class ExportInvestissementController extends Controller
     }
 
     public function exportPDF(){
-        
+
     }
 }
