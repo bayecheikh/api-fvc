@@ -209,7 +209,7 @@ class ExportInvestissementController extends Controller
             $annee ='';
             if($investissement->annee){
                 foreach ($investissement->annee as $an){
-                    $annee = nl2br ($annee.'\r\n'.$an->libelle) ;
+                    $annee = $annee.nl2br($an->libelle);
                 }
             }
             
@@ -217,42 +217,42 @@ class ExportInvestissementController extends Controller
             $monnaie ='';
             if($investissement->monnaie!=null){
                 foreach ($investissement->monnaie as $mon){
-                    $monnaie = nl2br ($monnaie.'\r\n'.$mon->libelle );
+                    $monnaie = $monnaie.nl2br($mon->libelle);
                   }
             }           
 
             $region ='';
             if($investissement->region!=null){
                 foreach ($investissement->region as $reg){
-                    $region = nl2br ($region.'\r\n'.$reg->nom_region) ;
+                    $region = $region.nl2br($reg->nom_region);
                 }
             }
 
             $structure ='';
             if($investissement->structure!=null){
                 foreach ($investissement->structure as $str){
-                    $structure = nl2br ($structure.'\r\n'.$str->nom_structure) ;
+                    $structure = $structure.nl2br($str->nom_structure);
                   }
             }           
 
             $source ='';
             if($investissement->source!=null){
                 foreach ($investissement->source as $src){
-                    $source = nl2br ($source.'\r\n'.$src->libelle_source) ;
+                    $source = $source.nl2br($src->libelle_source);
                 }
             }
 
             $dimension ='';
             if($investissement->dimension!=null){
                 foreach ($investissement->dimension as $dim){
-                    $dimension = nl2br ($dimension.'\r\n'.$dim->libelle_dimension) ;
+                    $dimension = $dimension.nl2br($dim->libelle_dimension);
                 }
             }
 
             $pilier ='';
             if($investissement->pilier!=null){
                 foreach ($investissement->pilier as $pil){
-                    $pilier = nl2br ($pilier.'\r\n'.$pil->nom_pilier) ;
+                    $pilier = $pilier.nl2br($pil->nom_pilier);
                 }
             }
 
