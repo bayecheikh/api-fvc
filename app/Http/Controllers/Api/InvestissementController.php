@@ -320,6 +320,15 @@ class InvestissementController extends Controller
                         'montantInvestissementExecutes'=> $montantInvestissementExecutes[$ifinance], 
                         'status' => 'actif'
                     ]);
+                    $ligneFinancementObj->axe()->detach($axeObj);
+                    $ligneFinancementObj->axes()->attach($axeObj);
+
+                    $ligneFinancementObj->pilier()->detach($pilierObj);
+                    $ligneFinancementObj->pilier()->attach($pilierObj);
+
+                    $ligneFinancementObj->investissement()->detach($ligneFinancementObj);
+                    $ligneFinancementObj->investissement()->attach($ligneFinancementObj);
+
                     $investissement->ligne_financements()->attach($ligneFinancementObj);
                     $ifinance++;
                 }
