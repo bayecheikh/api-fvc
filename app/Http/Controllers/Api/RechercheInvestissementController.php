@@ -126,8 +126,8 @@ class RechercheInvestissementController extends Controller
             }
             if($pilier!=null){               
                 $investissements = $investissements
-                ->whereHas('piliers', function($q) use ($pilier){
-                    $q->whereHas('investissement', function($q) use ($pilier){
+                ->whereHas('investissement', function($q) use ($pilier){
+                    $q->whereHas('piliers', function($q) use ($pilier){
                         $q->where('id', $pilier);
                     });
                 });
