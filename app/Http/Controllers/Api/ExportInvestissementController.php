@@ -165,10 +165,11 @@ class ExportInvestissementController extends Controller
                     $q->where('id', $departement);
                 });
             } */
+            
+
+            $investissements = $investissements->get();
             $investissements->load('axes.ligne_financements');
             $investissements->load('axes.piliers');
-
-            $investissements = $investissements->orderBy('created_at', 'DESC')->paginate(10);
             $fileName = 'investissements.csv';
         // these are the headers for the csv file. Not required but good to have one incase of system didn't recongize it properly
         $headers = array(
