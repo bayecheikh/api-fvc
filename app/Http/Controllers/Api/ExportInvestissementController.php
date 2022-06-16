@@ -200,6 +200,8 @@ class ExportInvestissementController extends Controller
 
             foreach ($investissements as $investissement) {
                 foreach ($investissement->ligne_financements as $investissement){
+                    $row['id_pilier'] = '';
+                    $row['id_axe'] = '';
                     foreach ($investissement->axe as $axe){
                         $row['id_pilier']  = $axe->pilier;
                     }
