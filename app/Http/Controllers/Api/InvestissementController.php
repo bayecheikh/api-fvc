@@ -91,6 +91,7 @@ class InvestissementController extends Controller
                 ->whereHas('structure', function($q) use ($structure_id){
                     $q->where('id', $structure_id);
                 })->orderBy('created_at', 'DESC')->paginate(10);
+                $investissements->load('axes.ligne_financements');
             }
             
         }
