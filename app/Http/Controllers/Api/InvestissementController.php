@@ -329,7 +329,9 @@ class InvestissementController extends Controller
                     $ligneFinancementObj->investissement()->detach($investissement);
                     $ligneFinancementObj->investissement()->attach($investissement);
 
+                    $investissement->ligne_financements()->detach($ligneFinancementObj);
                     $investissement->ligne_financements()->attach($ligneFinancementObj);
+
                     $ifinance++;
                 }
             }
