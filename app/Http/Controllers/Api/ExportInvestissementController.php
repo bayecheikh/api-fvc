@@ -165,6 +165,8 @@ class ExportInvestissementController extends Controller
                     $q->where('id', $departement);
                 });
             } */
+            $investissements->load('axes.ligne_financements');
+            $investissements->load('axes.piliers');
 
             $investissements = $investissements->orderBy('created_at', 'DESC')->paginate(10);
             $fileName = 'investissements.csv';
@@ -191,13 +193,12 @@ class ExportInvestissementController extends Controller
             'Montant Investissement Executes',
         );
 
-       $lignefinacements = $investissements[0]->ligne_financements;
         $callback = function() use($lignefinacements, $columns) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
 
-            foreach ($lignefinacements as $investissement) {
-                foreach ($investissements->ligne_financements as $investissement){
+            foreach ($investissements as $investissement) {
+                foreach ($investissement->ligne_financements as $investissement){
                 $row['id_pilier']  = $investissement->id_pilier;
                 $row['id_axe']  = $investissement->id_axe; 
                 $row['montantBienServicePrevus']  = $investissement->montantBienServicePrevus;
