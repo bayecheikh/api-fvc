@@ -194,14 +194,14 @@ class ExportInvestissementController extends Controller
             'Montant Investissement Executes',
         );
 
-        $callback = function() use($lignefinacements, $columns) {
+        $callback = function() use($investissements, $columns) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
 
             foreach ($investissements as $investissement) {
                 foreach ($investissement->ligne_financements as $investissement){
-                $row['id_pilier']  = $investissement->id_pilier;
-                $row['id_axe']  = $investissement->id_axe; 
+                $row['id_pilier']  = $investissement->axe->pilier;
+                $row['id_axe']  = $investissement->axe; 
                 $row['montantBienServicePrevus']  = $investissement->montantBienServicePrevus;
                 $row['montantBienServiceMobilises']  = $investissement->montantBienServiceMobilises;
                 $row['montantBienServiceExecutes']  = $investissement->montantBienServiceExecutes;
