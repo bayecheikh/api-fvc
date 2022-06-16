@@ -321,7 +321,7 @@ class InvestissementController extends Controller
                         'status' => 'actif'
                     ]);
                     $ligneFinancementObj->axe()->detach($axeObj);
-                    $ligneFinancementObj->axes()->attach($axeObj);
+                    $ligneFinancementObj->axe()->attach($axeObj);
 
                     $ligneFinancementObj->pilier()->detach($pilierObj);
                     $ligneFinancementObj->pilier()->attach($pilierObj);
