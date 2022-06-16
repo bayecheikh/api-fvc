@@ -161,6 +161,12 @@ class RechercheInvestissementController extends Controller
                 });
             } */
             $investissements = $investissements->where('status','publie');
+            $status = 'publie';
+
+            $investissements->whereHas('investissement', function($q) use ($status){
+                $q->where('status', $status);
+            });
+
             $investissements = $investissements->orderBy('created_at', 'DESC')->paginate(10);
 
             $total = $investissements->total();
