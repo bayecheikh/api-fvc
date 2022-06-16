@@ -197,6 +197,7 @@ class ExportInvestissementController extends Controller
             fputcsv($file, $columns);
 
             foreach ($lignefinacements as $investissement) {
+                foreach ($investissements->ligne_financements as $investissement){
                 $row['id_pilier']  = $investissement->id_pilier;
                 $row['id_axe']  = $investissement->id_axe; 
                 $row['montantBienServicePrevus']  = $investissement->montantBienServicePrevus;
@@ -215,7 +216,9 @@ class ExportInvestissementController extends Controller
                 $row['montantInvestissementPrevus'],
                 $row['montantInvestissementMobilises'],
                 $row['montantInvestissementExecutes']
-            ));
+                ));
+
+                }
             }
 
             fclose($file);
