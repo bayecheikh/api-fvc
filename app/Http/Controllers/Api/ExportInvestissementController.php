@@ -169,7 +169,7 @@ class ExportInvestissementController extends Controller
 
             $investissements = $investissements->get();
             $investissements->load('axes.ligne_financements');
-            $investissements->load('axes.piliers');
+            $investissements->load('piliers.axes');
             $fileName = 'investissements.csv';
         // these are the headers for the csv file. Not required but good to have one incase of system didn't recongize it properly
         $headers = array(
