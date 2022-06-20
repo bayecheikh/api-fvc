@@ -204,7 +204,7 @@ class ExportInvestissementController extends Controller
 
         $callback = function() use($investissements, $columns) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, $columns);
+            fputcsv($file, $columns,';');
 
             foreach ($investissements as $investissement) {               
                 $row['structure'] = '';
@@ -217,7 +217,7 @@ class ExportInvestissementController extends Controller
                 $row['montantInvestissementPrevus']  = $investissement->montantInvestissementPrevus;
                 $row['montantInvestissementMobilises']  = $investissement->montantInvestissementMobilises;
                 $row['montantInvestissementExecutes']  = $investissement->montantInvestissementExecutes;
-                
+
                 foreach ($investissement->pilier as $pilier){
                     $row['id_pilier']  = $pilier->nom_pilier;
                 }
