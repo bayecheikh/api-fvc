@@ -216,9 +216,9 @@ class ExportInvestissementController extends Controller
                 foreach ($investissement->axe as $axe){
                     $row['id_axe']  = $axe->nom_axe;
                 }
-                foreach ($investissement->investissement as $structure){
-                    if(!empty($structure)){
-                        foreach ($structure as $structure){
+                foreach ($investissement->investissement as $investissement){
+                    if(!empty($investissement->$structure)){
+                        foreach ($investissement->$structure as $structure){
                             $row['structure']  = $structure->nom_structure;
                         }
                     }
