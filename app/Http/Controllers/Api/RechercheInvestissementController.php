@@ -160,7 +160,12 @@ class RechercheInvestissementController extends Controller
                     $q->where('id', $departement);
                 });
             } */
-            $investissements = $investissements->where('status', 'like', '%publie%');
+            $status = 'publie';
+            $investissements = $investissements
+            ->whereHas('investissement', function($q) use ($status){
+                $q->where('status', 'like', '%publie%');
+            });
+
             $investissements = $investissements->orderBy('created_at', 'DESC')->paginate(10);
             //$investissements -> load('investissement.annee');
             $investissements -> load('investissement.structure');
