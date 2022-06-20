@@ -71,7 +71,7 @@ class DemandeController extends Controller
         }
 
         
-        $total = $investissements->total();
+        $total = $demandes->total();
         return response()->json(["success" => true, "message" => "Demande List", "data" =>$demandes,"total"=> $total]);
         
     }
