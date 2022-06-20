@@ -241,7 +241,7 @@ class ExportInvestissementController extends Controller
                     $row['montantInvestissementPrevus'],
                     $row['montantInvestissementMobilises'],
                     $row['montantInvestissementExecutes']   
-                ));
+                ),';');
             }
 
             fclose($file);
