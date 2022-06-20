@@ -13,6 +13,8 @@ use Validator;
 use App\Models\Role;
 use App\Models\Permission;
 
+use App\Models\Demande;
+
 use App\Models\Investissement;
 use App\Models\User;
 use App\Models\Fichier;
@@ -44,50 +46,23 @@ class DemandeController extends Controller
     public function index(Request $request)
     {
         if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
-            $investissements = Investissement::with('region')
-            ->with('annee')
-            ->with('monnaie')
-            ->with('structure')
-            ->with('source')
-            ->with('dimension')
-            ->with('piliers')
-            ->with('axes')
-            ->with('mode_financements')
-            ->with('ligne_financements')
-            ->with('fichiers')
+            $demandes = Demande::with('profil')
+            ->with('structure') 
             ->paginate(10);
         }
         else{
             if($request->user()->hasRole('directeur_eps')){
                 $source_id = User::find($request->user()->id)->structures[0]->source_financements[0]->id;
-                $investissements = Investissement::with('region')
-                ->with('annee')
-                ->with('monnaie')
-                ->with('structure')
-                ->with('source')
-                ->with('dimension')
-                ->with('piliers')
-                ->with('axes')
-                ->with('mode_financements')
-                ->with('ligne_financements')
-                ->with('fichiers')
+                $demandes = Demande::with('profil')
+                ->with('structure') 
                 ->whereHas('source', function($q) use ($source_id){
                     $q->where('id', $source_id);
                 })->paginate(10);
             }
             else{
                 $structure_id = User::find($request->user()->id)->structures[0]->id;
-                $investissements = Investissement::with('region')
-                ->with('annee')
-                ->with('monnaie')
-                ->with('structure')
-                ->with('source')
-                ->with('dimension')
-                ->with('piliers')
-                ->with('axes')
-                ->with('mode_financements')
-                ->with('ligne_financements')
-                ->with('fichiers')
+                $demandes = Demande::with('profil')
+                ->with('structure') 
                 ->whereHas('structure', function($q) use ($structure_id){
                     $q->where('id', $structure_id);
                 })->orderBy('created_at', 'DESC')->paginate(10);
@@ -97,7 +72,7 @@ class DemandeController extends Controller
 
         
         $total = $investissements->total();
-        return response()->json(["success" => true, "message" => "Structures List", "data" =>$investissements,"total"=> $total]);
+        return response()->json(["success" => true, "message" => "Demande List", "data" =>$demandes,"total"=> $total]);
         
     }
     /**
