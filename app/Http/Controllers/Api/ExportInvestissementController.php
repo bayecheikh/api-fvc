@@ -65,84 +65,83 @@ class ExportInvestissementController extends Controller
         else{ 
 
             if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
-                $investissements = Investissement::with('region')
-                ->with('annee')
-                ->with('monnaie')
-                ->with('structure')
-                ->with('source')
-                ->with('dimension')
-                ->with('piliers')
-                ->with('axes')
-                ->with('mode_financements')
-                ->with('ligne_financements')
-                ->with('fichiers');
+                $investissements = LigneFinancement::with('investissement')
+                ->with('pilier')
+                ->with('axe');
             }
             else{
                 if($request->user()->hasRole('directeur_eps')){
                     $source_id = User::find($request->user()->id)->structures[0]->source_financements[0]->id;
-                    $investissements = Investissement::with('region')
-                    ->with('annee')
-                    ->with('monnaie')
-                    ->with('structure')
-                    ->with('source')
-                    ->with('dimension')
-                    ->with('piliers')
-                    ->with('axes')
-                    ->with('mode_financements')
-                    ->with('ligne_financements')
-                    ->with('fichiers')
-                    ->whereHas('source', function($q) use ($source_id){
-                        $q->where('id', $source_id);
+                    $investissements = LigneFinancement::with('investissement')
+                    ->with('pilier')
+                    ->with('axe')
+                    ->whereHas('investissement', function($q) use ($source_id){
+                        $q->whereHas('source', function($q) use ($source_id){
+                            $q->where('id', $source_id);
+                        });
                     });
+                    
                 }
                 else{
                     $structure_id = User::find($request->user()->id)->structures[0]->id;
-                    $investissements = Investissement::with('region')
-                    ->with('annee')
-                    ->with('monnaie')
-                    ->with('structure')
-                    ->with('source')
-                    ->with('dimension')
-                    ->with('piliers')
-                    ->with('axes')
-                    ->with('mode_financements')
-                    ->with('ligne_financements')
-                    ->with('fichiers')
-                    ->whereHas('structure', function($q) use ($structure_id){
-                        $q->where('id', $structure_id);
+                    $investissements = LigneFinancement::with('investissement')
+                    ->with('pilier')
+                    ->with('axe')
+                    ->whereHas('investissement', function($q) use ($structure_id){
+                        $q->whereHas('structure', function($q) use ($structure_id){
+                            $q->where('id', $structure_id);
+                        });
                     });
                 }
                 
             }
 
             if($annee!=null){               
-                $investissements = $investissements->whereHas('annee', function($q) use ($annee){
-                    $q->where('id', $annee);
+                $investissements = $investissements
+                ->whereHas('investissement', function($q) use ($annee){
+                    $q->whereHas('annee', function($q) use ($annee){
+                        $q->where('id', $annee);
+                    });
                 });
             }
             if($monnaie!=null){               
-                $investissements = $investissements->whereHas('monnaie', function($q) use ($monnaie){
-                    $q->where('id', $monnaie);
+                $investissements = $investissements
+                ->whereHas('investissement', function($q) use ($monnaie){
+                    $q->whereHas('monnaie', function($q) use ($monnaie){
+                        $q->where('id', $monnaie);
+                    });
                 });
             }
             if($region!=null){               
-                $investissements = $investissements->whereHas('region', function($q) use ($region){
-                    $q->where('id', $region);
+                $investissements = $investissements
+                ->whereHas('investissement', function($q) use ($region){
+                    $q->whereHas('region', function($q) use ($region){
+                        $q->where('id', $region);
+                    });
                 });
             }
             if($dimension!=null){               
-                $investissements = $investissements->whereHas('dimension', function($q) use ($dimension){
-                    $q->where('id', $dimension);
+                $investissements = $investissements
+                ->whereHas('investissement', function($q) use ($dimension){
+                    $q->whereHas('dimension', function($q) use ($dimension){
+                        $q->where('id', $dimension);
+                    });
                 });
             }
             if($pilier!=null){               
-                $investissements = $investissements->whereHas('piliers', function($q) use ($pilier){
-                    $q->where('id', $pilier);
+                $investissements = $investissements
+                ->whereHas('investissement', function($q) use ($pilier){
+                    $q->whereHas('piliers', function($q) use ($pilier){
+                        $q->where('id', $pilier);
+                    });
                 });
             }
             if($axe!=null){               
-                $investissements = $investissements->whereHas('axes', function($q) use ($axe){
-                    $q->where('id', $axe);
+                $investissements = $investissements
+                ->whereHas('investissement', function($q) use ($axe){
+                    $q->whereHas('axes', function($q) use ($axe){
+                        $q->where('id', $axe);
+                    });
                 });
             }
             /* if($structure!=null){               
@@ -165,11 +164,19 @@ class ExportInvestissementController extends Controller
                     $q->where('id', $departement);
                 });
             } */
-            
+            $status = 'publie';
+            $investissements = $investissements
+            ->whereHas('investissement', function($q) use ($status){
+                $q->where('status', 'like', '%publie%');
+            });
 
-            $investissements = $investissements->get();
-            $investissements->load('axes.ligne_financements');
-            $investissements->load('piliers.axes');
+            $investissements = $investissements->orderBy('created_at', 'DESC');
+            //$investissements -> load('investissement.annee');
+            $investissements -> load('investissement.structure');
+            /* $investissements -> load('investissement.source');
+            $investissements -> load('investissement.dimension');
+            $investissements -> load('investissement.region'); */
+
             $fileName = 'investissements.csv';
         // these are the headers for the csv file. Not required but good to have one incase of system didn't recongize it properly
         $headers = array(
@@ -184,6 +191,7 @@ class ExportInvestissementController extends Controller
         //adding the first row
 
         $columns = array(
+            'Structure',
             'Pilier',
             'Axe', 
             'Montant Bien Service Prevus',
@@ -198,18 +206,24 @@ class ExportInvestissementController extends Controller
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
 
-            foreach ($investissements as $investissement) {
-                foreach ($investissement->ligne_financements as $investissement){
-                    $row['id_pilier'] = '';
-                    $row['id_axe'] = '';
-                    foreach ($investissement->pilier as $pilier){
-                        $row['id_pilier']  = $pilier->nom_pilier;
+            foreach ($investissements as $investissement) {               
+                $row['structure'] = '';
+                $row['id_pilier'] = '';
+                $row['id_axe'] = '';
+                foreach ($investissement->pilier as $pilier){
+                    $row['id_pilier']  = $pilier->nom_pilier;
+                }
+                foreach ($investissement->axe as $axe){
+                    $row['id_axe']  = $axe->nom_axe;
+                }
+                foreach ($investissement->investissement as $structure){
+                    if(!empty($structure)){
+                        foreach ($structure as $structure){
+                            $row['structure']  = $structure->nom_structure;
+                        }
                     }
-                    foreach ($investissement->axe as $axe){
-                        $row['id_axe']  = $axe->nom_axe;
-                    }
+                }
                  
-
                 $row['montantBienServicePrevus']  = $investissement->montantBienServicePrevus;
                 $row['montantBienServiceMobilises']  = $investissement->montantBienServiceMobilises;
                 $row['montantBienServiceExecutes']  = $investissement->montantBienServiceExecutes;
@@ -218,17 +232,16 @@ class ExportInvestissementController extends Controller
                 $row['montantInvestissementExecutes']  = $investissement->montantInvestissementExecutes;
 
                 fputcsv($file, array( 
-                $row['id_pilier'],
-                $row['id_axe'],
-                $row['montantBienServicePrevus'],
-                $row['montantBienServiceMobilises'],
-                $row['montantBienServiceExecutes'],
-                $row['montantInvestissementPrevus'],
-                $row['montantInvestissementMobilises'],
-                $row['montantInvestissementExecutes']
+                    $row['Structure'],
+                    $row['id_pilier'],
+                    $row['id_axe'],
+                    $row['montantBienServicePrevus'],
+                    $row['montantBienServiceMobilises'],
+                    $row['montantBienServiceExecutes'],
+                    $row['montantInvestissementPrevus'],
+                    $row['montantInvestissementMobilises'],
+                    $row['montantInvestissementExecutes']   
                 ));
-
-                }
             }
 
             fclose($file);
