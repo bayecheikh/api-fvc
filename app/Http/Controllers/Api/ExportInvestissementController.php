@@ -232,7 +232,7 @@ class ExportInvestissementController extends Controller
                 $row['montantInvestissementExecutes']  = $investissement->montantInvestissementExecutes;
 
                 fputcsv($file, array( 
-                    $row['Structure'],
+                    $row['structure'],
                     $row['id_pilier'],
                     $row['id_axe'],
                     $row['montantBienServicePrevus'],
