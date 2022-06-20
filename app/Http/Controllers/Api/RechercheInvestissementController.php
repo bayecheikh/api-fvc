@@ -162,6 +162,7 @@ class RechercheInvestissementController extends Controller
             } */
             
             $investissements = $investissements->orderBy('created_at', 'DESC')->paginate(10);
+            $investissements -> load('structures.investissements');
 
             $total = $investissements->total();
             return response()->json(["success" => true, "message" => "Liste des investissements", "data" =>$investissements,"total"=> $total]);
