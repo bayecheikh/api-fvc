@@ -162,11 +162,11 @@ class RechercheInvestissementController extends Controller
             } */
             
             $investissements = $investissements->orderBy('created_at', 'DESC')->paginate(10);
-            $investissements -> load('investissement.annee');
-            $investissements -> load('investissement.structure');
-            $investissements -> load('investissement.source');
-            $investissements -> load('investissement.dimension');
-            $investissements -> load('investissement.region');
+            $investissements -> load('investissement.annee')
+            -> load('investissement.structure')
+            -> load('investissement.source')
+            -> load('investissement.dimension')
+            -> load('investissement.region');
             
 
             $total = $investissements->total();
