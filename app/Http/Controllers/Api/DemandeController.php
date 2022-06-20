@@ -5,6 +5,29 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use App\Models\TypeZoneIntervention;
+use App\Models\TypeSource;
+use App\Models\SourceFinancement;
+use Validator;
+
+use App\Models\Role;
+use App\Models\Permission;
+
+use App\Models\Investissement;
+use App\Models\User;
+use App\Models\Fichier;
+use App\Models\Structure;
+use App\Models\Annee;
+use App\Models\Monnaie;
+use App\Models\LigneFinancement;
+use App\Models\ModeFinancement;
+use App\Models\LigneModeInvestissement;
+use App\Models\Dimension;
+use App\Models\Region;
+use App\Models\Departement;
+use App\Models\Pilier;
+use App\Models\Axe;
+
 class DemandeController extends Controller
 {
     public function __construct()
