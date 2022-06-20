@@ -170,7 +170,7 @@ class ExportInvestissementController extends Controller
                 $q->where('status', 'like', '%publie%');
             });
 
-            $investissements = $investissements->orderBy('created_at', 'DESC');
+            $investissements = $investissements->orderBy('created_at', 'DESC')->paginate(0);
             //$investissements -> load('investissement.annee');
             $investissements -> load('investissement.structure');
             /* $investissements -> load('investissement.source');
