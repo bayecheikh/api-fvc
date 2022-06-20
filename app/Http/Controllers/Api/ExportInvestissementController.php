@@ -210,6 +210,14 @@ class ExportInvestissementController extends Controller
                 $row['structure'] = '';
                 $row['id_pilier'] = '';
                 $row['id_axe'] = '';
+
+                $row['montantBienServicePrevus']  = $investissement->montantBienServicePrevus;
+                $row['montantBienServiceMobilises']  = $investissement->montantBienServiceMobilises;
+                $row['montantBienServiceExecutes']  = $investissement->montantBienServiceExecutes;
+                $row['montantInvestissementPrevus']  = $investissement->montantInvestissementPrevus;
+                $row['montantInvestissementMobilises']  = $investissement->montantInvestissementMobilises;
+                $row['montantInvestissementExecutes']  = $investissement->montantInvestissementExecutes;
+                
                 foreach ($investissement->pilier as $pilier){
                     $row['id_pilier']  = $pilier->nom_pilier;
                 }
@@ -223,14 +231,6 @@ class ExportInvestissementController extends Controller
                         }
                     }
                 }
-                 
-                $row['montantBienServicePrevus']  = $investissement->montantBienServicePrevus;
-                $row['montantBienServiceMobilises']  = $investissement->montantBienServiceMobilises;
-                $row['montantBienServiceExecutes']  = $investissement->montantBienServiceExecutes;
-                $row['montantInvestissementPrevus']  = $investissement->montantInvestissementPrevus;
-                $row['montantInvestissementMobilises']  = $investissement->montantInvestissementMobilises;
-                $row['montantInvestissementExecutes']  = $investissement->montantInvestissementExecutes;
-
                 fputcsv($file, array( 
                     $row['structure'],
                     $row['id_pilier'],
