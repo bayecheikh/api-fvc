@@ -23,7 +23,7 @@ use App\Models\Annee;
 use App\Models\Monnaie;
 use App\Models\LigneFinancement;
 use App\Models\ModeFinancement;
-use App\Models\LigneModeInvestissement;
+use App\Models\LigneModedemande;
 use App\Models\Dimension;
 use App\Models\Region;
 use App\Models\Departement;
@@ -80,31 +80,18 @@ class DemandeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function investissementMultipleSearch($term)
+    public function demandeMultipleSearch($term)
     {
         if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
-            $investissements = Investissement::where('id', 'like', '%'.$term.'%')->orWhere('nom_investissement', 'like', '%'.$term.'%')
-            ->with('region')
-            ->with('annee')
-            ->with('monnaie')
-            ->with('structure')
-            ->with('source')
-            ->with('dimension')
-            ->with('mode_financements')
-            ->with('ligne_financements')
-            ->with('fichiers')
+            $demandes = demande::where('id', 'like', '%'.$term.'%')->orWhere('email', 'like', '%'.$term.'%')
+            ->with('profil')
+            ->with('structure') 
             ->paginate(10);
         }else{
             $structure_id = User::find($request->user()->id)->structures[0]->id;
-            $investissements = Investissement::where('id', 'like', '%'.$term.'%')->orWhere('nom_investissement', 'like', '%'.$term.'%')
-            ->with('region')
-            ->with('annee')
-            ->with('monnaie')
-            ->with('structure')
-            ->with('source')
-            ->with('dimension')
-            ->with('mode_financements')
-            ->with('ligne_financements')
+            $demandes = demande::where('id', 'like', '%'.$term.'%')->orWhere('email', 'like', '%'.$term.'%')
+            ->with('profil')
+            ->with('structure') 
             ->with('fichiers')->whereHas('structure', function($q) use ($structure_id){
                 $q->where('id', $structure_id);
             })
@@ -112,43 +99,25 @@ class DemandeController extends Controller
 
             if($request->user()->hasRole('directeur_eps')){
                 $source_id = User::find($request->user()->id)->structures[0]->source_financements[0]->id;
-                $investissements = Investissement::where('id', 'like', '%'.$term.'%')->orWhere('nom_investissement', 'like', '%'.$term.'%')
-                ->with('annee')
-                ->with('region')
-                ->with('monnaie')
-                ->with('structure')
-                ->with('source')
-                ->with('dimension')
-                ->with('piliers')
-                ->with('axes')
-                ->with('mode_financements')
-                ->with('ligne_financements')
-                ->with('fichiers')
+                $demandes = demande::where('id', 'like', '%'.$term.'%')->orWhere('email', 'like', '%'.$term.'%')
+                ->with('profil')
+                ->with('structure') 
                 ->whereHas('source', function($q) use ($source_id){
                     $q->where('id', $sourcee_id);
                 })->paginate(10);
             }
             else{
                 $structure_id = User::find($request->user()->id)->structures[0]->id;
-                $investissements = Investissement::where('id', 'like', '%'.$term.'%')->orWhere('nom_investissement', 'like', '%'.$term.'%')
-                ->with('annee')
-                ->with('region')
-                ->with('monnaie')
-                ->with('structure')
-                ->with('source')
-                ->with('dimension')
-                ->with('piliers')
-                ->with('axes')
-                ->with('mode_financements')
-                ->with('ligne_financements')
-                ->with('fichiers')
+                $demandes = demande::where('id', 'like', '%'.$term.'%')->orWhere('email', 'like', '%'.$term.'%')
+                ->with('profil')
+                ->with('structure') 
                 ->whereHas('structure', function($q) use ($structure_id){
                     $q->where('id', $structure_id);
                 })->paginate(10);
             }
         }
-        $total = $investissements->total();
-        return response()->json(["success" => true, "message" => "Liste des investissements", "data" =>$investissements,"total"=> $total]);  
+        $total = $demandes->total();
+        return response()->json(["success" => true, "message" => "Liste des demandes", "data" =>$demandes,"total"=> $total]);  
     }
     /**
      * Store a newly created resource in storagrolee.
@@ -196,12 +165,12 @@ class DemandeController extends Controller
         }
         else{ 
             if ($request->user()->hasRole('point_focal')){             
-                $investissement = Investissement::create(
-                    ['state' => 'INITIER_INVESTISSEMENT']
+                $demande = demande::create(
+                    ['state' => 'INITIER_demande']
                 );
             }
             if ($request->user()->hasRole('admin_structure')){  
-                $investissement = Investissement::create(
+                $demande = demande::create(
                     ['state' => 'VALIDATION_ADMIN_STRUCTURE']
                 );
             }  
@@ -220,9 +189,9 @@ class DemandeController extends Controller
             $montantBienServicePrevus = explode (",", $input['montantBienServicePrevus']);
             $montantBienServiceMobilises = explode (",", $input['montantBienServiceMobilises']);
             $montantBienServiceExecutes = explode (",", $input['montantBienServiceExecutes']);
-            $montantInvestissementPrevus = explode (",", $input['montantInvestissementPrevus']);
-            $montantInvestissementMobilises = explode (",", $input['montantInvestissementMobilises']);
-            $montantInvestissementExecutes = explode (",", $input['montantInvestissementExecutes']);
+            $montantdemandePrevus = explode (",", $input['montantdemandePrevus']);
+            $montantdemandeMobilises = explode (",", $input['montantdemandeMobilises']);
+            $montantdemandeExecutes = explode (",", $input['montantdemandeExecutes']);
 
             $tempLigneModeFinancements = str_replace("\\", "",$input['ligneModeFinancements']);
             $ligneModeFinancements = json_decode($tempLigneModeFinancements);
@@ -234,28 +203,28 @@ class DemandeController extends Controller
 
             if($structure_id!=null){               
                 $structureObj = Structure::where('id',intval($structure_id))->first();
-                $investissement->structure()->attach($structureObj);
+                $demande->structure()->attach($structureObj);
             }
             if($source_id!=null){               
                 $sourceObj = SourceFinancement::where('id',intval($source_id))->first();
-                $investissement->source()->attach($sourceObj);
+                $demande->source()->attach($sourceObj);
             }
 
             if($annee!=null){               
                 $anneeObj = Annee::where('id',$annee)->first();
-                $investissement->annee()->attach($anneeObj);
+                $demande->annee()->attach($anneeObj);
             }
             if($monnaie!=null){               
                 $monnaieObj = Monnaie::where('id',$monnaie)->first();
-                $investissement->monnaie()->attach($monnaieObj);
+                $demande->monnaie()->attach($monnaieObj);
             }
             if($region!=null){               
                 $regionObj = Region::where('id',$region)->first();
-                $investissement->region()->attach($regionObj);
+                $demande->region()->attach($regionObj);
             }
             if($dimension!=null){               
                 $dimensionObj = Dimension::where('id',$dimension)->first();
-                $investissement->dimension()->attach($dimensionObj);
+                $demande->dimension()->attach($dimensionObj);
             }
             $imode=0;
             if(!empty($libelleModeFinancements)){
@@ -265,7 +234,7 @@ class DemandeController extends Controller
                         'montant' => $montantModeFinancements[$imode],
                         'status' => 'actif'
                     ]);
-                    $investissement->mode_financements()->attach($ligneModeFinancementObj);
+                    $demande->mode_financements()->attach($ligneModeFinancementObj);
                     $imode++;
                 }
             }
@@ -273,15 +242,15 @@ class DemandeController extends Controller
             if(!empty($piliers)){
                 foreach($piliers as $pilier){
                     $pilierObj = Pilier::where('id',intval($pilier))->first();
-                    $investissement_id = $investissement->id;
+                    $demande_id = $demande->id;
 
-                    $investissement->piliers()->detach($pilierObj);
-                    $investissement->piliers()->attach($pilierObj);
+                    $demande->piliers()->detach($pilierObj);
+                    $demande->piliers()->attach($pilierObj);
 
                     $axeObj = Axe::where('id',intval($axes[$ifinance]))->first();
 
-                    $investissement->axes()->detach($axeObj);
-                    $investissement->axes()->attach($axeObj);
+                    $demande->axes()->detach($axeObj);
+                    $demande->axes()->attach($axeObj);
 
                     $ligneFinancementObj = LigneFinancement::create([                      
                         'id_pilier'=> intval($pilier), 
@@ -289,12 +258,12 @@ class DemandeController extends Controller
                         'montantBienServicePrevus'=> $montantBienServicePrevus[$ifinance],
                         'montantBienServiceMobilises'=> $montantBienServiceMobilises[$ifinance],
                         'montantBienServiceExecutes'=> $montantBienServiceExecutes[$ifinance],
-                        'montantInvestissementPrevus'=> $montantInvestissementPrevus[$ifinance],
-                        'montantInvestissementMobilises'=> $montantInvestissementMobilises[$ifinance],
-                        'montantInvestissementExecutes'=> $montantInvestissementExecutes[$ifinance], 
+                        'montantdemandePrevus'=> $montantdemandePrevus[$ifinance],
+                        'montantdemandeMobilises'=> $montantdemandeMobilises[$ifinance],
+                        'montantdemandeExecutes'=> $montantdemandeExecutes[$ifinance], 
                         'status' => 'actif'
                     ]);
-                    $investissement->ligne_financements()->attach($ligneFinancementObj);
+                    $demande->ligne_financements()->attach($ligneFinancementObj);
                     $ifinance++;
                 }
             }
@@ -381,7 +350,7 @@ class DemandeController extends Controller
                 }
             } */
     
-            return response()->json(["success" => true, "message" => "Investissement enregistré avec succès.", "data" => $source_libelle]);
+            return response()->json(["success" => true, "message" => "demande enregistré avec succès.", "data" => $source_libelle]);
             //return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $input]);
         }
     }
@@ -393,7 +362,7 @@ class DemandeController extends Controller
      */
     public function show($id)
     {
-        $investissement = Investissement::with('region')
+        $demande = demande::with('region')
         ->with('annee')
             ->with('monnaie')
             ->with('structure')
@@ -406,14 +375,14 @@ class DemandeController extends Controller
             ->with('fichiers')
         ->get()
         ->find($id);
-        if (is_null($investissement))
+        if (is_null($demande))
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "investissement not found."]);
+            ->json(["success" => true, "message" => "demande not found."]);
         }
         return response()
-            ->json(["success" => true, "message" => "investissement retrieved successfully.", "data" => $investissement]);
+            ->json(["success" => true, "message" => "demande retrieved successfully.", "data" => $demande]);
     }
     /**
      * Update the specified resource in storage.
@@ -560,11 +529,11 @@ class DemandeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Investissement $investissement)
+    public function destroy(demande $demande)
     {
-        $investissement->delete();
+        $demande->delete();
         return response()
-            ->json(["success" => true, "message" => "Investissement supprimé.", "data" => $investissement]);
+            ->json(["success" => true, "message" => "demande supprimé.", "data" => $demande]);
     }
 
 
@@ -574,35 +543,35 @@ class DemandeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function validation_investissement(Request $request)
+    public function validation_demande(Request $request)
     {
         $input = $request->all();
         
 
-        $investissement = Investissement::where('id',$input['id'])->first();
+        $demande = demande::where('id',$input['id'])->first();
 
         if ($request->user()->hasRole('point_focal')){
-            $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
-            $investissement->status = 'a_valider';
+            $demande->state = 'VALIDATION_ADMIN_STRUCTURE';
+            $demande->status = 'a_valider';
         }
         if ($request->user()->hasRole('admin_structure')){
 
-            if($investissement->source[0]->libelle_source=='EPS'){
-                $investissement->state = 'VALIDATION_DIRECTEUR_EPS';
-                $investissement->status = 'a_valider';
+            if($demande->source[0]->libelle_source=='EPS'){
+                $demande->state = 'VALIDATION_DIRECTEUR_EPS';
+                $demande->status = 'a_valider';
             }
             else{
-                $investissement->state = 'FIN_PROCESS';
-                $investissement->status = 'publie';
+                $demande->state = 'FIN_PROCESS';
+                $demande->status = 'publie';
             }
         }
         if ($request->user()->hasRole('directeur_eps')){
-            $investissement->state = 'FIN_PROCESS';
-            $investissement->status = 'publie';
+            $demande->state = 'FIN_PROCESS';
+            $demande->status = 'publie';
         }
-        $investissement->save();
+        $demande->save();
 
-        return response()->json(["success" => true, "message" => "Investissement validé", "data" =>$investissement]);  
+        return response()->json(["success" => true, "message" => "demande validé", "data" =>$demande]);  
     }
 
     /**
@@ -610,31 +579,31 @@ class DemandeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function rejet_investissement(Request $request)
+    public function rejet_demande(Request $request)
     {
         $input = $request->all();
         $motif_rejet = $input['motif_rejet'];
         
 
-        $investissement = Investissement::where('id',$input['id'])->first();
+        $demande = demande::where('id',$input['id'])->first();
 
         if ($request->user()->hasRole('admin_structure')){          
-            $investissement->state = 'INITIER_INVESTISSEMENT';
-            $investissement->status = 'rejete';          
-            $investissement->motif_rejet = $motif_rejet;          
+            $demande->state = 'INITIER_demande';
+            $demande->status = 'rejete';          
+            $demande->motif_rejet = $motif_rejet;          
         }
         if ($request->user()->hasRole('directeur_eps')){
-            $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
-            $investissement->status = 'rejete';
-            $investissement->motif_rejet = $motif_rejet; 
+            $demande->state = 'VALIDATION_ADMIN_STRUCTURE';
+            $demande->status = 'rejete';
+            $demande->motif_rejet = $motif_rejet; 
         }
         if ($request->user()->hasRole('admin_dprs')){
-            $investissement->state = 'VALIDATION_ADMIN_STRUCTURE';
-            $investissement->status = 'rejete';
-            $investissement->motif_rejet = $motif_rejet; 
+            $demande->state = 'VALIDATION_ADMIN_STRUCTURE';
+            $demande->status = 'rejete';
+            $demande->motif_rejet = $motif_rejet; 
         }
-        $investissement->save();
+        $demande->save();
 
-        return response()->json(["success" => true, "message" => "Investissement rejeté avec succés", "data" =>$investissement]);  
+        return response()->json(["success" => true, "message" => "demande rejeté avec succés", "data" =>$demande]);  
     }
 }
