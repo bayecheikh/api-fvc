@@ -23,5 +23,8 @@ class Dimension extends Model
   }
   public function investissements() {
     return $this->belongsToMany(Investissement::class,'dimensions_investissements');          
-}
+  }
+  public function ligne_modes() {
+    return $this->belongsToMany(LigneModeInvestissement::class,'dimensions_ligne_modes');          
+  }
 }

@@ -16,4 +16,8 @@ class LigneModeInvestissement extends Model
     protected $fillable = [
         'libelle','slug','predefini','status'
      ];
+
+    public function dimension() {
+        return $this->belongsToMany(Dimension::class,'dimensions_ligne_modes');          
+    }
 }

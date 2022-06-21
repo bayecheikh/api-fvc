@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Role;
 use App\Models\Permission;
 use App\Models\LigneModeInvestissement;
+use App\Models\Dimension;
 use App\Models\Investissement;
 
 class LigneModeInvestissementController extends Controller
