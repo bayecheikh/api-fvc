@@ -9,6 +9,7 @@ use App\Models\Permission;
 use App\Models\LigneModeInvestissement;
 use App\Models\Dimension;
 use App\Models\Investissement;
+use Validator;
 
 class LigneModeInvestissementController extends Controller
 {
@@ -63,7 +64,7 @@ class LigneModeInvestissementController extends Controller
      */
     public function show($id)
     {
-        $ligne_mode_investissement = LigneModeInvestissement::with('investissements')->find($id);
+        $ligne_mode_investissement = LigneModeInvestissement::with('dimension')->find($id);
         if (is_null($ligne_mode_investissement))
         {
    /*          return $this->sendError('Product not found.'); */
@@ -91,6 +92,9 @@ class LigneModeInvestissementController extends Controller
             ->json($validator->errors());
         }
         $ligne_mode_investissement->libelle = $input['libelle'];
+        $ligne_mode_investissement->slug = $input['slug'];
+        $ligne_mode_investissement->predefini = $input['predefini'];
+        $ligne_mode_investissement->status = $input['status'];
 
         $ligne_mode_investissement->save();
         return response()
