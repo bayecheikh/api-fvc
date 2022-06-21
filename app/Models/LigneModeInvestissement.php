@@ -18,6 +18,6 @@ class LigneModeInvestissement extends Model
      ];
 
     public function dimension() {
-        return $this->belongsToMany(Dimension::class,'dimensions_ligne_modes');          
+        return $this->belongsToMany(Dimension::class,'dimensions_ligne_modes','dimension_id','ligne_mode_id');          
     }
 }
