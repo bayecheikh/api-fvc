@@ -9,6 +9,7 @@ use App\Models\Role;
 use App\Models\Permission;
 use App\Models\Dimension;
 use App\Models\Structure;
+use App\Models\LigneModeInvestissement;
 
 class DimensionController extends Controller
 {
@@ -112,7 +113,7 @@ class DimensionController extends Controller
         $dimension->libelle_dimension = $input['libelle_dimension'];
         $dimension->status = $input['status'];
         $dimension->save();
-        
+
         return response()
             ->json(["success" => true, "message" => "Dimension modifiée avec succès.", "data" => $dimension]);
     }
