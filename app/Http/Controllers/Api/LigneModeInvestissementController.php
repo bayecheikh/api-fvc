@@ -46,7 +46,12 @@ class LigneModeInvestissementController extends Controller
             return response()
             ->json($validator->errors());
         }
-        $ligne_mode_investissement = LigneModeInvestissement::create($input);
+        $ligne_mode_investissement = LigneModeInvestissement::create([
+            'libelle' => $input['libelle'],
+            'slug' => $input['slug'],
+            'predefini' => $input['predefini'],
+            'status' => 'actif'
+        ]);
 
         return response()->json(["success" => true, "message" => "Ligne mode d'investissement créée avec succès.", "data" => $ligne_mode_investissement]);
     }
