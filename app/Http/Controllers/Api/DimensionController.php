@@ -25,7 +25,7 @@ class DimensionController extends Controller
     public function index()
     {
  
-        $dimensions = Dimension::with('structures')->get();
+        $dimensions = Dimension::with('structures')->with('ligne_modes')->get();
         return response()->json(["success" => true, "message" => "Liste des dimensions ", "data" => $dimensions]);
 
         
@@ -48,6 +48,15 @@ class DimensionController extends Controller
         }
         $dimension = Dimension::create($input);
 
+        $array_ligne_modes = $request->ligne_modes;
+
+        if(!empty($array_ligne_modes)){
+            foreach($array_ligne_modes as $ligne_mode){
+                $ligne_modeObj = LigneModeInvestissement::where('id',$ligne_mode)->first();
+                $dimension->ligne_modes()->attach($ligne_modeObj);
+            }
+        }
+
         return response()->json(["success" => true, "message" => "Dimension créée avec succès.", "data" => $dimension]);
     }
     /**
@@ -58,7 +67,7 @@ class DimensionController extends Controller
      */
     public function show($id)
     {
-        $dimension = Dimension::with('structures')->get()->find($id);
+        $dimension = Dimension::with('structures')->with('ligne_modes')->get()->find($id);
         if (is_null($dimension))
         {
    /*          return $this->sendError('Product not found.'); */
