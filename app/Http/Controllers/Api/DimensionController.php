@@ -87,7 +87,7 @@ class DimensionController extends Controller
     public function update(Request $request, Dimension $dimension)
     {
         $input = $request->all();
-        $validator = Validator::make($input, ['libelle_dimension' => 'required']);
+        $validator = Validator::make($input, ['libelle_dimension' => '']);
         if ($validator->fails())
         {
             //return $this->sendError('Validation Error.', $validator->errors());
