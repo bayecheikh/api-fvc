@@ -94,9 +94,25 @@ class DimensionController extends Controller
             return response()
             ->json($validator->errors());
         }
+
+        $array_ligne_modes = $request->ligne_modes;
+        $old_ligne_modes = $dimension->ligne_modes();
+
+        if(!empty($array_ligne_modes)){
+            foreach($old_ligne_modes as $ligne_mode){
+                $ligne_modeObj = LigneModeInvestissement::where('id',$ligne_mode)->first();
+                $dimension->ligne_modes()->detach($ligne_modeObj);
+            }
+            foreach($array_ligne_modes as $ligne_mode){
+                $ligne_modeObj = LigneModeInvestissement::where('id',$ligne_mode)->first();
+                $dimension->ligne_modes()->attach($ligne_modeObj);
+            }
+        }
+
         $dimension->libelle_dimension = $input['libelle_dimension'];
         $dimension->status = $input['status'];
         $dimension->save();
+        
         return response()
             ->json(["success" => true, "message" => "Dimension modifiée avec succès.", "data" => $dimension]);
     }
