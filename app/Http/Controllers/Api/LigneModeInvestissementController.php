@@ -94,7 +94,6 @@ class LigneModeInvestissementController extends Controller
         $ligne_mode_investissement->libelle = $input['libelle'];
         $ligne_mode_investissement->slug = $input['slug'];
         $ligne_mode_investissement->predefini = $input['predefini'];
-        $ligne_mode_investissement->status = $input['status'];
 
         $ligne_mode_investissement->save();
         return response()
