@@ -24,7 +24,7 @@ class LigneModeInvestissementController extends Controller
     public function index()
     {
  
-        $ligne_mode_investissements = LigneModeInvestissement::with('investissements')->get();
+        $ligne_mode_investissements = LigneModeInvestissement::with('dimension')->get();
         return response()->json(["success" => true, "message" => "Liste ligne mode d'investissement ", "data" => $ligne_mode_investissements]);
 
         

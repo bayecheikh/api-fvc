@@ -16,6 +16,8 @@ return new class extends Migration
         Schema::create('ligne_mode_investissements', function (Blueprint $table) {
             $table->id();
             $table->string('libelle');
+            $table->string('slug');
+            $table->string('predefini')->default(false);
             $table->string('status');
             $table->timestamps();
         });

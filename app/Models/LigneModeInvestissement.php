@@ -14,6 +14,6 @@ class LigneModeInvestissement extends Model
     * @var array
     */
     protected $fillable = [
-        'libelle','status'
+        'libelle','slug','predefini','status'
      ];
 }
