@@ -111,7 +111,6 @@ class DimensionController extends Controller
         }
 
         $dimension->libelle_dimension = $input['libelle_dimension'];
-        $dimension->status = $input['status'];
         $dimension->save();
 
         return response()
