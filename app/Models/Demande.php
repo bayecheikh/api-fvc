@@ -21,7 +21,7 @@ class Demande extends Model
   public function profil() {
     return $this->belongsToMany(Profil::class,'demandes_profils');          
   }
-  public function struture() {
+  public function structure() {
     return $this->belongsToMany(Structure::class,'demandes_structures');          
   }
 }

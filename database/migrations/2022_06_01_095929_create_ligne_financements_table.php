@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('id_pilier')->nullable();
             $table->string('id_axe')->nullable();
+            $table->string('id_bailleur')->nullable();
             $table->string('montantBienServicePrevus')->nullable();
             $table->string('montantBienServiceMobilises')->nullable();
             $table->string('montantBienServiceExecutes')->nullable();

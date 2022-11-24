@@ -94,7 +94,7 @@ class RegionController extends Controller
         }
         $region->nom_region = $input['nom_region'];
         $region->slug = $input['slug'];
-        $region->status = $input['status'];
+        //$region->status = $input['status'];
         $region->save();
 
         $array_departements = $request->departements;

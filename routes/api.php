@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\PilierController;
 use App\Http\Controllers\Api\TypeLigneController;
 use App\Http\Controllers\Api\MonnaieController;
 use App\Http\Controllers\Api\AnneeController;
+use App\Http\Controllers\Api\BailleurController;
 use App\Http\Controllers\Api\LigneModeInvestissementController;
 use App\Http\Controllers\Api\ProfilController;
 use App\Http\Controllers\Api\DemandeController;
@@ -46,6 +47,7 @@ Route::post('login', [AuthController::class, 'login']);
 Route::post('forget_password', [AuthController::class, 'forget_password']);
 
  /**Statistique*/
+ Route::get('allStats', [StatistiqueController::class, 'allStats']);
  Route::get('allPiliers', [StatistiqueController::class, 'allPilier']);
  Route::get('allAxes', [StatistiqueController::class, 'allAxe']);
  Route::get('allAnnees', [StatistiqueController::class, 'allAnnee']);
@@ -63,7 +65,8 @@ Route::post('forget_password', [AuthController::class, 'forget_password']);
  Route::get('investissementByStructure/{idStructure}', [StatistiqueController::class, 'investissementByStructure']);
  Route::get('investissementByDimension/{idDimension}', [StatistiqueController::class, 'investissementByDimension']);
  Route::get('investissementBySource/{idSource}', [StatistiqueController::class, 'investissementBySource']);
-  
+ Route::post('ajoutDemande', [DemandeController::class, 'ajoutDemande']); 
+
 Route::middleware('auth:api')->group(function () {
     Route::resource('products', ProductController::class);
 
@@ -117,11 +120,12 @@ Route::middleware('auth:api')->group(function () {
     /**Recherche avancée sur les investissements */
     Route::resource('recherche_avances', InvestissementController::class);
     Route::post('recherche_avance_investissements', [RechercheInvestissementController::class, 'recherche']);
-    Route::post('export_csv_investissements', [ExportInvestissementController::class, 'exportCSV']);
-    Route::post('export_pdf_investissements', [ExportInvestissementController::class, 'exportPDF']);
 
     /**Gestion des lignes de financement */
     Route::resource('ligne_financements', LigneFinancementController::class);
+    Route::post('recherche_ligne_financements', [LigneFinancementController::class, 'recherche']);
+    Route::post('export_csv_ligne_financements', [ExportInvestissementController::class, 'exportCSV']);
+    Route::post('export_pdf_ligne_financements', [ExportInvestissementController::class, 'exportPDF']);
 
     /**Gestion des modes de financement */
     Route::resource('mode_financements', ModeFinancementController::class);
@@ -138,11 +142,16 @@ Route::middleware('auth:api')->group(function () {
     /**Gestion des annees */
     Route::resource('annees', AnneeController::class);
 
+    /**Gestion des bailleurs */
+    Route::resource('bailleurs', BailleurController::class);
+
     /**Gestion des lignes mode investissements */
     Route::resource('ligne_mode_investissements', LigneModeInvestissementController::class);
 
     /**Gestion des demandes */
     Route::resource('demandes', DemandeController::class);
+    Route::get('demande-multiple-search/{term}', [DemandeController::class, 'demandeMultipleSearch']);
+    Route::get('active_demande/{id}', [DemandeController::class, 'activeDemande']);
 
     /**Gestion des profils */
     Route::resource('profils', ProfilController::class);

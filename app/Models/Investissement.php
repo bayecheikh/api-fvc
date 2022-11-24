@@ -43,6 +43,9 @@ class Investissement extends Model
     public function annee() {
         return $this->belongsToMany(Annee::class,'annees_investissements');          
     }
+    public function bailleurs() {
+        return $this->belongsToMany(Bailleur::class,'investissements_bailleurs');          
+    }
     public function ligne_mode_investissements() {
         return $this->belongsToMany(LigneModeInvestissement::class,'ligne_mode_investissements_investissements');          
     }

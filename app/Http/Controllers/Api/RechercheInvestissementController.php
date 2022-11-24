@@ -44,6 +44,7 @@ class RechercheInvestissementController extends Controller
         $monnaie = $input['monnaie'];
         $region = $input['region'];
         $dimension = $input['dimension'];
+        $bailleur = $input['bailleur'];
         $pilier = $input['pilier'];
         $axe = $input['axe'];
 
@@ -62,14 +63,14 @@ class RechercheInvestissementController extends Controller
 
             if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
                 $investissements = LigneFinancement::with('investissement')
-                ->with('pilier')
+                ->with('bailleur')->with('pilier')
                 ->with('axe');
             }
             else{
                 if($request->user()->hasRole('directeur_eps')){
                     $source_id = User::find($request->user()->id)->structures[0]->source_financements[0]->id;
                     $investissements = LigneFinancement::with('investissement')
-                    ->with('pilier')
+                    ->with('bailleur')->with('pilier')
                     ->with('axe')
                     ->whereHas('investissement', function($q) use ($source_id){
                         $q->whereHas('source', function($q) use ($source_id){
@@ -81,7 +82,7 @@ class RechercheInvestissementController extends Controller
                 else{
                     $structure_id = User::find($request->user()->id)->structures[0]->id;
                     $investissements = LigneFinancement::with('investissement')
-                    ->with('pilier')
+                    ->with('bailleur')->with('pilier')
                     ->with('axe')
                     ->whereHas('investissement', function($q) use ($structure_id){
                         $q->whereHas('structure', function($q) use ($structure_id){
@@ -121,6 +122,14 @@ class RechercheInvestissementController extends Controller
                 ->whereHas('investissement', function($q) use ($dimension){
                     $q->whereHas('dimension', function($q) use ($dimension){
                         $q->where('id', $dimension);
+                    });
+                });
+            }
+            if($bailleur!=null){               
+                $investissements = $investissements
+                ->whereHas('investissement', function($q) use ($bailleur){
+                    $q->whereHas('bailleurs', function($q) use ($bailleur){
+                        $q->where('id', $bailleur);
                     });
                 });
             }

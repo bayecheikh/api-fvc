@@ -5,17 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SourceFinancement extends Model
+class TypeBailleur extends Model
 {
-  use HasFactory;
+    use HasFactory;
 
-  /**
-  * The attributes that are mass assignable.
-  *
-  * @var array
-  */
+     /**
+   * The attributes that are mass assignable.
+   *
+   * @var array
+   */
   protected $fillable = [
-  'libelle','status'
+    'libelle','status'
   ];
-
 }

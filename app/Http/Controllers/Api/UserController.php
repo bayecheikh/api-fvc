@@ -50,7 +50,16 @@ class UserController extends Controller
      */
     public function userMultipleSearch($term)
     {
-        $users = User::where('id', 'like', '%'.$term.'%')->orWhere('email', 'like', '%'.$term.'%')->orWhere('name', 'like', '%'.$term.'%')->with('roles')->paginate(5);
+        if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
+            $users = User::where('id', 'like', '%'.$term.'%')->orWhere('email', 'like', '%'.$term.'%')->orWhere('name', 'like', '%'.$term.'%')->with('roles')->paginate(5);
+        }
+        else{
+            $structure_id = User::find($request->user()->id)->structures[0]->id;
+            $users = User::where('id', 'like', '%'.$term.'%')->orWhere('email', 'like', '%'.$term.'%')->orWhere('name', 'like', '%'.$term.'%')->with('roles')->whereHas('structures', function($q) use ($structure_id){
+                $q->where('id', $structure_id);
+            })->paginate(5);
+        }
+       
         return response()->json(["success" => true, "message" => "Liste des utilisateurs", "data" => $users]);   
     }
     /**
@@ -82,7 +91,7 @@ class UserController extends Controller
             ]);
         }
 
-        return response()->json(["success" => true, "message" => "Token Utilisateur activé", "data" => $user]);   
+        return response()->json(["success" => true, "message" => $message, "data" => $user]);   
     }
     /**
      * Store a newly created resource in storagrolee.

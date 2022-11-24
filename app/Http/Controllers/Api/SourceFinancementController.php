@@ -101,7 +101,6 @@ class SourceFinancementController extends Controller
             ->json($validator->errors());
         }
         $source_financement->libelle_source = $input['libelle_source'];
-        $source_financement->status = $input['status'];
         $source_financement->save();
 
         $array_type_sources = $request->type_sources;

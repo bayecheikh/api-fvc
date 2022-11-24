@@ -210,5 +210,29 @@ class StatistiqueController extends Controller
         $total = $investissements->total();
         return response()->json(["success" => true, "message" => "Liste des investissements par structure", "data" =>$investissements,"total" =>$total]); 
     }
+
+    public function allStats(){
+        $status = 'publie';
+        $investissements = LigneFinancement::with('investissement')
+        ->with('pilier')
+        ->with('axe')
+        ->with('structure_source')
+        ->with('type_structure_source')
+        ->with('structure_beneficiaire')
+        ->with('region')
+        ->with('structure')
+        ->with('annee')
+        ->with('monnaie')
+        ->with('dimension')
+        ->whereHas('investissement', function($q) use ($status){
+            $q->where('status', 'like', '%publie%');
+        })->paginate(0); 
+        $investissements -> load('investissement.mode_financements');
+
+        $total = $investissements->total();
+        return response()->json(["success" => true, "message" => "Liste des lignes financements", "data" =>$investissements,"total" =>$total]); 
+    }
+
+    
     
 }

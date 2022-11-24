@@ -7,10 +7,10 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Models\Role;
 use App\Models\Permission;
-use App\Models\Annee;
+use App\Models\Bailleur;
 use App\Models\Investissement;
 
-class AnneeController extends Controller
+class BailleurController extends Controller
 {
     public function __construct()
     {
@@ -25,8 +25,8 @@ class AnneeController extends Controller
     public function index()
     {
  
-        $annees = Annee::with('investissements')->orderBy("libelle", "asc")->get();
-        return response()->json(["success" => true, "message" => "Liste des années", "data" => $annees]);
+        $bailleurs = Bailleur::with('investissements')->orderBy("libelle", "asc")->get();
+        return response()->json(["success" => true, "message" => "Liste des bailleurs", "data" => $bailleurs]);
 
         
     }
@@ -46,9 +46,9 @@ class AnneeController extends Controller
             return response()
             ->json($validator->errors());
         }
-        $annee = Annee::create($input);
+        $bailleur = Bailleur::create($input);
 
-        return response()->json(["success" => true, "message" => "Année créée avec succès.", "data" => $annee]);
+        return response()->json(["success" => true, "message" => "Bailleur créée avec succès.", "data" => $bailleur]);
     }
     /**
      * Display the specified resource.
@@ -58,15 +58,15 @@ class AnneeController extends Controller
      */
     public function show($id)
     {
-        $annee = Annee::with('investissements')->find($id);
-        if (is_null($annee))
+        $bailleur = bailleur::with('investissements')->find($id);
+        if (is_null($bailleur))
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "Année introuvable."]);
+            ->json(["success" => true, "message" => "Bailleur introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "Année retrouvée avec succès.", "data" => $annee]);
+            ->json(["success" => true, "message" => "Bailleur retrouvée avec succès.", "data" => $bailleur]);
     }
     /**
      * Update the specified resource in storage.
@@ -75,7 +75,7 @@ class AnneeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Annee $annee)
+    public function update(Request $request, bailleur $bailleur)
     {
         $input = $request->all();
         $validator = Validator::make($input, ['libelle' => 'required']);
@@ -85,11 +85,11 @@ class AnneeController extends Controller
             return response()
             ->json($validator->errors());
         }
-        $annee->libelle = $input['libelle'];
+        $bailleur->libelle = $input['libelle'];
 
-        $annee->save();
+        $bailleur->save();
         return response()
-            ->json(["success" => true, "message" => "Année modifiée avec succès.", "data" => $annee]);
+            ->json(["success" => true, "message" => "Bailleur modifiée avec succès.", "data" => $bailleur]);
     }
     /**
      * Remove the specified resource from storage.
@@ -97,10 +97,10 @@ class AnneeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Annee $annee)
+    public function destroy(bailleur $bailleur)
     {
-        $annee->delete();
+        $bailleur->delete();
         return response()
-            ->json(["success" => true, "message" => "Année supprimée avec succès.", "data" => $annee]);
+            ->json(["success" => true, "message" => "Bailleur supprimée avec succès.", "data" => $bailleur]);
     }
 }

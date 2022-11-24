@@ -74,7 +74,13 @@ class StructureController extends Controller
      */
     public function selectstructure()
     {
-        $structures = Structure::all();
+        $structures = Structure::with('users')
+        ->with('regions')
+        ->with('departements')
+        ->with('dimensions')
+        ->with('type_zone_interventions')
+        ->with('type_sources')
+        ->with('source_financements')->get();
         return response()->json(["success" => true, "message" => "liste des structures", "data" =>$structures]);  
     }
     /**
@@ -110,7 +116,7 @@ class StructureController extends Controller
         $telephone_responsable = $input['telephone_responsable'];
         $fonction_responsable = $input['fonction_responsable']; */
 
-        $validator = Validator::make($input, ['nom_structure' => 'required','firstname_responsable' => 'required','lastname_responsable' => 'required', 'email_responsable' => 'required|unique:users,email']);
+        $validator = Validator::make($input, ['nom_structure' => 'required','donneur_receveur_mixte' => 'required','firstname_responsable' => 'required','lastname_responsable' => 'required', 'email_responsable' => 'required|unique:users,email']);
         if ($validator->fails())
         {
             return response()
@@ -134,6 +140,7 @@ class StructureController extends Controller
  
             $structure = Structure::create(
                 ['nom_structure' => $input['nom_structure'],
+                'donneur_receveur_mixte' => $input['donneur_receveur_mixte'],
                 'numero_autorisation' => $input['numero_autorisation'],
                 'numero_agrement' => $input['numero_agrement'],
                 'accord_siege' => '',
@@ -271,6 +278,7 @@ class StructureController extends Controller
         }
         else{
         $structure->nom_structure = $input['nom_structure'];
+        $structure->donneur_receveur_mixte = $input['donneur_receveur_mixte'];
         $structure->numero_autorisation = $input['numero_autorisation'];
         $structure->numero_agrement = $input['numero_agrement'];
         $structure->accord_siege = '';
