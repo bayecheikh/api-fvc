@@ -27,7 +27,6 @@ return new class extends Migration
             $table->string('state')->nullable();
             $table->string('motif_rejet')->nullable(); 
             $table->string('brouillon')->nullable();
-            $table->string('status')->nullable();
             $table->timestamps();
         });
     }
