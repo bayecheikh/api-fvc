@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('sous_secteurs', function (Blueprint $table) {
+        Schema::create('source_financements', function (Blueprint $table) {
             $table->id();
             $table->string('libelle')->nullable();
             $table->string('status')->nullable();
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sous_secteurs');
+        Schema::dropIfExists('source_financements');
     }
 };

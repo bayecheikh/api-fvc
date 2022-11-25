@@ -15,6 +15,11 @@ return new class extends Migration
     {
         Schema::create('ligne_financement_bailleurs', function (Blueprint $table) {
             $table->id();
+            $table->string('id_investissement')->nullable();
+            $table->string('id_bailleur')->nullable();
+            $table->string('id_instrument_financier')->nullable();
+            $table->string('montant_total')->nullable();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

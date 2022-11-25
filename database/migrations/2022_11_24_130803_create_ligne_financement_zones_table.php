@@ -15,6 +15,11 @@ return new class extends Migration
     {
         Schema::create('ligne_financement_zones', function (Blueprint $table) {
             $table->id();
+            $table->string('id_investissement')->nullable();
+            $table->string('id_region')->nullable();
+            $table->string('montant_adaptation')->nullable();
+            $table->string('montant_attenuation')->nullable();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

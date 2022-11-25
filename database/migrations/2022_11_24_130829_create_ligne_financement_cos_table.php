@@ -15,6 +15,11 @@ return new class extends Migration
     {
         Schema::create('ligne_financement_cos', function (Blueprint $table) {
             $table->id();
+            $table->string('id_investissement')->nullable();
+            $table->string('id_instrument_financier')->nullable();
+            $table->string('nom_co_financier')->nullable();
+            $table->string('montant_co_financier')->nullable();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

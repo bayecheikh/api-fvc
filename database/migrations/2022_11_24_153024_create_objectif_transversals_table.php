@@ -15,6 +15,8 @@ return new class extends Migration
     {
         Schema::create('objectif_transversals', function (Blueprint $table) {
             $table->id();
+            $table->string('libelle')->nullable();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

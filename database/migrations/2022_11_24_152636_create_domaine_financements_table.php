@@ -15,6 +15,8 @@ return new class extends Migration
     {
         Schema::create('domaine_financements', function (Blueprint $table) {
             $table->id();
+            $table->string('libelle')->nullable();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }
