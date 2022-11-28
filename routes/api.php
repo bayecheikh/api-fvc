@@ -9,10 +9,9 @@ use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\RegionController;
 use App\Http\Controllers\Api\DepartementController;
-use App\Http\Controllers\Api\StructureController;
+
 use App\Http\Controllers\Api\DimensionController;
 use App\Http\Controllers\Api\TypeZoneInterventionController;
-use App\Http\Controllers\Api\SourceFinancementController;
 use App\Http\Controllers\Api\TypeSourceController;
 use App\Http\Controllers\Api\AxeController;
 use App\Http\Controllers\Api\InvestissementController;
@@ -23,12 +22,30 @@ use App\Http\Controllers\Api\ModeFinancementController;
 use App\Http\Controllers\Api\PilierController;
 use App\Http\Controllers\Api\TypeLigneController;
 use App\Http\Controllers\Api\MonnaieController;
-use App\Http\Controllers\Api\AnneeController;
 use App\Http\Controllers\Api\BailleurController;
 use App\Http\Controllers\Api\LigneModeInvestissementController;
 use App\Http\Controllers\Api\ProfilController;
 use App\Http\Controllers\Api\DemandeController;
 use App\Http\Controllers\Api\StatistiqueController;
+
+use App\Http\Controllers\Api\FinancementController;
+use App\Http\Controllers\Api\StructureController;
+use App\Http\Controllers\Api\AnneeController;
+use App\Http\Controllers\Api\ObjectifAttenuationController;
+use App\Http\Controllers\Api\ObjectifAdaptationController;
+use App\Http\Controllers\Api\InstrumentFinancierController;
+use App\Http\Controllers\Api\AgenceExecutionController;
+use App\Http\Controllers\Api\TypeBailleurController;
+use App\Http\Controllers\Api\AgenceAcrediteController;
+use App\Http\Controllers\Api\SecteurController;
+use App\Http\Controllers\Api\SousSecteurController;
+use App\Http\Controllers\Api\LigneFinancementSecteurController;
+use App\Http\Controllers\Api\LigneFinancementZoneController;
+use App\Http\Controllers\Api\LigneFinancementCoController;
+use App\Http\Controllers\Api\DomaineFinancementController;
+use App\Http\Controllers\Api\ObjectifTransversalController;
+use App\Http\Controllers\Api\LigneFinancementBailleurController;
+use App\Http\Controllers\Api\SourceFinancementController;
 
 
 /*
@@ -92,19 +109,11 @@ Route::middleware('auth:api')->group(function () {
     /**Gestion des departements */
     Route::resource('departements', DepartementController::class);
 
-    /**Gestion des structures */
-    Route::resource('structures', StructureController::class);
-    Route::get('structure-multiple-search/{term}', [StructureController::class, 'structureMultipleSearch']);
-    Route::get('selectstructures', [StructureController::class, 'selectstructure']);
-
     /**Gestion des dimensions */
     Route::resource('dimensions', DimensionController::class);
 
     /**Gestion des types de zone */
     Route::resource('type_zones', TypeZoneInterventionController::class);
-
-    /**Gestion des sources de financement */
-    Route::resource('source_financements', SourceFinancementController::class);
 
     /**Gestion des types de source */
     Route::resource('type_sources', TypeSourceController::class);
@@ -139,9 +148,6 @@ Route::middleware('auth:api')->group(function () {
     /**Gestion des monnaies */
     Route::resource('monnaies', MonnaieController::class);
 
-    /**Gestion des annees */
-    Route::resource('annees', AnneeController::class);
-
     /**Gestion des bailleurs */
     Route::resource('bailleurs', BailleurController::class);
 
@@ -157,4 +163,34 @@ Route::middleware('auth:api')->group(function () {
     Route::resource('profils', ProfilController::class);
     /**Statistique*/
     Route::resource('statistiques', LigneModeInvestissementController::class);
+
+
+    //Projet FVC
+    Route::resource('financements',FinancementController::class);
+
+    /**Gestion des structures */
+    Route::resource('structures', StructureController::class);
+    Route::get('structure-multiple-search/{term}', [StructureController::class, 'structureMultipleSearch']);
+    Route::get('selectstructures', [StructureController::class, 'selectstructure']);
+    
+    Route::resource('annees', AnneeController::class);
+    Route::resource('objectif_attenuations',ObjectifAttenuationController::class);
+    Route::resource('objectif_adaptations',ObjectifAdaptationController::class);
+    Route::resource('objectif_transversals',ObjectifTransversalController::class);
+    Route::resource('instrument_financiers',InstrumentFinancierController::class);  
+    Route::resource('domaine_financements',DomaineFinancementController::class);
+    Route::resource('source_financements',SourceFinancementController::class);
+    Route::resource('agence_executions',AgenceExecutionController::class);
+    Route::resource('agence_acredites',AgenceAcrediteController::class);
+    Route::resource('secteurs',SecteurController::class);
+    Route::resource('sous_secteurs',SousSecteurController::class);
+
+    Route::resource('ligne_financement_secteurs',LigneFinancementSecteurController::class);
+    Route::resource('ligne_financement_zones',LigneFinancementZoneController::class);
+    Route::resource('ligne_financement_cos',LigneFinancementCoController::class);
+    Route::resource('ligne_financement_bailleurs',LigneFinancementBailleurController::class);
+
+    
+
+
 });
