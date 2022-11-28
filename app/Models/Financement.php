@@ -28,45 +28,45 @@ class Financement extends Model
        'brouillon'
     ];
     public function annee() {
-        return $this->belongsToMany(Annee::class,'annees_financements');          
+        return $this->belongsToMany(Annee::class,'annees_fines');          
     }
     public function domaine_financement() {
-        return $this->belongsToMany(DomaineFinancement::class,'domaine_financements_financements');          
+        return $this->belongsToMany(DomaineFinancement::class,'domaine_fines_fines');          
     }
     public function source_financement() {
-        return $this->belongsToMany(SourceFinancement::class,'source_financements_financements');          
+        return $this->belongsToMany(SourceFinancement::class,'source_fines_fines');          
     }
     public function objectif_adaptations() {
-        return $this->belongsToMany(ObjectifAdaptation::class,'objecti_adaptations_financements');          
+        return $this->belongsToMany(ObjectifAdaptation::class,'objecti_adaptations_fines');          
     }
     public function objectif_attenuations() {
-        return $this->belongsToMany(ObjectifAttenuation::class,'objecti_attenuations_financement');          
+        return $this->belongsToMany(ObjectifAttenuation::class,'objecti_attenuations_fines');          
     }
     public function objectif_transversals() {
-        return $this->belongsToMany(ObjectifTransversal::class,'objecti_transversals_financement');          
+        return $this->belongsToMany(ObjectifTransversal::class,'objecti_transversals_fines');          
     }
     public function agence_acredite() {
-        return $this->belongsToMany(AgenceAcredite::class,'agence_acredites_financements');      
+        return $this->belongsToMany(AgenceAcredite::class,'agence_acredites_fines');      
     }
     public function ligne_financement_bailleurs() {
-        return $this->belongsToMany(LigneFinancementBailleur::class,'ligne_bailleurs_financements');          
+        return $this->belongsToMany(LigneFinancementBailleur::class,'ligne_bailleurs_fines');          
     }
     public function ligne_financement_cos() {
-        return $this->belongsToMany(LigneFinancementCo::class,'ligne_cos_financements');          
+        return $this->belongsToMany(LigneFinancementCo::class,'ligne_cos_fines');          
     }
     public function ligne_financement_secteurs() {
-        return $this->belongsToMany(LigneFinancementSecteur::class,'ligne_secteurs_financements');          
+        return $this->belongsToMany(LigneFinancementSecteur::class,'ligne_secteurs_fines');          
     }
     public function ligne_financement_zones() {
-        return $this->belongsToMany(LigneFinancementZone::class,'ligne_zones_financements');          
+        return $this->belongsToMany(LigneFinancementZone::class,'ligne_zones_fines');          
     }
     public function structure() {
-        return $this->belongsToMany(Structure::class,'structures_financements');          
+        return $this->belongsToMany(Structure::class,'structures_fines');          
     }   
     public function resumes() {
-        return $this->belongsToMany(Fichier::class,'resumes_financements');       
+        return $this->belongsToMany(Fichier::class,'resumes_fines');       
     }
     public function tableau_budgets() {
-        return $this->belongsToMany(Fichier::class,'tableau_budgets_financements');       
+        return $this->belongsToMany(Fichier::class,'tableau_budgets_fines');       
     }
 }
