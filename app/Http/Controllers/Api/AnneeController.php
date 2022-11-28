@@ -25,7 +25,7 @@ class AnneeController extends Controller
     public function index()
     {
  
-        $annees = Annee::with('investissements')->orderBy("libelle", "asc")->get();
+        $annees = Annee::orderBy("libelle", "asc")->get();
         return response()->json(["success" => true, "message" => "Liste des années", "data" => $annees]);
 
         
