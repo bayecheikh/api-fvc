@@ -24,7 +24,7 @@ class AgenceAcrediteController extends Controller
     public function index()
     {
  
-        $agence_acredites = AgenceAcredite::with('financements')->orderBy("libelle", "asc")->get();
+        $agence_acredites = AgenceAcredite::orderBy("libelle", "asc")->get();
         return response()->json(["success" => true, "message" => "Liste des agence acrédités", "data" => $agence_acredites]);
 
         
