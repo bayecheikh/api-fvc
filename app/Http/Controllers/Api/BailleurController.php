@@ -25,7 +25,7 @@ class BailleurController extends Controller
     public function index()
     {
  
-        $bailleurs = Bailleur::with('investissements')->orderBy("libelle", "asc")->get();
+        $bailleurs = Bailleur::orderBy("libelle", "asc")->get();
         return response()->json(["success" => true, "message" => "Liste des bailleurs", "data" => $bailleurs]);
 
         
@@ -58,7 +58,7 @@ class BailleurController extends Controller
      */
     public function show($id)
     {
-        $bailleur = bailleur::with('investissements')->find($id);
+        $bailleur = Bailleur::find($id);
         if (is_null($bailleur))
         {
    /*          return $this->sendError('Product not found.'); */

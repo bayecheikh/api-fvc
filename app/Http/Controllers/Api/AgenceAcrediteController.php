@@ -57,7 +57,7 @@ class AgenceAcrediteController extends Controller
      */
     public function show($id)
     {
-        $agence_acredite = AgenceAcredite::with('financements')->find($id);
+        $agence_acredite = AgenceAcredite::find($id);
         if (is_null($agence_acredite))
         {
    /*          return $this->sendError('Product not found.'); */

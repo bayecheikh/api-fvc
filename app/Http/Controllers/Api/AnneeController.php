@@ -58,7 +58,7 @@ class AnneeController extends Controller
      */
     public function show($id)
     {
-        $annee = Annee::with('investissements')->find($id);
+        $annee = Annee::find($id);
         if (is_null($annee))
         {
    /*          return $this->sendError('Product not found.'); */

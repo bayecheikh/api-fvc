@@ -57,7 +57,7 @@ class AgenceExecutionController extends Controller
      */
     public function show($id)
     {
-        $agence_execution = AgenceExecution::with('financements')->find($id);
+        $agence_execution = AgenceExecution::find($id);
         if (is_null($agence_execution))
         {
    /*          return $this->sendError('Product not found.'); */
