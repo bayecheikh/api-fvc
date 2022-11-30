@@ -36,13 +36,6 @@ class StructureController extends Controller
     public function index()
     {
         $structures = Structure::with('users')
-        ->with('regions')
-        ->with('departements')
-        ->with('dimensions')
-        ->with('type_zone_interventions')
-        ->with('type_sources')
-        ->with('source_financements')
-        ->with('fichiers')
         ->paginate(10);
         $total = $structures->total();
         return response()->json(["success" => true, "message" => "Liste des structures", "data" =>$structures,"total"=> $total]);
@@ -57,13 +50,7 @@ class StructureController extends Controller
     {
         $structures = Structure::where('id', 'like', '%'.$term.'%')->orWhere('nom_structure', 'like', '%'.$term.'%')
         ->with('users')
-        ->with('regions')
-        ->with('departements')
-        ->with('dimensions')
-        ->with('type_zone_interventions')
-        ->with('type_sources')
-        ->with('fichiers')
-        ->with('source_financements')->paginate(10);
+        ->paginate(10);
         $total = $structures->total();
         return response()->json(["success" => true, "message" => "liste des structures", "data" =>$structures,"total"=> $total]);  
     }
@@ -75,12 +62,7 @@ class StructureController extends Controller
     public function selectstructure()
     {
         $structures = Structure::with('users')
-        ->with('regions')
-        ->with('departements')
-        ->with('dimensions')
-        ->with('type_zone_interventions')
-        ->with('type_sources')
-        ->with('source_financements')->get();
+        ->get();
         return response()->json(["success" => true, "message" => "liste des structures", "data" =>$structures]);  
     }
     /**
@@ -116,28 +98,13 @@ class StructureController extends Controller
         $telephone_responsable = $input['telephone_responsable'];
         $fonction_responsable = $input['fonction_responsable']; */
 
-        $validator = Validator::make($input, ['nom_structure' => 'required','donneur_receveur_mixte' => 'required','firstname_responsable' => 'required','lastname_responsable' => 'required', 'email_responsable' => 'required|unique:users,email']);
+        $validator = Validator::make($input, ['nom_structure' => 'required']);
         if ($validator->fails())
         {
             return response()
             ->json($validator->errors());
         }
         else{
-            $pwd = bin2hex(openssl_random_pseudo_bytes(4));
-            $user = User::create([
-                'name' => $input['firstname_responsable'].' '.$input['lastname_responsable'],
-                'firstname' => $input['firstname_responsable'],
-                'lastname' => $input['lastname_responsable'],
-                'email' => $input['email_responsable'],
-                'telephone' => $input['telephone_responsable'],
-                'fonction' => $input['fonction_responsable'],
-                'password' => bcrypt($pwd)
-            ]);
-            $roleObj = Role::where('name','admin_structure')->first();
-            $user->roles()->attach($roleObj);
-
-            $email = $input['email_responsable'];
- 
             $structure = Structure::create(
                 ['nom_structure' => $input['nom_structure'],
                 'donneur_receveur_mixte' => $input['donneur_receveur_mixte'],
@@ -151,76 +118,21 @@ class StructureController extends Controller
                 'email_structure' => $input['email_structure'],
                 'status' => 'actif']
             );
-    
-            if ($request->hasFile('accord_siege') && $request->file('accord_siege')->isValid()) {
-                $upload_path = public_path('upload');
-                $file = $request->file('accord_siege');
-                $file_name = $file->getClientOriginalName();
-                $file_extension = $file->getClientOriginalExtension();
-                $url_file = $upload_path . '/' . $file_name;
-                $generated_new_name = 'accord_siege_' . time() . '.' . $file_extension;
-                $file->move($upload_path, $generated_new_name);
-    
-                $fichierObj = Fichier::create([
-                    'name' => $generated_new_name,
-                    'url' => $url_file,
-                    'extension' => $file_extension,
-                    'description' => 'Accord de siège'
-                ]);
-                $structure->fichiers()->attach($fichierObj);
-            }
-            
 
-            $array_source_financements = explode (",", $input['source_financements']);
-            $array_type_sources = explode (",", $input['type_sources']);
-            $array_departements = explode (",", $input['departements']);
-            $array_regions = explode (",", $input['regions']);
-            $array_dimensions = explode (",", $input['dimensions']);
-            $array_type_zones = explode (",", $input['type_zone_interventions']);
+            $pwd = bin2hex(openssl_random_pseudo_bytes(4));
+            $user = User::create([
+                'name' => $input['firstname_responsable'].' '.$input['lastname_responsable'],
+                'firstname' => $input['firstname_responsable'],
+                'lastname' => $input['lastname_responsable'],
+                'email' => $input['email_responsable'],
+                'telephone' => $input['telephone_responsable'],
+                'fonction' => $input['fonction_responsable'],
+                'password' => bcrypt($pwd)
+            ]);
+            $roleObj = Role::where('name','admin_structure')->first();
+            $user->roles()->attach($roleObj);
     
             $structure->users()->attach($user);
-    
-            if(!empty($array_departements)){
-                foreach($array_departements as $departement){
-                    $departementObj = Departement::where('id',$departement)->first();
-                    $structure->departements()->attach($departementObj);
-                }
-            }
-    
-            if(!empty($array_regions)){
-                foreach($array_regions as $region){
-                    $regionObj = Region::where('id',$region)->first();
-                    $structure->regions()->attach($regionObj);
-                }
-            }
-    
-            if(!empty($array_dimensions)){
-                foreach($array_dimensions as $dimension){
-                    $dimensionObj = Dimension::where('id',$dimension)->first();
-                    $structure->dimensions()->attach($dimensionObj);
-                }
-            }
-    
-            if(!empty($array_type_zones)){
-                foreach($array_type_zones as $type_zone){
-                    $type_zoneObj = TypeZoneIntervention::where('id',$type_zone)->first();
-                    $structure->type_zone_interventions()->attach($type_zoneObj);
-                }
-            }
-    
-            if(!empty($array_type_sources)){
-                foreach($array_type_sources as $type_source){
-                    $type_sourceObj = TypeSource::where('id',$type_source)->first();
-                    $structure->type_sources()->attach($type_sourceObj);
-                }
-            }
-    
-            if(!empty($array_source_financements)){
-                foreach($array_source_financements as $source_financement){
-                    $source_financementObj = SourceFinancement::where('id',$source_financement)->first();
-                    $structure->source_financements()->attach($source_financementObj);
-                }
-            }
 
             $messages = 'Votre mot de passe par défaut sur la plateforme de suivie des investissement du MSAS est : ';
             $mailData = ['data' => $pwd, 'messages' => $messages];
@@ -239,16 +151,8 @@ class StructureController extends Controller
     public function show($id)
     {
         $structure = Structure::with('users')
-        ->with('regions')
-        ->with('departements')
-        ->with('dimensions')
-        ->with('type_zone_interventions')
-        ->with('type_sources')
-        ->with('source_financements')
-        ->with('fichiers')
         ->get()
         ->find($id);
-        $structure->load('source_financements.type_sources');
         $structure->load('users.roles');
         if (is_null($structure))
         {
@@ -289,111 +193,6 @@ class StructureController extends Controller
         $structure->email_structure = $input['email_structure'];
         $structure->status = 'actif';
         $structure->save();
-
-        $array_source_financements = explode (",", $input['source_financements']);
-        $array_type_sources = explode (",", $input['type_sources']);
-        $array_departements = explode (",", $input['departements']);
-        $array_regions = explode (",", $input['regions']);
-        $array_dimensions = explode (",", $input['dimensions']);
-        $array_type_zones = explode (",", $input['type_zone_interventions']);
-
-        $old_departements = $structure->departements();
-        $old_regions = $structure->regions();
-        $old_dimensions = $structure->dimensions();
-        $old_type_zones = $structure->type_zone_interventions();
-        $old_source_financements = $structure->source_financements();
-        $old_type_sources = $structure->type_sources();
-        $old_fichiers = $structure->fichiers();
-
-        if ($request->hasFile('accord_siege') && $request->file('accord_siege')->isValid()) {
-
-            foreach($old_fichiers as $fichier){
-                $fichierObj = Fichier::where('id',$fichier)->first();
-                $structure->fichiers()->detach($fichierObj);
-            }
-            
-            $upload_path = public_path('upload');
-            $file = $request->file('accord_siege');
-            $file_name = $file->getClientOriginalName();
-            $file_extension = $file->getClientOriginalExtension();
-            $url_file = $upload_path . '/' . $file_name;
-            $generated_new_name = 'accord_siege_' . time() . '.' . $file_extension;
-            $file->move($upload_path, $generated_new_name);
-
-            $fichierObj = Fichier::create([
-                'name' => $generated_new_name,
-                'url' => $url_file,
-                'extension' => $file_extension,
-                'description' => 'Accord de siège'
-            ]);
-            $structure->fichiers()->attach($fichierObj);
-        }
-
-        if(!empty($array_departements)){
-            foreach($old_departements as $departement){
-                $departementObj = Departement::where('id',$departement)->first();
-                $structure->departements()->detach($departementObj);
-            }
-            foreach($array_departements as $departement){
-                $departementObj = Departement::where('id',$departement)->first();
-                $structure->departements()->attach($departementObj);
-            }
-        }
-
-        if(!empty($array_regions)){
-            foreach($old_regions as $region){
-                $regionObj = Region::where('id',$region)->first();
-                $structure->regions()->detach($regionObj);
-            }
-            foreach($array_regions as $region){
-                $regionObj = Region::where('id',$region)->first();
-                $structure->regions()->attach($regionObj);
-            }
-        }
-
-        if(!empty($array_dimensions)){
-            foreach($old_dimensions as $dimension){
-                $dimensionObj = Dimension::where('id',$dimension)->first();
-                $structure->dimensions()->detach($dimensionObj);
-            }
-            foreach($array_dimensions as $dimension){
-                $dimensionObj = Dimension::where('id',$dimension)->first();
-                $structure->dimensions()->attach($dimensionObj);
-            }
-        }
-
-        if(!empty($array_type_zones)){
-            foreach($old_type_zones as $type_zone){
-                $type_zoneObj = TypeZoneIntervention::where('id',$type_zone)->first();
-                $structure->type_zone_interventions()->detach($type_zoneObj);
-            }
-            foreach($array_type_zones as $type_zone){
-                $type_zoneObj = Dimension::where('id',$type_zone)->first();
-                $structure->type_zone_interventions()->attach($type_zoneObj);
-            }
-        }
-
-        if(!empty($array_type_sources)){
-            foreach($old_type_sources as $type_source){
-                $type_sourceObj = TypeSource::where('id',$type_source)->first();
-                $structure->type_sources()->detach($type_sourceObj);
-            }
-            foreach($array_type_sources as $type_source){
-                $type_sourceObj = TypeSource::where('id',$type_source)->first();
-                $structure->type_sources()->attach($type_sourceObj);
-            }
-        }
-
-        if(!empty($array_source_financements)){
-            foreach($old_source_financements as $source_financement){
-                $source_financementObj = SourceFinancement::where('id',$source_financement)->first();
-                $structure->source_financements()->detach($source_financementObj);
-            }
-            foreach($array_source_financements as $source_financement){
-                $source_financementObj = SourceFinancement::where('id',$source_financement)->first();
-                $structure->source_financements()->attach($source_financementObj);
-            }
-        }
 
         return response()
             ->json(["success" => true, "message" => "structure modifiée avec succès.", "data" => $structure]);
