@@ -49,6 +49,10 @@ class Structure extends Model
     return $this->belongsToMany(SourceFinancement::class,'source_structures','source_id','structure_id');          
   }
 
+  public function type_structures() {
+    return $this->belongsToMany(TypeStructure::class,'structures_type_structures');          
+  }
+
   public function type_sources() {
     return $this->belongsToMany(TypeSource::class,'structures_type_sources','type_id','structure_id');          
   }

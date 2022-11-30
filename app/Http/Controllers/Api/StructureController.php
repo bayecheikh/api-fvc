@@ -15,6 +15,7 @@ use App\Models\Dimension;
 use App\Models\TypeZoneIntervention;
 use App\Models\TypeSource;
 use App\Models\SourceFinancement;
+use App\Models\TypeStructure;
 use App\Models\Fichier;
 use Mail;
  
@@ -35,7 +36,7 @@ class StructureController extends Controller
      */
     public function index()
     {
-        $structures = Structure::with('users')
+        $structures = Structure::with('users')->with('type_structures')
         ->paginate(10);
         $total = $structures->total();
         return response()->json(["success" => true, "message" => "Liste des structures", "data" =>$structures,"total"=> $total]);
@@ -74,29 +75,7 @@ class StructureController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-//a ajouter
-        /* $nom_structure = $input['nom_structure'];
-        $numero_autorisation = $input['numero_autorisation'];
-        $accord_siege = $input['accord_siege'];
-        $numero_agrement = $input['numero_agrement'];
-        $adresse_structure = $input['adresse_structure'];
-        $debut_intervention = $input['debut_intervention'];
-        $fin_intervention = $input['fin_intervention'];
-        $telephone_structure = $input['telephone_structure'];
-        $email_structure = $input['email_structure'];
-
-        $source_financements = explode (",", $input['source_financements']);
-        $type_sources = explode (",", $input['type_sources']);
-        $departements = explode (",", $input['departements']);
-        $regions = explode (",", $input['regions']);
-        $dimensions = explode (",", $input['dimensions']);
-        $type_zone_interventions = explode (",", $input['type_zone_interventions']);
-
-        $firstname_responsable = $input['firstname_responsable'];
-        $lastname_responsable = $input['lastname_responsable'];
-        $email_responsable = $input['email_responsable'];
-        $telephone_responsable = $input['telephone_responsable'];
-        $fonction_responsable = $input['fonction_responsable']; */
+        //a ajouter
 
         $validator = Validator::make($input, ['nom_structure' => 'required']);
         if ($validator->fails())
@@ -112,6 +91,14 @@ class StructureController extends Controller
                 'email_structure' => $input['email_structure'],
                 'status' => 'actif']
             );
+
+            $array_type_structures = explode (",", $input['type_structures']);
+            if(!empty($array_type_structures)){
+                foreach($array_type_structures as $type_structure){
+                    $type_structureObj = SourceFinancement::where('id',$type_structure)->first();
+                    $structure->type_structures()->attach($type_structureObj);
+                }
+            }
 
             $pwd = bin2hex(openssl_random_pseudo_bytes(4));
             $user = User::create([
@@ -145,7 +132,7 @@ class StructureController extends Controller
      */
     public function show($id)
     {
-        $structure = Structure::with('users')
+        $structure = Structure::with('users')->with('type_structures')
         ->get()
         ->find($id);
         $structure->load('users.roles');
@@ -182,6 +169,20 @@ class StructureController extends Controller
         $structure->email_structure = $input['email_structure'];
         $structure->status = 'actif';
         $structure->save();
+
+        $array_type_structures = explode (",", $input['type_structures']);
+        $old_type_structures = $structure->type_structures();
+
+        if(!empty($array_type_structures)){
+            foreach($old_type_structures as $type_structure){
+                $type_structureObj = TypeStructure::where('id',$type_structure)->first();
+                $structure->type_structures()->detach($type_structureObj);
+            }
+            foreach($array_type_structures as $type_structure){
+                $type_structureObj = TypeStructure::where('id',$type_structure)->first();
+                $structure->type_structures()->attach($type_structureObj);
+            }
+        }
 
         return response()
             ->json(["success" => true, "message" => "structure modifiée avec succès.", "data" => $structure]);

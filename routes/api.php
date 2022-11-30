@@ -46,6 +46,7 @@ use App\Http\Controllers\Api\DomaineFinancementController;
 use App\Http\Controllers\Api\ObjectifTransversalController;
 use App\Http\Controllers\Api\LigneFinancementBailleurController;
 use App\Http\Controllers\Api\SourceFinancementController;
+use App\Http\Controllers\Api\TypeStructureController;
 
 
 /*
@@ -180,6 +181,7 @@ Route::middleware('auth:api')->group(function () {
     Route::resource('instrument_financiers',InstrumentFinancierController::class);  
     Route::resource('domaine_financements',DomaineFinancementController::class);
     Route::resource('source_financements',SourceFinancementController::class);
+    Route::resource('type_structures',TypeStructureController::class);
     Route::resource('agence_executions',AgenceExecutionController::class);
     Route::resource('agence_acredites',AgenceAcrediteController::class);
     Route::resource('secteurs',SecteurController::class);

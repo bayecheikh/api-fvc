@@ -1,15 +1,19 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Validator;
 use App\Models\Role;
 use App\Models\Permission;
-use App\Models\SourceFinancement;
-use App\Models\Financement;
+use App\Models\Region;
+use App\Models\Departement;
+use App\Models\Structure;
+use App\Models\TypeStructure;
+use App\Models\Investissement;
 
-class SourceFinancementController extends Controller
+class TypeStructureController extends Controller
 {
     public function __construct()
     {
@@ -24,8 +28,8 @@ class SourceFinancementController extends Controller
     public function index()
     {
  
-        $source_financements = SourceFinancement::orderBy("libelle", "asc")->get();
-        return response()->json(["success" => true, "message" => "Liste des source de financements", "data" => $source_financements]);
+        $type_structures = TypeStructure::with('secteur')->get();
+        return response()->json(["success" => true, "message" => "Liste des type_structures", "data" => $type_structures]);
 
         
     }
@@ -45,9 +49,9 @@ class SourceFinancementController extends Controller
             return response()
             ->json($validator->errors());
         }
-        $source_financement = SourceFinancement::create($input);
+        $type_structure = TypeStructure::create($input);
 
-        return response()->json(["success" => true, "message" => "source de financement créée avec succès.", "data" => $source_financement]);
+        return response()->json(["success" => true, "message" => "type_structure créée avec succès.", "data" => $type_structure]);
     }
     /**
      * Display the specified resource.
@@ -57,15 +61,15 @@ class SourceFinancementController extends Controller
      */
     public function show($id)
     {
-        $source_financement = SourceFinancement::find($id);
-        if (is_null($source_financement))
+        $type_structure = TypeStructure::with('secteur')->find($id);
+        if (is_null($type_structure))
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "source de financement introuvable."]);
+            ->json(["success" => true, "message" => "type_structure introuvable."]);
         }
         return response()
-            ->json(["success" => true, "message" => "source de financement retrouvée avec succès.", "data" => $source_financement]);
+            ->json(["success" => true, "message" => "type_structure retrouvée avec succès.", "data" => $type_structure]);
     }
     /**
      * Update the specified resource in storage.
@@ -74,7 +78,7 @@ class SourceFinancementController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, SourceFinancement $source_financement)
+    public function update(Request $request, TypeStructure $type_structure)
     {
         $input = $request->all();
         $validator = Validator::make($input, ['libelle' => 'required']);
@@ -84,11 +88,10 @@ class SourceFinancementController extends Controller
             return response()
             ->json($validator->errors());
         }
-        $source_financement->libelle = $input['libelle'];
-
-        $source_financement->save();
+        $type_structure->libelle = $input['libelle'];
+        $type_structure->save();
         return response()
-            ->json(["success" => true, "message" => "source de financement modifiée avec succès.", "data" => $source_financement]);
+            ->json(["success" => true, "message" => "type_structure modifiée avec succès.", "data" => $type_structure]);
     }
     /**
      * Remove the specified resource from storage.
@@ -96,10 +99,10 @@ class SourceFinancementController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(SourceFinancement $source_financement)
+    public function destroy(SyousSecteur $type_structure)
     {
-        $source_financement->delete();
+        $type_structure->delete();
         return response()
-            ->json(["success" => true, "message" => "source de financement supprimée avec succès.", "data" => $source_financement]);
+            ->json(["success" => true, "message" => "type_structure supprimée avec succès.", "data" => $type_structure]);
     }
 }
