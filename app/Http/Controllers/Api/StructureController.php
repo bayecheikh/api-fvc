@@ -128,6 +128,7 @@ class StructureController extends Controller
     
             $structure->users()->attach($user);
 
+            $email = $input['email_responsable'];
             $messages = 'Votre mot de passe par défaut sur la plateforme de suivie des investissement du MSAS est : ';
             $mailData = ['data' => $pwd, 'messages' => $messages];
             Mail::to($email)->send(new NotifyMail($mailData));
