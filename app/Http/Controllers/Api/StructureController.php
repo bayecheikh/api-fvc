@@ -95,7 +95,7 @@ class StructureController extends Controller
             $array_type_structures = explode (",", $input['type_structures']);
             if(!empty($array_type_structures)){
                 foreach($array_type_structures as $type_structure){
-                    $type_structureObj = SourceFinancement::where('id',$type_structure)->first();
+                    $type_structureObj = TypeStructure::where('id',$type_structure)->first();
                     $structure->type_structures()->attach($type_structureObj);
                 }
             }
