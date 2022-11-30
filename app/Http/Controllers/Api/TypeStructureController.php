@@ -28,7 +28,7 @@ class TypeStructureController extends Controller
     public function index()
     {
  
-        $type_structures = TypeStructure::with('secteur')->get();
+        $type_structures = TypeStructure::with('structure')->get();
         return response()->json(["success" => true, "message" => "Liste des type_structures", "data" => $type_structures]);
 
         
@@ -61,7 +61,7 @@ class TypeStructureController extends Controller
      */
     public function show($id)
     {
-        $type_structure = TypeStructure::with('secteur')->find($id);
+        $type_structure = TypeStructure::with('structure')->find($id);
         if (is_null($type_structure))
         {
    /*          return $this->sendError('Product not found.'); */
