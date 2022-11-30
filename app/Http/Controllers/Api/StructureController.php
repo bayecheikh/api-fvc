@@ -107,13 +107,7 @@ class StructureController extends Controller
         else{
             $structure = Structure::create(
                 ['nom_structure' => $input['nom_structure'],
-                'donneur_receveur_mixte' => $input['donneur_receveur_mixte'],
-                'numero_autorisation' => $input['numero_autorisation'],
-                'numero_agrement' => $input['numero_agrement'],
-                'accord_siege' => '',
                 'adresse_structure' => $input['adresse_structure'],
-                'debut_intervention' => $input['debut_intervention'],
-                'fin_intervention' => $input['fin_intervention'],
                 'telephone_structure' => $input['telephone_structure'],
                 'email_structure' => $input['email_structure'],
                 'status' => 'actif']
@@ -182,13 +176,7 @@ class StructureController extends Controller
         }
         else{
         $structure->nom_structure = $input['nom_structure'];
-        $structure->donneur_receveur_mixte = $input['donneur_receveur_mixte'];
-        $structure->numero_autorisation = $input['numero_autorisation'];
-        $structure->numero_agrement = $input['numero_agrement'];
-        $structure->accord_siege = '';
         $structure->adresse_structure = $input['adresse_structure'];
-        $structure->debut_intervention = $input['debut_intervention'];
-        $structure->fin_intervention = $input['fin_intervention'];
         $structure->telephone_structure = $input['telephone_structure'];
         $structure->email_structure = $input['email_structure'];
         $structure->status = 'actif';
