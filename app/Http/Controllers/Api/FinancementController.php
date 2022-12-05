@@ -308,7 +308,7 @@ class FinancementController extends Controller
                 }
             } */
     
-            return response()->json(["success" => true, "message" => "financement ajouté avec succès.", "data" =>$ligneFinancementSecteurObj]);
+            return response()->json(["success" => true, "message" => "financement ajouté avec succès.", "data" =>$ligneFinancementSecteurs]);
         }
     }
     /**
