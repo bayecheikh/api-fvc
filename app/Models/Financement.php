@@ -55,7 +55,7 @@ class Financement extends Model
         return $this->belongsToMany(LigneFinancementCo::class,'ligne_fine_cos_fines');          
     }
     public function ligne_financement_secteurs() {
-        return $this->belongsToMany(LigneFinancementSecteur::class,'ligne_financement_secteurs');          
+        return $this->belongsToMany(LigneFinancementSecteur::class,'ligne_fine_secteurs_fines');          
     }
     public function ligne_financement_zones() {
         return $this->belongsToMany(LigneFinancementZone::class,'ligne_fine_zones_fines');          
