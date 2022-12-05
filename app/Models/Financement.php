@@ -49,16 +49,16 @@ class Financement extends Model
         return $this->belongsToMany(AgenceAcredite::class,'agence_acredites_fines');      
     }
     public function ligne_financement_bailleurs() {
-        return $this->belongsToMany(LigneFinancementBailleur::class,'ligne_bailleurs_fines');          
+        return $this->belongsToMany(LigneFinancementBailleur::class,'ligne_fine_bailleurs_fines');          
     }
     public function ligne_financement_cos() {
-        return $this->belongsToMany(LigneFinancementCo::class,'ligne_cos_fines');          
+        return $this->belongsToMany(LigneFinancementCo::class,'ligne_fine_cos_fines');          
     }
     public function ligne_financement_secteurs() {
-        return $this->belongsToMany(LigneFinancementSecteur::class,'ligne_secteurs_fines');          
+        return $this->belongsToMany(LigneFinancementSecteur::class,'ligne_financement_secteurs');          
     }
     public function ligne_financement_zones() {
-        return $this->belongsToMany(LigneFinancementZone::class,'ligne_zones_fines');          
+        return $this->belongsToMany(LigneFinancementZone::class,'ligne_fine_zones_fines');          
     }
     public function structure() {
         return $this->belongsToMany(Structure::class,'structures_fines');          
