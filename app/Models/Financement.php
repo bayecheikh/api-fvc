@@ -37,13 +37,13 @@ class Financement extends Model
         return $this->belongsToMany(SourceFinancement::class,'source_fines_fines');          
     }
     public function objectif_adaptations() {
-        return $this->belongsToMany(ObjectifAdaptation::class,'objecti_adaptations_fines');          
+        return $this->belongsToMany(ObjectifAdaptation::class,'objectif_adaptations_fines');          
     }
     public function objectif_attenuations() {
-        return $this->belongsToMany(ObjectifAttenuation::class,'objecti_attenuations_fines');          
+        return $this->belongsToMany(ObjectifAttenuation::class,'objectif_attenuations_fines');          
     }
     public function objectif_transversals() {
-        return $this->belongsToMany(ObjectifTransversal::class,'objecti_transversals_fines');          
+        return $this->belongsToMany(ObjectifTransversal::class,'objectif_transversals_fines');          
     }
     public function agence_acredite() {
         return $this->belongsToMany(AgenceAcredite::class,'agence_acredites_fines');      
