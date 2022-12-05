@@ -220,12 +220,32 @@ class FinancementController extends Controller
         else{ 
             if ($request->user()->hasRole('point_focal')){             
                 $financement = Financement::create(
-                    ['state' => 'INITIER_financement']
+                    [
+                        'date_debut'=>$input['date_debut'],
+                        'date_fin'=>$input['date_fin'],
+                        'titre_projet'=>$input['titre_projet'],
+                        'objectif_global_projet'=>$input['objectif_global_projet'],
+                        'montant_total_adaptation'=>$input['montant_total_adaptation'],
+                        'montant_total_attenuation'=>$input['montant_total_attenuation'],
+                        'montant_total_execute'=>$input['montant_total_execute'],
+                        'montant_total_restant'=>$input['montant_total_restant'],
+                        'state' => 'INITIER_financement'
+                    ]
                 );
             }
             if ($request->user()->hasRole('admin_structure')){  
                 $financement = Financement::create(
-                    ['state' => 'VALIDATION_ADMIN_STRUCTURE']
+                    [
+                        'date_debut'=>$input['date_debut'],
+                        'date_fin'=>$input['date_fin'],
+                        'titre_projet'=>$input['titre_projet'],
+                        'objectif_global_projet'=>$input['objectif_global_projet'],
+                        'montant_total_adaptation'=>$input['montant_total_adaptation'],
+                        'montant_total_attenuation'=>$input['montant_total_attenuation'],
+                        'montant_total_execute'=>$input['montant_total_execute'],
+                        'montant_total_restant'=>$input['montant_total_restant'],
+                        'state' => 'VALIDATION_ADMIN_STRUCTURE'
+                    ]
                 );
             }  
 
