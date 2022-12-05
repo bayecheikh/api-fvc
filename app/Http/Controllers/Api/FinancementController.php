@@ -101,8 +101,7 @@ class FinancementController extends Controller
                 ->with('structure')
                 ->whereHas('structure', function($q) use ($structure_id){
                     $q->where('id', $structure_id);
-                })->orderBy('created_at', 'DESC')->paginate(10);
-                $financements->load('axes.ligne_financements');
+                })->orderBy('created_at', 'DESC')->paginate(10); 
             }
             
         }
