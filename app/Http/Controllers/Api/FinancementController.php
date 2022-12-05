@@ -251,32 +251,35 @@ class FinancementController extends Controller
                 $structureObj = Structure::where('id',intval($structure_id))->first();
                 $financement->structure()->attach($structureObj);
             }
-            if($annee!=null){               
+            if($input['annee']!=null){               
                 $anneeObj = Annee::where('id',$annee)->first();
                 $financement->annee()->attach($anneeObj);
             }
  
-            $tempLigneFinancementSecteurs = str_replace("\\", "",$input['ligne_financement_secteurs']);
-            $ligneFinancementSecteurs = json_decode($tempLigneFinancementSecteurs);
+            if($input['ligne_financement_secteurs']!=null){
+                $tempLigneFinancementSecteurs = str_replace("\\", "",$input['ligne_financement_secteurs']);
+                $ligneFinancementSecteurs = json_decode($tempLigneFinancementSecteurs);
 
-            
-            $ifinance=0;
-            if(!empty($ligneFinancementSecteurs)){
-                foreach($ligneFinancementSecteurs as $ligneFinancementSecteur){                                            
+                
+                $ifinance=0;
+                if(!empty($ligneFinancementSecteurs)){
+                    foreach($ligneFinancementSecteurs as $ligneFinancementSecteur){                                            
 
-                    $ligneFinancementSecteurObj = LigneFinancementSecteur::create([                      
-                        'id_investissement'=> intval($financement->id), 
-                        'id_secteur'=> intval($ligneFinancementSecteur['id_secteur']),
-                        'id_sous_secteur'=> intval($ligneFinancementSecteur['id_sous_secteur']),
-                        'montant_adaptation'=> $ligneFinancementSecteur['montant_adaptation'],
-                        'montant_attenuation'=> $ligneFinancementSecteur['montant_attenuation'] ,
-                        'status' => $financement->status
-                    ]);
-                    $financement->ligne_financements()->attach($ligneFinancementSecteurObj);
+                        $ligneFinancementSecteurObj = LigneFinancementSecteur::create([                      
+                            'id_investissement'=> intval($financement->id), 
+                            'id_secteur'=> intval($ligneFinancementSecteur['id_secteur']),
+                            'id_sous_secteur'=> intval($ligneFinancementSecteur['id_sous_secteur']),
+                            'montant_adaptation'=> $ligneFinancementSecteur['montant_adaptation'],
+                            'montant_attenuation'=> $ligneFinancementSecteur['montant_attenuation'] ,
+                            'status' => $financement->status
+                        ]);
+                        $financement->ligne_financements()->attach($ligneFinancementSecteurObj);
 
-                    $ifinance++;
+                        $ifinance++;
+                    }
                 }
             }
+            
 
             //Fichiers
             /* if(isset($input['libelle_fichiers']) && isset($input['input_fichiers'])){
