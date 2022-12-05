@@ -252,7 +252,7 @@ class FinancementController extends Controller
                 $financement->structure()->attach($structureObj);
             }
             if($input['annee']!=null){               
-                $anneeObj = Annee::where('id',$annee)->first();
+                $anneeObj = Annee::where('id',$input['annee'])->first();
                 $financement->annee()->attach($anneeObj);
             }
  
