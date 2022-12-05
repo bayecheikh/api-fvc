@@ -206,11 +206,6 @@ class FinancementController extends Controller
     {
         $input = $request->all();
 
-        $structure_id = User::find($request->user()->id)->structures[0]->id;
-        $source = User::find($request->user()->id)->structures[0]->type_structures[0];
-        $source_id = $source->id;
-        $source_libelle = $source->libelle;
-
         $validator = Validator::make($input, ['annee' => 'required']);
         if ($validator->fails())
         {
@@ -250,7 +245,7 @@ class FinancementController extends Controller
             }  
 
             if($structure_id!=null){               
-                $structureObj = Structure::where('id',intval($structure_id))->first();
+                $structureObj = Structure::where('id',intval($input['id_structure']))->first();
                 $financement->structure()->attach($structureObj);
             }
             if($annee!=null){               
