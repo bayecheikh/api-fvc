@@ -715,8 +715,8 @@ class InvestissementController extends Controller
             $investissement->status = 'a_valider';
         }
         if ($request->user()->hasRole('admin_structure')){
-            $investissement->state = 'VALIDATION_DIRECTEUR_EPS';
-            $investissement->status = 'a_valider';
+            $investissement["state"] = 'VALIDATION_DIRECTEUR_EPS';
+            $investissement["status"] = 'a_valider';
 
             /* if($investissement->source[0]->libelle_source=='EPS'){
                 $investissement->state = 'VALIDATION_DIRECTEUR_EPS';
