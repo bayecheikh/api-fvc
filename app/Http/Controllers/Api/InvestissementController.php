@@ -715,15 +715,17 @@ class InvestissementController extends Controller
             $investissement->status = 'a_valider';
         }
         if ($request->user()->hasRole('admin_structure')){
+            $investissement->state = 'VALIDATION_DIRECTEUR_EPS';
+            $investissement->status = 'a_valider';
 
-            if($investissement->source[0]->libelle_source=='EPS'){
+            /* if($investissement->source[0]->libelle_source=='EPS'){
                 $investissement->state = 'VALIDATION_DIRECTEUR_EPS';
                 $investissement->status = 'a_valider';
             }
             else{
                 $investissement->state = 'FIN_PROCESS';
                 $investissement->status = 'publie';
-            }
+            } */
         }
         if ($request->user()->hasRole('directeur_eps')){
             $investissement->state = 'FIN_PROCESS';
