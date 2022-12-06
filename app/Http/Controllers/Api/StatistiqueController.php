@@ -25,6 +25,7 @@ use App\Models\LigneModeInvestissement;
 use App\Models\Dimension;
 use App\Models\Region;
 use App\Models\Departement;
+use App\Models\Secteur;
 use App\Models\Pilier;
 use App\Models\Axe;
 
