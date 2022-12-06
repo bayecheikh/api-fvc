@@ -93,6 +93,16 @@ class StatistiqueController extends Controller
         $total = $investissements->total();
         return response()->json(["success" => true, "message" => "Liste des investissements par pilier", "data" =>$investissements,"total" =>$total]);
     }
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function investissementBySecteur($idSecteur){
+        $investissements = LigneFinancementSecteur::where('id_secteur', $idSecteur)->paginate(0);
+        $total = $investissements->total();
+        return response()->json(["success" => true, "message" => "Liste des investissements par pilier", "data" =>$investissements,"total" =>$total]);
+    }
     public function investissementByAxe($idAxe){
         $investissements = Investissement::with('region')
             ->with('annee')

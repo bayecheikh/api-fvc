@@ -77,6 +77,7 @@ Route::post('forget_password', [AuthController::class, 'forget_password']);
  Route::get('allSources', [StatistiqueController::class, 'allSource']);
 
  Route::get('investissementByPilier/{idPilier}', [StatistiqueController::class, 'investissementByPilier']);
+ Route::get('investissementBySecteur/{idSecteur}', [StatistiqueController::class, 'investissementBySecteur']);
  Route::get('investissementByAxe/{idAxe}', [StatistiqueController::class, 'investissementByAxe']);
  Route::get('investissementByAnnee/{idAnnee}', [StatistiqueController::class, 'investissementByAnnee']);
  Route::get('investissementByRegion/{idRegion}', [StatistiqueController::class, 'investissementByRegion']);
