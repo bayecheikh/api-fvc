@@ -67,6 +67,7 @@ Route::post('forget_password', [AuthController::class, 'forget_password']);
  /**Statistique*/
  Route::get('allStats', [StatistiqueController::class, 'allStats']);
  Route::get('allPiliers', [StatistiqueController::class, 'allPilier']);
+ Route::get('allSecteurs', [StatistiqueController::class, 'allSecteur']);
  Route::get('allAxes', [StatistiqueController::class, 'allAxe']);
  Route::get('allAnnees', [StatistiqueController::class, 'allAnnee']);
  Route::get('allRegions', [StatistiqueController::class, 'allRegion']);

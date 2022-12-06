@@ -57,6 +57,17 @@ class StatistiqueController extends Controller
         return response()->json(["success" => true, "message" => "Liste des piliers", "data" => $piliers]);
         
     }
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function allSecteur()
+    {
+        $secteurs = Secteur::with('sous_secteurs')->get();
+        return response()->json(["success" => true, "message" => "Liste des secteurs", "data" => $secteurs]);
+        
+    }
 
     /**
      * Display a listing of the resource.
