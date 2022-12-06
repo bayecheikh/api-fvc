@@ -20,6 +20,7 @@ use App\Models\Structure;
 use App\Models\Annee;
 use App\Models\Monnaie;
 use App\Models\LigneFinancement;
+use App\Models\LigneFinancementSecteur;
 use App\Models\ModeFinancement;
 use App\Models\LigneModeInvestissement;
 use App\Models\Dimension;
