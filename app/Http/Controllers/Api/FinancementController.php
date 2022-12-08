@@ -242,7 +242,7 @@ class FinancementController extends Controller
                         'montant_total_execute'=>$input['montant_total_execute'],
                         'montant_total_restant'=>$input['montant_total_restant'],
                         'state' => 'VALIDATION_ADMIN_STRUCTURE',
-                        'status' => 'brouillon'
+                        'status' => 'publie'
                     ]
                 );
             }  
@@ -626,22 +626,23 @@ class FinancementController extends Controller
         $input = $request->all();
         
 
-        $financement = financement::where('id',$input['id'])->first();
+        $financement = Financement::where('id',$input['id'])->first();
 
         if ($request->user()->hasRole('point_focal')){
             $financement->state = 'VALIDATION_ADMIN_STRUCTURE';
             $financement->status = 'a_valider';
         }
         if ($request->user()->hasRole('admin_structure')){
-
-            if($financement->source[0]->libelle_source=='EPS'){
+            $financement->state = 'FIN_PROCESS';
+            $financement->status = 'publie';
+            /* if($financement->source[0]->libelle_source=='EPS'){
                 $financement->state = 'VALIDATION_DIRECTEUR_EPS';
                 $financement->status = 'a_valider';
             }
             else{
                 $financement->state = 'FIN_PROCESS';
                 $financement->status = 'publie';
-            }
+            } */
         }
         if ($request->user()->hasRole('directeur_eps')){
             $financement->state = 'FIN_PROCESS';
