@@ -633,8 +633,8 @@ class FinancementController extends Controller
             $financement->status = 'a_valider';
         }
         if ($request->user()->hasRole('admin_structure')){
-            $financement->state = 'FIN_PROCESS';
-            $financement->status = 'publie';
+            $financement->state = 'VALIDATION_DIRECTEUR_EPS';
+            $financement->status = 'a_valider';
             /* if($financement->source[0]->libelle_source=='EPS'){
                 $financement->state = 'VALIDATION_DIRECTEUR_EPS';
                 $financement->status = 'a_valider';
