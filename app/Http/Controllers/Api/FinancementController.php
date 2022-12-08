@@ -46,7 +46,7 @@ class FinancementController extends Controller
     public function index(Request $request)
     {
         if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
-            $financements = financement::with('annee')
+            $financements = Financement::with('annee')
             ->with('domaine_financement')
             ->with('source_financement')
             ->with('objectif_adaptations')
@@ -119,7 +119,7 @@ class FinancementController extends Controller
     public function financementMultipleSearch($term)
     {
         if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
-            $financements = financement::where('id', 'like', '%'.$term.'%')->orWhere('nom_financement', 'like', '%'.$term.'%')
+            $financements = Financement::where('id', 'like', '%'.$term.'%')->orWhere('nom_financement', 'like', '%'.$term.'%')
             ->with('annee')
             ->with('domaine_financement')
             ->with('source_financement')
@@ -137,7 +137,7 @@ class FinancementController extends Controller
             ->paginate(10);
         }else{
             $structure_id = User::find($request->user()->id)->structures[0]->id;
-            $financements = financement::where('id', 'like', '%'.$term.'%')->orWhere('nom_financement', 'like', '%'.$term.'%')
+            $financements = Financement::where('id', 'like', '%'.$term.'%')->orWhere('nom_financement', 'like', '%'.$term.'%')
             ->with('region')
             ->with('annee')
             ->with('monnaie')
@@ -153,7 +153,7 @@ class FinancementController extends Controller
 
             if($request->user()->hasRole('directeur_eps')){
                 $source_id = User::find($request->user()->id)->structures[0]->source_financements[0]->id;
-                $financements = financement::where('id', 'like', '%'.$term.'%')->orWhere('nom_financement', 'like', '%'.$term.'%')
+                $financements = Financement::where('id', 'like', '%'.$term.'%')->orWhere('nom_financement', 'like', '%'.$term.'%')
                 ->with('annee')
                 ->with('region')
                 ->with('monnaie')
@@ -172,7 +172,7 @@ class FinancementController extends Controller
             }
             else{
                 $structure_id = User::find($request->user()->id)->structures[0]->id;
-                $financements = financement::where('id', 'like', '%'.$term.'%')->orWhere('nom_financement', 'like', '%'.$term.'%')
+                $financements = Financement::where('id', 'like', '%'.$term.'%')->orWhere('nom_financement', 'like', '%'.$term.'%')
                 ->with('annee')
                 ->with('domaine_financement')
                 ->with('source_financement')
@@ -319,7 +319,7 @@ class FinancementController extends Controller
      */
     public function show($id)
     {
-        $financement = financement::with('annee')
+        $financement = Financement::with('annee')
         ->with('domaine_financement')
         ->with('source_financement')
         ->with('objectif_adaptations')
@@ -351,7 +351,7 @@ class FinancementController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, financement $financement)
+    public function update(Request $request, Financement $financement)
     {
         $input = $request->all();
 
