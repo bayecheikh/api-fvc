@@ -64,7 +64,6 @@ class FinancementController extends Controller
         }
         else{
             if($request->user()->hasRole('directeur_eps')){
-                $source_id = User::find($request->user()->id)->structures[0]->source_financements[0]->id;
                 $financements = Financement::with('annee')
                 ->with('domaine_financement')
                 ->with('source_financement')
@@ -79,9 +78,7 @@ class FinancementController extends Controller
                 ->with('resumes')
                 ->with('tableau_budgets')
                 ->with('structure')
-                ->whereHas('source', function($q) use ($source_id){
-                    $q->where('id', $source_id);
-                })->paginate(10);
+                ->paginate(10);
             }
             else{
                 $structure_id = User::find($request->user()->id)->structures[0]->id;
@@ -152,7 +149,6 @@ class FinancementController extends Controller
             ->paginate(10);
 
             if($request->user()->hasRole('directeur_eps')){
-                $source_id = User::find($request->user()->id)->structures[0]->source_financements[0]->id;
                 $financements = Financement::where('id', 'like', '%'.$term.'%')->orWhere('nom_financement', 'like', '%'.$term.'%')
                 ->with('annee')
                 ->with('region')
@@ -166,9 +162,7 @@ class FinancementController extends Controller
                 ->with('mode_financements')
                 ->with('ligne_financements')
                 ->with('fichiers')
-                ->whereHas('source', function($q) use ($source_id){
-                    $q->where('id', $sourcee_id);
-                })->paginate(10);
+                ->paginate(10);
             }
             else{
                 $structure_id = User::find($request->user()->id)->structures[0]->id;
