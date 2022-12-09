@@ -126,11 +126,11 @@ Route::middleware('auth:api')->group(function () {
 
     /**Gestion des investissements */
     Route::resource('investissements', InvestissementController::class);
-    Route::post('validation_investissement', [InvestissementController::class, 'validation_investissement']);
-    Route::post('rejet_investissement', [InvestissementController::class, 'rejet_investissement']);
+    Route::post('validation_investissement', [FinancementController::class, 'validation_investissement']);
+    Route::post('rejet_investissement', [FinancementController::class, 'rejet_investissement']);
 
     /**Recherche avancée sur les investissements */
-    Route::resource('recherche_avances', InvestissementController::class);
+    Route::resource('recherche_avances', FinancementController::class);
     Route::post('recherche_avance_investissements', [RechercheInvestissementController::class, 'recherche']);
 
     /**Gestion des lignes de financement */
