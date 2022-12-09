@@ -664,7 +664,7 @@ class FinancementController extends Controller
         $motif_rejet = $input['motif_rejet'];
         
 
-        $financement = financement::where('id',$input['id'])->first();
+        $financement = Financement::where('id',$input['id'])->first();
 
         if ($request->user()->hasRole('admin_structure')){          
             $financement->state = 'INITIER_financement';
