@@ -226,7 +226,7 @@ class FinancementController extends Controller
                         'montant_total_attenuation'=>$input['montant_total_attenuation'],
                         'montant_total_execute'=>$input['montant_total_execute'],
                         'montant_total_restant'=>$input['montant_total_restant'],
-                        'state' => 'INITIER_financement',
+                        'state' => 'INITIER_INVESTISSEMENT',
                         'status' => 'brouillon'
                     ]
                 );
@@ -668,7 +668,7 @@ class FinancementController extends Controller
         $financement = Financement::where('id',$input['id'])->first();
 
         if ($request->user()->hasRole('admin_structure')){          
-            $financement->state = 'INITIER_financement';
+            $financement->state = 'INITIER_INVESTISSEMENT';
             $financement->status = 'rejete';          
             $financement->motif_rejet = $motif_rejet;          
         }
