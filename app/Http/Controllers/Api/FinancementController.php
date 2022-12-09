@@ -226,7 +226,8 @@ class FinancementController extends Controller
                         'montant_total_attenuation'=>$input['montant_total_attenuation'],
                         'montant_total_execute'=>$input['montant_total_execute'],
                         'montant_total_restant'=>$input['montant_total_restant'],
-                        'state' => 'INITIER_financement'
+                        'state' => 'INITIER_financement',
+                        'status' => 'brouillon'
                     ]
                 );
             }
@@ -242,7 +243,7 @@ class FinancementController extends Controller
                         'montant_total_execute'=>$input['montant_total_execute'],
                         'montant_total_restant'=>$input['montant_total_restant'],
                         'state' => 'VALIDATION_ADMIN_STRUCTURE',
-                        'status' => 'publie'
+                        'status' => 'brouillon'
                     ]
                 );
             }  
