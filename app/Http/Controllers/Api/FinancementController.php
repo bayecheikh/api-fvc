@@ -271,8 +271,8 @@ class FinancementController extends Controller
 
                         $ligneFinancementSecteurObj = LigneFinancementSecteur::create([                      
                             'id_investissement'=> intval($financement->id), 
-                            'id_secteur'=> intval($ligneFinancementSecteur['id_secteur']),
-                            'id_sous_secteur'=> intval($ligneFinancementSecteur['id_sous_secteur']),
+                            'id_secteur'=> intval($ligneFinancementSecteur['secteur']),
+                            'id_sous_secteur'=> intval($ligneFinancementSecteur['sous_secteur']),
                             'montant_total'=> $ligneFinancementSecteur['montant_total'] ,
                             'status' => $financement->status
                         ]);
@@ -294,7 +294,7 @@ class FinancementController extends Controller
 
                         $ligneFinancementZoneObj = LigneFinancementZone::create([                      
                             'id_investissement'=> intval($financement->id), 
-                            'id_region'=> intval($ligneFinancementZone['id_region']),
+                            'id_region'=> intval($ligneFinancementZone['region']),
                             'montant_total'=> $ligneFinancementZone['montant_total'] ,
                             'status' => $financement->status
                         ]);
@@ -316,8 +316,8 @@ class FinancementController extends Controller
 
                         $ligneFinancementBailleurObj = LigneFinancementBailleur::create([                      
                             'id_investissement'=> intval($financement->id), 
-                            'id_bailleur'=> intval($ligneFinancementBailleur['id_bailleur']),
-                            'id_instrumet_financier'=> intval($ligneFinancementBailleur['id_instrumet_financier']),
+                            'id_bailleur'=> intval($ligneFinancementBailleur['bailleur']),
+                            'id_instrumet_financier'=> intval($ligneFinancementBailleur['instrumet_financier']),
                             'montant_total'=> $ligneFinancementBailleur['montant_total'] ,
                             'status' => $financement->status
                         ]);
@@ -339,7 +339,7 @@ class FinancementController extends Controller
 
                         $ligneFinancementCoObj = LigneFinancementCo::create([                      
                             'id_investissement'=> intval($financement->id), 
-                            'id_instrument_financier'=> intval($ligneFinancementCo['id_instrument_financier']),
+                            'id_instrument_financier'=> intval($ligneFinancementCo['instrument_financier']),
                             'nom_co_financier'=> intval($ligneFinancementCo['nom_co_financier']),
                             'montant_co_financier'=> $ligneFinancementCo['montant_co_financier'] ,
                             'status' => $financement->status
