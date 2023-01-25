@@ -14,6 +14,6 @@ class LigneFinancementZone extends Model
     * @var array
     */
     protected $fillable = ['id_investissement','id_region',
-       'montant_adaptation','montant_attenuation','status'
+       'montant_adaptation','montant_attenuation','montant_total','status'
     ];
 }

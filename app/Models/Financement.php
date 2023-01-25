@@ -22,11 +22,17 @@ class Financement extends Model
        'montant_total_attenuation',
        'montant_total_execute',
        'montant_total_restant',
+       'renforcement_capacite',
+       'transfert_technologie',
+       'montant_total',
+       'nombre_beneficiaire',
+       'volume_co2',
        'status',
        'state',
        'motif_rejet', 
        'brouillon'
     ];
+
     public function annee() {
         return $this->belongsToMany(Annee::class,'annees_fines');          
     }

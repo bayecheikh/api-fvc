@@ -220,6 +220,11 @@ class FinancementController extends Controller
                         'montant_total_attenuation'=>$input['montant_total_attenuation'],
                         'montant_total_execute'=>$input['montant_total_execute'],
                         'montant_total_restant'=>$input['montant_total_restant'],
+                        'renforcement_capacite'=>$input['renforcement_capacite'],
+                        'transfert_technologie'=>$input['transfert_technologie'],
+                        'montant_total'=>$input['montant_total'],
+                        'nombre_beneficiaire'=>$input['nombre_beneficiaire'],
+                        'volume_co2'=>$input['volume_co2'],
                         'state' => 'INITIER_INVESTISSEMENT',
                         'status' => 'brouillon'
                     ]
