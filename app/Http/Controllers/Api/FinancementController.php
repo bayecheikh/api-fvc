@@ -232,15 +232,19 @@ class FinancementController extends Controller
             }
             if ($request->user()->hasRole('admin_structure')){  
                 $financement = Financement::create(
-                    [
-                        'date_debut'=>$input['date_debut'],
-                        'date_fin'=>$input['date_fin'],
-                        'titre_projet'=>$input['titre_projet'],
-                        'objectif_global_projet'=>$input['objectif_global_projet'],
-                        'montant_total_adaptation'=>$input['montant_total_adaptation'],
-                        'montant_total_attenuation'=>$input['montant_total_attenuation'],
-                        'montant_total_execute'=>$input['montant_total_execute'],
-                        'montant_total_restant'=>$input['montant_total_restant'],
+                    ['date_debut'=>$input['date_debut'],
+                    'date_fin'=>$input['date_fin'],
+                    'titre_projet'=>$input['titre_projet'],
+                    'objectif_global_projet'=>$input['objectif_global_projet'],
+                    'montant_total_adaptation'=>$input['montant_total_adaptation'],
+                    'montant_total_attenuation'=>$input['montant_total_attenuation'],
+                    'montant_total_execute'=>$input['montant_total_execute'],
+                    'montant_total_restant'=>$input['montant_total_restant'],
+                    'renforcement_capacite'=>$input['renforcement_capacite'],
+                    'transfert_technologie'=>$input['transfert_technologie'],
+                    'montant_total'=>$input['montant_total'],
+                    'nombre_beneficiaire'=>$input['nombre_beneficiaire'],
+                    'volume_co2'=>$input['volume_co2'],
                         'state' => 'VALIDATION_ADMIN_STRUCTURE',
                         'status' => 'brouillon'
                     ]
@@ -269,17 +273,83 @@ class FinancementController extends Controller
                             'id_investissement'=> intval($financement->id), 
                             'id_secteur'=> intval($ligneFinancementSecteur['id_secteur']),
                             'id_sous_secteur'=> intval($ligneFinancementSecteur['id_sous_secteur']),
-                            'montant_adaptation'=> $ligneFinancementSecteur['montant_adaptation'],
-                            'montant_attenuation'=> $ligneFinancementSecteur['montant_attenuation'] ,
+                            'montant_total'=> $ligneFinancementSecteur['montant_total'] ,
                             'status' => $financement->status
                         ]);
-                        $financement->ligne_financements()->attach($ligneFinancementSecteurObj);
+                        $financement->ligne_financement_secteurs()->attach($ligneFinancementSecteurObj);
+
+                        $ifinance++;
+                    }
+                }
+            }
+
+            if($input['ligne_financement_zones']!=null){
+                $tempLigneFinancementZones = str_replace("\\", "",$input['ligne_financement_zones']);
+                $ligneFinancementZones = json_decode($tempLigneFinancementZones);
+
+                
+                $ifinance=0;
+                if(!empty($ligneFinancementZones)){
+                    foreach($ligneFinancementZones as $ligneFinancementZone){                                            
+
+                        $ligneFinancementZoneObj = LigneFinancementZone::create([                      
+                            'id_investissement'=> intval($financement->id), 
+                            'id_region'=> intval($ligneFinancementZone['id_region']),
+                            'montant_total'=> $ligneFinancementZone['montant_total'] ,
+                            'status' => $financement->status
+                        ]);
+                        $financement->ligne_financement_zones()->attach($ligneFinancementZoneObj);
+
+                        $ifinance++;
+                    }
+                }
+            }
+
+            if($input['ligne_financement_bailleurs']!=null){
+                $tempLigneFinancementBailleurs = str_replace("\\", "",$input['ligne_financement_bailleurs']);
+                $ligneFinancementBailleurs = json_decode($tempLigneFinancementBailleurs);
+
+                
+                $ifinance=0;
+                if(!empty($ligneFinancementBailleurs)){
+                    foreach($ligneFinancementBailleurs as $ligneFinancementBailleur){                                            
+
+                        $ligneFinancementBailleurObj = LigneFinancementBailleur::create([                      
+                            'id_investissement'=> intval($financement->id), 
+                            'id_bailleur'=> intval($ligneFinancementBailleur['id_bailleur']),
+                            'id_instrumet_financier'=> intval($ligneFinancementBailleur['id_instrumet_financier']),
+                            'montant_total'=> $ligneFinancementBailleur['montant_total'] ,
+                            'status' => $financement->status
+                        ]);
+                        $financement->ligne_financement_bailleurs()->attach($ligneFinancementBailleurObj);
 
                         $ifinance++;
                     }
                 }
             }
             
+            if($input['ligne_financement_cos']!=null){
+                $tempLigneFinancementCos = str_replace("\\", "",$input['ligne_financement_cos']);
+                $ligneFinancementCos = json_decode($tempLigneFinancementCos);
+
+                
+                $ifinance=0;
+                if(!empty($ligneFinancementCos)){
+                    foreach($ligneFinancementCos as $ligneFinancementCo){                                            
+
+                        $ligneFinancementCoObj = LigneFinancementCo::create([                      
+                            'id_investissement'=> intval($financement->id), 
+                            'id_instrument_financier'=> intval($ligneFinancementCo['id_instrument_financier']),
+                            'nom_co_financier'=> intval($ligneFinancementCo['nom_co_financier']),
+                            'montant_co_financier'=> $ligneFinancementCo['montant_co_financier'] ,
+                            'status' => $financement->status
+                        ]);
+                        $financement->ligne_financement_cos()->attach($ligneFinancementCoObj);
+
+                        $ifinance++;
+                    }
+                }
+            }
 
             //Fichiers
             /* if(isset($input['libelle_fichiers']) && isset($input['input_fichiers'])){
