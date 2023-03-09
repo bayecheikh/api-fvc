@@ -48,7 +48,7 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function userMultipleSearch($term)
+    public function userMultipleSearch($term, Request $request)
     {
         if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
             $users = User::where('id', 'like', '%'.$term.'%')->orWhere('email', 'like', '%'.$term.'%')->orWhere('name', 'like', '%'.$term.'%')->with('roles')->paginate(5);
