@@ -39,10 +39,24 @@ class ProblemeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function ProblemeMultipleSearch($term)
+    public function problemeMultipleSearch($term)
     {
 
             $Problemes = Probleme::where('id', 'like', '%'.$term.'%')->orWhere('id_financement', 'like', '%'.$term.'%')->orWhere('nom_beneficiaire', 'like', '%'.$term.'%')->orWhere('prenom_beneficiaire', 'like', '%'.$term.'%')->orWhere('region', 'like', '%'.$term.'%')->orWhere('departement', 'like', '%'.$term.'%')->orWhere('commune', 'like', '%'.$term.'%')->paginate(10);  
+             
+        
+        $total = $Problemes->total();
+        return response()->json(["success" => true, "message" => "Liste des Probleme risque", "data" => $Problemes,"total"=> $total]);   
+    }
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function problemeByFinancement($idFinancement)
+    {
+
+            $Problemes = Probleme::where('id_financement', '=', '%'.$idFinancement.'%')->paginate(0);  
              
         
         $total = $Problemes->total();

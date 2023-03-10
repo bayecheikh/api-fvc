@@ -53,6 +53,20 @@ class RealisationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function realisationByFinancement($idFinancement)
+    {
+
+            $Realisations = Realisation::where('id_financement', '=', '%'.$idFinancement.'%')->paginate(0);  
+             
+        
+        $total = $Realisations->total();
+        return response()->json(["success" => true, "message" => "Liste des Realisation risque", "data" => $Realisations,"total"=> $total]);   
+    }
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function activeRealisation($id)
     {
         $Realisation = Realisation::find($id);

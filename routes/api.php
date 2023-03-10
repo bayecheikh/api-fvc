@@ -175,10 +175,12 @@ Route::middleware('auth:api')->group(function () {
     /**Gestion des problemes */
     Route::resource('problemes', ProblemeController::class);
     Route::get('probleme-multiple-search/{term}', [ProblemeController::class, 'problemeMultipleSearch']);
+    Route::get('problemeByFinancement/{term}', [ProblemeController::class, 'problemeByFinancement']);
 
     /**Gestion des realisations */
     Route::resource('realisations', RealisationController::class);
     Route::get('realisation-multiple-search/{term}', [RealisationController::class, 'realisationMultipleSearch']);
+    Route::get('realisationByFinancement/{term}', [RealisationController::class, 'realisationByFinancement']);
 
     /**Gestion des structures */
     Route::resource('structures', StructureController::class);
