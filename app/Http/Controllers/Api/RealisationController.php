@@ -56,9 +56,14 @@ class RealisationController extends Controller
     public function realisationByFinancement($idFinancement)
     {
 
-            $Realisations = Realisation::where('id_financement', 'like', '%'.$idFinancement.'%')->orderBy('created_at', 'DESC')->paginate(0);  
+        $Realisations = Realisation::where('id_financement', 'like', '%'.$idFinancement.'%')->orderBy('created_at', 'DESC')->paginate(0);  
              
-        
+        if (is_null($Realisation))
+        {
+   /*          return $this->sendError('Product not found.'); */
+            return response()
+            ->json(["success" => true, "message" => "Realisation introuvable."]);
+        }
         $total = $Realisations->total();
         return response()->json(["success" => true, "message" => "Liste des Realisation risque", "data" => $Realisations,"total"=> $total]);   
     }
