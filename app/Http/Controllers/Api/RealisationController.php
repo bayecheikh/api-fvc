@@ -58,7 +58,7 @@ class RealisationController extends Controller
 
         $Realisations = Realisation::where('id_financement', 'like', '%'.$idFinancement.'%')->orderBy('created_at', 'DESC')->paginate(0);  
              
-        if (is_null($Realisation))
+        if (is_null($Realisations))
         {
    /*          return $this->sendError('Product not found.'); */
             return response()
