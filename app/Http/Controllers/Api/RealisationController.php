@@ -64,8 +64,8 @@ class RealisationController extends Controller
             return response()
             ->json(["success" => true, "message" => "Realisation introuvable."]);
         }
-        $total = $Realisations->total();
-        return response()->json(["success" => true, "message" => "Liste des Realisation risque", "data" => $Realisations,"total"=> $total]);   
+        //$total = $Realisations->total();
+        return response()->json(["success" => true, "message" => "Liste des Realisation risque", "data" => $Realisations]);   
     }
     /**
      * Display a listing of the resource.
