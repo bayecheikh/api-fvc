@@ -56,7 +56,7 @@ class ProblemeController extends Controller
     public function problemeByFinancement($idFinancement)
     {
 
-            $Problemes = Probleme::where('id_financement', 'like', '%'.$idFinancement.'%')->paginate(0);  
+            $Problemes = Probleme::where('id_financement', 'like', '%'.$idFinancement.'%')->orderBy('created_at', 'DESC')->paginate(0);  
              
         
         $total = $Problemes->total();

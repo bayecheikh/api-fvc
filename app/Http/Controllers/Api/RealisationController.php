@@ -56,7 +56,7 @@ class RealisationController extends Controller
     public function realisationByFinancement($idFinancement)
     {
 
-            $Realisations = Realisation::where('id_financement', 'like', '%'.$idFinancement.'%')->paginate(0);  
+            $Realisations = Realisation::where('id_financement', 'like', '%'.$idFinancement.'%')->orderBy('created_at', 'DESC')->paginate(0);  
              
         
         $total = $Realisations->total();
