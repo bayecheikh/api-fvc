@@ -56,7 +56,7 @@ class ProblemeController extends Controller
     public function problemeByFinancement($idFinancement)
     {
 
-            $Problemes = Probleme::where('id_financement', '=', '%'.$idFinancement.'%')->paginate(0);  
+            $Problemes = Probleme::where('id_financement', '.=', $idFinancement)->paginate(0);  
              
         
         $total = $Problemes->total();
