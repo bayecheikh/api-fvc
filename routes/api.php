@@ -29,6 +29,8 @@ use App\Http\Controllers\Api\DemandeController;
 use App\Http\Controllers\Api\StatistiqueController;
 
 use App\Http\Controllers\Api\FinancementController;
+use App\Http\Controllers\Api\ProblemeController;
+use App\Http\Controllers\Api\RealisationController;
 use App\Http\Controllers\Api\StructureController;
 use App\Http\Controllers\Api\AnneeController;
 use App\Http\Controllers\Api\ObjectifAttenuationController;
