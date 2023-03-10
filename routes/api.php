@@ -170,6 +170,13 @@ Route::middleware('auth:api')->group(function () {
 
     //Projet FVC
     Route::resource('financements',FinancementController::class);
+    /**Gestion des problemes */
+    Route::resource('problemes', ProblemeController::class);
+    Route::get('probleme-multiple-search/{term}', [ProblemeController::class, 'problemeMultipleSearch']);
+
+    /**Gestion des realisations */
+    Route::resource('realisations', RealisationController::class);
+    Route::get('realisation-multiple-search/{term}', [RealisationController::class, 'realisationMultipleSearch']);
 
     /**Gestion des structures */
     Route::resource('structures', StructureController::class);
