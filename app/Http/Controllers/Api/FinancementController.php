@@ -60,7 +60,7 @@ class FinancementController extends Controller
             ->with('resumes')
             ->with('tableau_budgets')
             ->with('structure')
-            ->paginate(10);
+            ->paginate(20);
         }
         else{
             if($request->user()->hasRole('directeur_eps')){
@@ -78,7 +78,7 @@ class FinancementController extends Controller
                 ->with('resumes')
                 ->with('tableau_budgets')
                 ->with('structure')
-                ->paginate(10);
+                ->paginate(20);
             }
             else{
                 $structure_id = User::find($request->user()->id)->structures[0]->id;
@@ -98,7 +98,7 @@ class FinancementController extends Controller
                 ->with('structure')
                 ->whereHas('structure', function($q) use ($structure_id){
                     $q->where('id', $structure_id);
-                })->orderBy('created_at', 'DESC')->paginate(10); 
+                })->orderBy('created_at', 'DESC')->paginate(20); 
             }
             
         }
@@ -131,7 +131,7 @@ class FinancementController extends Controller
             ->with('resumes')
             ->with('tableau_budgets')
             ->with('structure')
-            ->paginate(10);
+            ->paginate(20);
         }else{
             $structure_id = User::find($request->user()->id)->structures[0]->id;
             $financements = Financement::where('id', 'like', '%'.$term.'%')->orWhere('nom_financement', 'like', '%'.$term.'%')
@@ -146,7 +146,7 @@ class FinancementController extends Controller
             ->with('fichiers')->whereHas('structure', function($q) use ($structure_id){
                 $q->where('id', $structure_id);
             })
-            ->paginate(10);
+            ->paginate(20);
 
             if($request->user()->hasRole('directeur_eps')){
                 $financements = Financement::where('id', 'like', '%'.$term.'%')->orWhere('nom_financement', 'like', '%'.$term.'%')
@@ -162,7 +162,7 @@ class FinancementController extends Controller
                 ->with('mode_financements')
                 ->with('ligne_financements')
                 ->with('fichiers')
-                ->paginate(10);
+                ->paginate(20);
             }
             else{
                 $structure_id = User::find($request->user()->id)->structures[0]->id;
@@ -183,7 +183,7 @@ class FinancementController extends Controller
                 ->with('structure')
                 ->whereHas('structure', function($q) use ($structure_id){
                     $q->where('id', $structure_id);
-                })->paginate(10);
+                })->paginate(20);
             }
         }
         $total = $financements->total();
@@ -703,8 +703,8 @@ class FinancementController extends Controller
             $financement->status = 'a_valider';
         }
         if ($request->user()->hasRole('admin_structure')){
-            $financement->state = 'VALIDATION_DIRECTEUR_EPS';
-            $financement->status = 'a_valider';
+            $financement->state = 'FIN_PROCESS';
+            $financement->status = 'publie';
             /* if($financement->source[0]->libelle_source=='EPS'){
                 $financement->state = 'VALIDATION_DIRECTEUR_EPS';
                 $financement->status = 'a_valider';
@@ -741,7 +741,7 @@ class FinancementController extends Controller
             $financement->status = 'rejete';          
             $financement->motif_rejet = $motif_rejet;          
         }
-        if ($request->user()->hasRole('directeur_eps')){
+        if ($request->user()->hasRole('directeur_eps') || $request->user()->hasRole('super_admin')){
             $financement->state = 'VALIDATION_ADMIN_STRUCTURE';
             $financement->status = 'rejete';
             $financement->motif_rejet = $motif_rejet; 
