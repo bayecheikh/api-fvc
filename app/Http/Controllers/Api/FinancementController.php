@@ -98,15 +98,15 @@ class FinancementController extends Controller
                 ->with('structure')
                 ->whereHas('structure', function($q) use ($structure_id){
                     $q->where('id', $structure_id);
-                })->orderBy('created_at', 'DESC')->paginate(20); 
+                })->orderBy('created_at', 'DESC')->paginate(20);
             }
-            
+
         }
 
-        
+
         $total = $financements->total();
         return response()->json(["success" => true, "message" => "Structures List", "data" =>$financements,"total"=> $total]);
-        
+
     }
     /**
      * Display a listing of the resource.
@@ -187,7 +187,7 @@ class FinancementController extends Controller
             }
         }
         $total = $financements->total();
-        return response()->json(["success" => true, "message" => "Liste des financements", "data" =>$financements,"total"=> $total]);  
+        return response()->json(["success" => true, "message" => "Liste des financements", "data" =>$financements,"total"=> $total]);
     }
     /**
      * Store a newly created resource in storagrolee.
@@ -208,8 +208,8 @@ class FinancementController extends Controller
             return response()
             ->json($validator->errors());
         }
-        else{ 
-            if ($request->user()->hasRole('point_focal')){             
+        else{
+            if ($request->user()->hasRole('point_focal')){
                 $financement = Financement::create(
                     [
                         'date_debut'=>$input['date_debut'],
@@ -230,7 +230,7 @@ class FinancementController extends Controller
                     ]
                 );
             }
-            if ($request->user()->hasRole('admin_structure')){  
+            if ($request->user()->hasRole('admin_structure')){
                 $financement = Financement::create(
                     ['date_debut'=>$input['date_debut'],
                     'date_fin'=>$input['date_fin'],
@@ -249,28 +249,28 @@ class FinancementController extends Controller
                         'status' => 'brouillon'
                     ]
                 );
-            }  
+            }
 
-            if($structure_id!=null){               
+            if($structure_id!=null){
                 $structureObj = Structure::where('id',intval($structure_id))->first();
                 $financement->structure()->attach($structureObj);
             }
-            if($input['annee']!=null){               
+            if($input['annee']!=null){
                 $anneeObj = Annee::where('id',$input['annee'])->first();
                 $financement->annee()->attach($anneeObj);
             }
- 
+
             if($input['ligne_financement_secteurs']!=null){
                 $tempLigneFinancementSecteurs = str_replace("\\", "",$input['ligne_financement_secteurs']);
                 $ligneFinancementSecteurs = json_decode($tempLigneFinancementSecteurs);
 
-                
+
                 $ifinance=0;
                 if(!empty($ligneFinancementSecteurs)){
-                    foreach($ligneFinancementSecteurs as $ligneFinancementSecteur){                                            
+                    foreach($ligneFinancementSecteurs as $ligneFinancementSecteur){
 
-                        $ligneFinancementSecteurObj = LigneFinancementSecteur::create([                      
-                            'id_investissement'=> intval($financement->id), 
+                        $ligneFinancementSecteurObj = LigneFinancementSecteur::create([
+                            'id_investissement'=> intval($financement->id),
                             'id_secteur'=> intval($ligneFinancementSecteur['secteur']),
                             'id_sous_secteur'=> intval($ligneFinancementSecteur['sous_secteur']),
                             'montant_total'=> $ligneFinancementSecteur['montant_total'] ,
@@ -287,13 +287,13 @@ class FinancementController extends Controller
                 $tempLigneFinancementZones = str_replace("\\", "",$input['ligne_financement_zones']);
                 $ligneFinancementZones = json_decode($tempLigneFinancementZones);
 
-                
+
                 $ifinance=0;
                 if(!empty($ligneFinancementZones)){
-                    foreach($ligneFinancementZones as $ligneFinancementZone){                                            
+                    foreach($ligneFinancementZones as $ligneFinancementZone){
 
-                        $ligneFinancementZoneObj = LigneFinancementZone::create([                      
-                            'id_investissement'=> intval($financement->id), 
+                        $ligneFinancementZoneObj = LigneFinancementZone::create([
+                            'id_investissement'=> intval($financement->id),
                             'id_region'=> intval($ligneFinancementZone['region']),
                             'montant_total'=> $ligneFinancementZone['montant_total'] ,
                             'status' => $financement->status
@@ -309,13 +309,13 @@ class FinancementController extends Controller
                 $tempLigneFinancementBailleurs = str_replace("\\", "",$input['ligne_financement_bailleurs']);
                 $ligneFinancementBailleurs = json_decode($tempLigneFinancementBailleurs);
 
-                
+
                 $ifinance=0;
                 if(!empty($ligneFinancementBailleurs)){
-                    foreach($ligneFinancementBailleurs as $ligneFinancementBailleur){                                            
+                    foreach($ligneFinancementBailleurs as $ligneFinancementBailleur){
 
-                        $ligneFinancementBailleurObj = LigneFinancementBailleur::create([                      
-                            'id_investissement'=> intval($financement->id), 
+                        $ligneFinancementBailleurObj = LigneFinancementBailleur::create([
+                            'id_investissement'=> intval($financement->id),
                             'id_bailleur'=> intval($ligneFinancementBailleur['bailleur']),
                             'id_instrumet_financier'=> intval($ligneFinancementBailleur['instrumet_financier']),
                             'montant_total'=> $ligneFinancementBailleur['montant_total'] ,
@@ -327,18 +327,18 @@ class FinancementController extends Controller
                     }
                 }
             }
-            
+
             if($input['ligne_financement_cos']!=null){
                 $tempLigneFinancementCos = str_replace("\\", "",$input['ligne_financement_cos']);
                 $ligneFinancementCos = json_decode($tempLigneFinancementCos);
 
-                
+
                 $ifinance=0;
                 if(!empty($ligneFinancementCos)){
-                    foreach($ligneFinancementCos as $ligneFinancementCo){                                            
+                    foreach($ligneFinancementCos as $ligneFinancementCo){
 
-                        $ligneFinancementCoObj = LigneFinancementCo::create([                      
-                            'id_investissement'=> intval($financement->id), 
+                        $ligneFinancementCoObj = LigneFinancementCo::create([
+                            'id_investissement'=> intval($financement->id),
                             'id_instrument_financier'=> intval($ligneFinancementCo['instrument_financier']),
                             'nom_co_financier'=> intval($ligneFinancementCo['nom_co_financier']),
                             'montant_co_financier'=> $ligneFinancementCo['montant_co_financier'] ,
@@ -364,7 +364,7 @@ class FinancementController extends Controller
                             $url_file = $upload_path . '/' . $file_name;
                             $generated_new_name = 'accord_siege_' . time() . '.' . $file_extension;
                             $file->move($upload_path, $generated_new_name);
-                
+
                             $fichierObj = Fichier::create([
                                 'name' => $libelle_fichiers[$ifichier],
                                 'url' => $url_file,
@@ -377,7 +377,7 @@ class FinancementController extends Controller
                     }
                 }
             } */
-    
+
             return response()->json(["success" => true, "message" => "financement ajouté avec succès.", "data" =>$ligneFinancementSecteurs]);
         }
     }
@@ -437,17 +437,17 @@ class FinancementController extends Controller
             return response()
             ->json($validator->errors());
         }
-        else{           
+        else{
             //news data
             $annee = $input['annee'];
             $monnaie = $input['monnaie'];
             $region = $input['region'];
             $dimension = $input['dimension'];
-            $structure_sources = explode (",", $input['structure_sources']); 
-            $structure_beneficiaires = explode (",", $input['structure_beneficiaires']); 
-            $regions = explode (",", $input['regions']); 
-            $piliers = explode (",", $input['piliers']); 
-            $axes = explode (",", $input['axes']); 
+            $structure_sources = explode (",", $input['structure_sources']);
+            $structure_beneficiaires = explode (",", $input['structure_beneficiaires']);
+            $regions = explode (",", $input['regions']);
+            $piliers = explode (",", $input['piliers']);
+            $axes = explode (",", $input['axes']);
 
             $libelleModeFinancements = explode (",", $input['libelleModeFinancements']);
             $montantModeFinancements = explode (",", $input['montantModeFinancements']);
@@ -461,7 +461,7 @@ class FinancementController extends Controller
 
             $tempLigneModeFinancements = str_replace("\\", "",$input['ligneModeFinancements']);
             $ligneModeFinancements = json_decode($tempLigneModeFinancements);
- 
+
             $tempLigneFinancements = str_replace("\\", "",$input['ligneFinancements']);
             $ligneFinancements = json_decode($tempLigneFinancements);
 
@@ -479,52 +479,52 @@ class FinancementController extends Controller
             $old_ligneFinancements = $financement->ligne_financements();
             $old_fichiers = $financement->fichiers();
             //traitements
-            if($structure_id!=null){   
+            if($structure_id!=null){
                 foreach($old_structure as $structure){
                     $old_structureObj = Structure::where('id',$structure)->first();
                     $financement->structure()->detach($old_structureObj);
-                }           
+                }
                 $structureObj = Structure::where('id',intval($structure_id))->first();
                 $financement->structure()->attach($structureObj);
             }
-            if($source_id!=null){ 
+            if($source_id!=null){
                 foreach($old_source as $source){
                     $old_sourceObj = SourceFinancement::where('id',$source)->first();
                     $financement->source()->detach($old_sourceObj);
-                }               
+                }
                 $sourceObj = SourceFinancement::where('id',intval($source_id))->first();
                 $financement->source()->attach($sourceObj);
             }
 
-            if($annee!=null){   
+            if($annee!=null){
                 foreach($old_annee as $annee){
                     $old_anneeObj = Annee::where('id',$annee)->first();
                     $financement->annee()->detach($old_anneeObj);
-                }            
+                }
                 $anneeObj = Annee::where('id',intval($input['annee']))->first();
                 $financement->annee()->attach($anneeObj);
             }
-            if($monnaie!=null){  
+            if($monnaie!=null){
                 foreach($old_monnaie as $monnaie){
                     $old_monnaieObj = Monnaie::where('id',$monnaie)->first();
                     $financement->monnaie()->detach($old_monnaieObj);
-                }             
+                }
                 $monnaieObj = Monnaie::where('id',intval($input['monnaie']))->first();
                 $financement->monnaie()->attach($monnaieObj);
             }
-            if($region!=null){  
+            if($region!=null){
                 foreach($old_region as $region){
                     $old_regionObj = Region::where('id',$region)->first();
                     $financement->region()->detach($old_regionObj);
-                }              
+                }
                 $regionObj = Region::where('id',intval($input['region']))->first();
                 $financement->region()->attach($regionObj);
             }
-            if($dimension!=null){  
+            if($dimension!=null){
                 foreach($old_dimension as $dimension){
                     $old_dimensionObj = Dimension::where('id',$dimension)->first();
                     $financement->dimension()->detach($old_dimensionObj);
-                }              
+                }
                 $dimensionObj = Dimension::where('id',intval($input['dimension']))->first();
                 $financement->dimension()->attach($dimensionObj);
             }
@@ -569,28 +569,28 @@ class FinancementController extends Controller
                     $pilierObj = Pilier::where('id',intval($pilier))->first();
                     $axeObj = Axe::where('id',intval($axes[$ifinance]))->first();
                     $anneeObj = Annee::where('id',$annee)->first();
-                    $monnaieObj = Monnaie::where('id',$monnaie)->first();            
-                    $structureObj = Structure::where('id',$structure_id)->first();            
+                    $monnaieObj = Monnaie::where('id',$monnaie)->first();
+                    $structureObj = Structure::where('id',$structure_id)->first();
                     $dimensionObj = Dimension::where('id',$dimension)->first();
 
-                    $ligneFinancementObj = LigneFinancement::create([                      
-                        'id_financement'=> intval($financement->id), 
-                        'id_structure'=> intval($structure_id), 
-                        'id_annee'=> intval($annee), 
-                        'id_monnaie'=> intval($monnaie), 
-                        'id_dimension'=> intval($dimension), 
+                    $ligneFinancementObj = LigneFinancement::create([
+                        'id_financement'=> intval($financement->id),
+                        'id_structure'=> intval($structure_id),
+                        'id_annee'=> intval($annee),
+                        'id_monnaie'=> intval($monnaie),
+                        'id_dimension'=> intval($dimension),
                         'id_type_structure_source'=> intval($type_structure_sourceObj->id),
-                        'id_structure_source'=> intval($structure_sources[$ifinance]), 
-                        'id_structure_beneficiaire'=> intval($structure_beneficiaires[$ifinance]), 
-                        'id_region'=> intval($regions[$ifinance]), 
-                        'id_pilier'=> intval($pilier), 
-                        'id_axe'=> intval($axes[$ifinance]), 
+                        'id_structure_source'=> intval($structure_sources[$ifinance]),
+                        'id_structure_beneficiaire'=> intval($structure_beneficiaires[$ifinance]),
+                        'id_region'=> intval($regions[$ifinance]),
+                        'id_pilier'=> intval($pilier),
+                        'id_axe'=> intval($axes[$ifinance]),
                         'montantBienServicePrevus'=> $montantBienServicePrevus[$ifinance],
                         'montantBienServiceMobilises'=> $montantBienServiceMobilises[$ifinance],
                         'montantBienServiceExecutes'=> $montantBienServiceExecutes[$ifinance],
                         'montantfinancementPrevus'=> $montantfinancementPrevus[$ifinance],
                         'montantfinancementMobilises'=> $montantfinancementMobilises[$ifinance],
-                        'montantfinancementExecutes'=> $montantfinancementExecutes[$ifinance], 
+                        'montantfinancementExecutes'=> $montantfinancementExecutes[$ifinance],
                         'status' => $financement->status
                     ]);
                     $ligneFinancementObj->axe()->detach($axeObj);
@@ -644,7 +644,7 @@ class FinancementController extends Controller
                     foreach($old_fichiers as $fichier){
                         $old_fichierObj = Fichier::where('id',$fichier)->first();
                         $financement->fichiers()->detach($old_fichierObj);
-                    } 
+                    }
                     foreach($libelle_fichiers as $libelle_fichier){
                         if ($input_fichiers[$ifichier] && $input_fichiers[$ifichier]->isValid()) {
                             $upload_path = public_path('upload');
@@ -654,7 +654,7 @@ class FinancementController extends Controller
                             $url_file = $upload_path . '/' . $file_name;
                             $generated_new_name = 'accord_siege_' . time() . '.' . $file_extension;
                             $file->move($upload_path, $generated_new_name);
-                
+
                             $fichierObj = Fichier::create([
                                 'name' => $libelle_fichiers[$ifichier],
                                 'url' => $url_file,
@@ -667,7 +667,7 @@ class FinancementController extends Controller
                     }
                 }
             }
-    
+
             return response()->json(["success" => true, "message" => "financement enregistré avec succès.", "data" =>$input['annee']]);
         }
     }
@@ -694,7 +694,7 @@ class FinancementController extends Controller
     public function validation_financement(Request $request)
     {
         $input = $request->all();
-        
+
 
         $financement = Financement::where('id',$input['id'])->first();
 
@@ -703,8 +703,8 @@ class FinancementController extends Controller
             $financement->status = 'a_valider';
         }
         if ($request->user()->hasRole('admin_structure')){
-            $financement->state = 'VALIDATION_DIRECTEUR_EPS';
-            $financement->status = 'a_valider';
+            $financement->state = 'FIN_PROCESS';
+            $financement->status = 'publie';
             /* if($financement->source[0]->libelle_source=='EPS'){
                 $financement->state = 'VALIDATION_DIRECTEUR_EPS';
                 $financement->status = 'a_valider';
@@ -720,7 +720,7 @@ class FinancementController extends Controller
         }
         $financement->save();
 
-        return response()->json(["success" => true, "message" => "financement validé", "data" =>$financement]);  
+        return response()->json(["success" => true, "message" => "financement validé", "data" =>$financement]);
     }
 
     /**
@@ -732,27 +732,27 @@ class FinancementController extends Controller
     {
         $input = $request->all();
         $motif_rejet = $input['motif_rejet'];
-        
+
 
         $financement = Financement::where('id',$input['id'])->first();
 
-        if ($request->user()->hasRole('admin_structure')){          
+        if ($request->user()->hasRole('admin_structure')){
             $financement->state = 'INITIER_INVESTISSEMENT';
-            $financement->status = 'rejete';          
-            $financement->motif_rejet = $motif_rejet;          
+            $financement->status = 'rejete';
+            $financement->motif_rejet = $motif_rejet;
         }
         if ($request->user()->hasRole('directeur_eps')){
             $financement->state = 'VALIDATION_ADMIN_STRUCTURE';
             $financement->status = 'rejete';
-            $financement->motif_rejet = $motif_rejet; 
+            $financement->motif_rejet = $motif_rejet;
         }
         if ($request->user()->hasRole('admin_dprs')){
             $financement->state = 'VALIDATION_ADMIN_STRUCTURE';
             $financement->status = 'rejete';
-            $financement->motif_rejet = $motif_rejet; 
+            $financement->motif_rejet = $motif_rejet;
         }
         $financement->save();
 
-        return response()->json(["success" => true, "message" => "financement rejeté avec succés", "data" =>$financement]);  
+        return response()->json(["success" => true, "message" => "financement rejeté avec succés", "data" =>$financement]);
     }
 }
