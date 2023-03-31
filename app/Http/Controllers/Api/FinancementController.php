@@ -45,7 +45,7 @@ class FinancementController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
+        if ($request->user()->hasRole('super_admin')) {
             $financements = Financement::with('annee')
             ->with('domaine_financement')
             ->with('source_financement')
@@ -78,7 +78,7 @@ class FinancementController extends Controller
                 ->with('resumes')
                 ->with('tableau_budgets')
                 ->with('structure')
-                ->paginate(20);
+                ->orderBy('created_at', 'DESC')->paginate(20);
             }
             else{
                 $structure_id = User::find($request->user()->id)->structures[0]->id;

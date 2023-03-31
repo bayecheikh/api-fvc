@@ -14,6 +14,7 @@ use App\Models\Role;
 use App\Models\Permission;
 
 use App\Models\Investissement;
+use App\Models\Financement;
 use App\Models\User;
 use App\Models\Fichier;
 use App\Models\Structure;
@@ -61,130 +62,129 @@ class RechercheInvestissementController extends Controller
         }
         else{ 
 
-            if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
-                $investissements = LigneFinancement::with('investissement')
-                ->with('bailleur')->with('pilier')
-                ->with('axe');
+            if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('directeur_eps')) {
+                $financements = Financement::with('annee')
+                ->with('domaine_financement')
+                ->with('source_financement')
+                ->with('objectif_adaptations')
+                ->with('objectif_attenuations')
+                ->with('objectif_transversals')
+                ->with('agence_acredite')
+                ->with('ligne_financement_bailleurs')
+                ->with('ligne_financement_cos')
+                ->with('ligne_financement_secteurs')
+                ->with('ligne_financement_zones')
+                ->with('resumes')
+                ->with('tableau_budgets')
+                ->with('structure')
+                ;
             }
             else{
-                if($request->user()->hasRole('directeur_eps')){
-                    $source_id = User::find($request->user()->id)->structures[0]->source_financements[0]->id;
-                    $investissements = LigneFinancement::with('investissement')
-                    ->with('bailleur')->with('pilier')
-                    ->with('axe')
-                    ->whereHas('investissement', function($q) use ($source_id){
-                        $q->whereHas('source', function($q) use ($source_id){
-                            $q->where('id', $source_id);
-                        });
-                    });
-                    
-                }
-                else{
-                    $structure_id = User::find($request->user()->id)->structures[0]->id;
-                    $investissements = LigneFinancement::with('investissement')
-                    ->with('bailleur')->with('pilier')
-                    ->with('axe')
-                    ->whereHas('investissement', function($q) use ($structure_id){
-                        $q->whereHas('structure', function($q) use ($structure_id){
-                            $q->where('id', $structure_id);
-                        });
-                    });
-                }
+                $structure_id = User::find($request->user()->id)->structures[0]->id;
+                $financements = Financement::with('annee')
+                ->with('domaine_financement')
+                ->with('source_financement')
+                ->with('objectif_adaptations')
+                ->with('objectif_attenuations')
+                ->with('objectif_transversals')
+                ->with('agence_acredite')
+                ->with('ligne_financement_bailleurs')
+                ->with('ligne_financement_cos')
+                ->with('ligne_financement_secteurs')
+                ->with('ligne_financement_zones')
+                ->with('resumes')
+                ->with('tableau_budgets')
+                ->with('structure')
+                ->whereHas('structure', function($q) use ($structure_id){
+                    $q->where('id', $structure_id);
+                })->orderBy('created_at', 'DESC');
                 
             }
 
             if($annee!=null){               
-                $investissements = $investissements
-                ->whereHas('investissement', function($q) use ($annee){
-                    $q->whereHas('annee', function($q) use ($annee){
+                $financements = $financements
+                ->whereHas('annee', function($q) use ($annee){
                         $q->where('id', $annee);
                     });
-                });
+                
             }
             if($monnaie!=null){               
-                $investissements = $investissements
-                ->whereHas('investissement', function($q) use ($monnaie){
-                    $q->whereHas('monnaie', function($q) use ($monnaie){
+                $financements = $financements
+                ->whereHas('monnaie', function($q) use ($monnaie){
                         $q->where('id', $monnaie);
                     });
-                });
+                
             }
             if($region!=null){               
-                $investissements = $investissements
-                ->whereHas('investissement', function($q) use ($region){
-                    $q->whereHas('region', function($q) use ($region){
+                $financements = $financements
+                ->whereHas('region', function($q) use ($region){
                         $q->where('id', $region);
-                    });
+                 
                 });
             }
             if($dimension!=null){               
-                $investissements = $investissements
-                ->whereHas('investissement', function($q) use ($dimension){
-                    $q->whereHas('dimension', function($q) use ($dimension){
+                $financements = $financements
+                ->whereHas('dimension', function($q) use ($dimension){
                         $q->where('id', $dimension);
-                    });
+                    
                 });
             }
             if($bailleur!=null){               
-                $investissements = $investissements
-                ->whereHas('investissement', function($q) use ($bailleur){
-                    $q->whereHas('bailleurs', function($q) use ($bailleur){
+                $financements = $financements
+                ->whereHas('bailleurs', function($q) use ($bailleur){
                         $q->where('id', $bailleur);
                     });
-                });
+               
             }
             if($pilier!=null){               
-                $investissements = $investissements
-                ->whereHas('investissement', function($q) use ($pilier){
-                    $q->whereHas('piliers', function($q) use ($pilier){
+                $financements = $financements
+                ->whereHas('piliers', function($q) use ($pilier){
                         $q->where('id', $pilier);
                     });
-                });
+              
             }
             if($axe!=null){               
-                $investissements = $investissements
-                ->whereHas('investissement', function($q) use ($axe){
-                    $q->whereHas('axes', function($q) use ($axe){
+                $financements = $financements
+                ->whereHas('axes', function($q) use ($axe){
                         $q->where('id', $axe);
                     });
-                });
+              
             }
             /* if($structure!=null){               
-                $investissements->whereHas('structure', function($q) use ($structure){
+                $financements->whereHas('structure', function($q) use ($structure){
                     $q->where('id', $structure);
                 });
             }
             if($source!=null){               
-                $investissements->whereHas('source', function($q) use ($source){
+                $financements->whereHas('source', function($q) use ($source){
                     $q->where('id', $source);
                 });
             }
             if($type_source!=null){               
-                $investissements->whereHas('type_source', function($q) use ($type_source){
+                $financements->whereHas('type_source', function($q) use ($type_source){
                     $q->where('id', $type_source);
                 });
             }
             if($departement!=null){               
-                $investissements->whereHas('departement', function($q) use ($departement){
+                $financements->whereHas('departement', function($q) use ($departement){
                     $q->where('id', $departement);
                 });
             } */
             $status = 'publie';
-            $investissements = $investissements
-            ->whereHas('investissement', function($q) use ($status){
-                $q->where('status', 'like', '%publie%');
-            });
+            $financements = $financements
+            ->where('status', 'like', '%publie%');
+           
 
-            $investissements = $investissements->orderBy('created_at', 'DESC')->paginate(10);
-            //$investissements -> load('investissement.annee');
-            $investissements -> load('investissement.structure');
-            /* $investissements -> load('investissement.source');
-            $investissements -> load('investissement.dimension');
-            $investissements -> load('investissement.region'); */
+            $financements = $financements->orderBy('created_at', 'DESC')->paginate(20);
+            //$financements -> load('investissement.annee');
+            
+            /* $financements -> load('investissement.source');
+            $financements -> load('investissement.dimension');
+            $financements -> load('investissement.region'); */
             
 
-            $total = $investissements->total();
-            return response()->json(["success" => true, "message" => "Liste des investissements", "data" =>$investissements,"total"=> $total]);
+            $total = $financements->total();
+            return response()->json(["success" => true, "message" => "Liste des investissements", "data" =>$financements,"total"=> $total]);
         }
     }
 }
