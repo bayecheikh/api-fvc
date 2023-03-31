@@ -42,7 +42,7 @@ class RechercheInvestissementController extends Controller
         $input = $request->all();
 
         $annee = $input['annees'];
-        $monnaie = $input['monnaies'];
+        /* $monnaie = $input['monnaies'];
         $region = $input['regions'];
         $dimension = $input['dimensions'];
         $bailleur = $input['bailleurs'];
@@ -52,7 +52,7 @@ class RechercheInvestissementController extends Controller
         $source = $input['sources'];
         $type_source = $input['type_sources'];
         $structure= $input['structures'];
-        $departement= $input['departements'];
+        $departement= $input['departements']; */
 
         $validator = Validator::make($input, ['annees' => '','monnaies' => '','regions' => '','dimensions' => '','piliers' => '','axes' => '','sources' => '','type_sources' => '','structures' => '','departements' => '']);
         if ($validator->fails())
@@ -108,7 +108,7 @@ class RechercheInvestissementController extends Controller
                     });
                 
             }
-            if($monnaie!=null){               
+            /* if($monnaie!=null){               
                 $financements = $financements
                 ->whereHas('monnaie', function($q) use ($monnaie){
                         $q->where('id', $monnaie);
@@ -149,7 +149,7 @@ class RechercheInvestissementController extends Controller
                         $q->where('id', $axe);
                     });
               
-            }
+            } */
             /* if($structure!=null){               
                 $financements->whereHas('structure', function($q) use ($structure){
                     $q->where('id', $structure);
