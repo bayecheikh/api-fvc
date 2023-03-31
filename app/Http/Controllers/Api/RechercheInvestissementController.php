@@ -41,18 +41,17 @@ class RechercheInvestissementController extends Controller
     {
         $input = $request->all();
 
-        $annee = $input['annees'];
-        /* $monnaie = $input['monnaies'];
-        $region = $input['regions'];
-        $dimension = $input['dimensions'];
-        $bailleur = $input['bailleurs'];
-        $pilier = $input['piliers'];
-        $axe = $input['axes'];
-
-        $source = $input['sources'];
-        $type_source = $input['type_sources'];
-        $structure= $input['structures'];
-        $departement= $input['departements']; */
+        
+        $annees = ($input['annees'] != '')?explode (",", $input['annees']):NULL; 
+        /* $monnaies = ($input['monnaies'] != '')?explode (",", $input['monnaies']):NULL; 
+        $dimensions = ($input['dimensions'] != '')?explode (",", $input['dimensions']):NULL; 
+        $type_structure_sources = ($input['type_structure_sources'] != '')?explode (",", $input['type_structure_sources']):NULL; 
+        $structure_sources = ($input['structure_sources'] != '')?explode (",", $input['structure_sources']):NULL; 
+        $structure_beneficiaires = ($input['structure_beneficiaires'] != '')?explode (",", $input['structure_beneficiaires']):NULL;    
+        $regions = ($input['regions'] != '')?explode (",", $input['regions']):NULL;    
+        $piliers = ($input['piliers'] != '')?explode (",", $input['piliers']):NULL; 
+        $axes = ($input['axes'] != '')?explode (",", $input['axes']):NULL; 
+        $structures = ($input['structures'] != '')?explode (",", $input['structures']):NULL;  */
 
         $validator = Validator::make($input, ['annees' => '','monnaies' => '','regions' => '','dimensions' => '','piliers' => '','axes' => '','sources' => '','type_sources' => '','structures' => '','departements' => '']);
         if ($validator->fails())
@@ -101,10 +100,10 @@ class RechercheInvestissementController extends Controller
                 
             }
 
-            if($annee!=null){               
+            if($annees!=null){               
                 $financements = $financements
-                ->whereHas('annee', function($q) use ($annee){
-                        $q->where('id', $annee);
+                ->whereHas('annee', function($q) use ($annees){
+                        $q->whereIn('id', $annees);
                     });
                 
             }
