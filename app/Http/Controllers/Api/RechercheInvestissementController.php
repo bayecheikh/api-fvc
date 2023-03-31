@@ -41,20 +41,20 @@ class RechercheInvestissementController extends Controller
     {
         $input = $request->all();
 
-        $annee = $input['annee'];
-        $monnaie = $input['monnaie'];
-        $region = $input['region'];
-        $dimension = $input['dimension'];
-        $bailleur = $input['bailleur'];
-        $pilier = $input['pilier'];
-        $axe = $input['axe'];
+        $annee = $input['annees'];
+        $monnaie = $input['monnaies'];
+        $region = $input['regions'];
+        $dimension = $input['dimensions'];
+        $bailleur = $input['bailleurs'];
+        $pilier = $input['piliers'];
+        $axe = $input['axes'];
 
-        $source = $input['source'];
-        $type_source = $input['type_source'];
-        $structure= $input['structure'];
-        $departement= $input['departement'];
+        $source = $input['sources'];
+        $type_source = $input['type_sources'];
+        $structure= $input['structures'];
+        $departement= $input['departements'];
 
-        $validator = Validator::make($input, ['annee' => '','monnaie' => '','region' => '','dimension' => '','pilier' => '','axe' => '','source' => '','type_source' => '','structure' => '','departement' => '']);
+        $validator = Validator::make($input, ['annees' => '','monnaies' => '','regions' => '','dimensions' => '','piliers' => '','axes' => '','sources' => '','type_sources' => '','structures' => '','departements' => '']);
         if ($validator->fails())
         {
             return response()
