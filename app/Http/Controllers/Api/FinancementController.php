@@ -130,7 +130,7 @@ class FinancementController extends Controller
             ->with('ligne_financement_zones')
             ->with('resumes')
             ->with('tableau_budgets')
-            ->with('structure')
+            ->with('structure')->where('status', 'like', '%publie%')
             ->paginate(20);
         }else{
             $structure_id = User::find($request->user()->id)->structures[0]->id;
@@ -161,7 +161,7 @@ class FinancementController extends Controller
                 ->with('axes')
                 ->with('mode_financements')
                 ->with('ligne_financements')
-                ->with('fichiers')
+                ->with('fichiers')->where('status', 'like', '%publie%')
                 ->paginate(20);
             }
             else{
