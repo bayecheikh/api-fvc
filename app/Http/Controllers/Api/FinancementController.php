@@ -113,7 +113,7 @@ class FinancementController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function financementMultipleSearch($term)
+    public function financementMultipleSearch(Request $request, $term)
     {
         if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
             $financements = Financement::where('id', 'like', '%'.$term.'%')->orWhere('nom_financement', 'like', '%'.$term.'%')

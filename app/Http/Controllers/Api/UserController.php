@@ -139,7 +139,7 @@ class UserController extends Controller
             }
         }
 
-        $messages = 'Votre mot de passe par défaut sur la plateforme de suivie des investissement du MSAS est : ';
+        $messages = 'Votre mot de passe par défaut est :';
         $mailData = ['data' => $pwd, 'messages' => $messages];
         Mail::to($email)->send(new NotifyMail($mailData));
 
