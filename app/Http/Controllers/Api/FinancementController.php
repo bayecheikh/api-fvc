@@ -29,6 +29,7 @@ use App\Models\Departement;
 use App\Models\Bailleur;
 use App\Models\Pilier;
 use App\Models\Axe;
+use Illuminate\Support\Facades\DB;
 
 class FinancementController extends Controller
 {
