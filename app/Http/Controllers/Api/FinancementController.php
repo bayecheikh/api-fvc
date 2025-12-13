@@ -365,12 +365,11 @@ public function update(Request $request, Financement $financement)
     $source = $user->structures[0]->source_financements[0] ?? null;
     $source_id = $source->id ?? null;
 
-    $validator = Validator::make($input, ['annee' => 'nullable','monnaie' => 'nullable']);
+    $validator = Validator::make($input, []);
     if ($validator->fails()) {
         return response()->json($validator->errors());
     }
-
-    $financement->update([
+$financement->update([
     'titre_projet' => $input['titre_projet'] ?? $financement->titre_projet,
     'objectif_global_projet' => $input['objectif_global_projet'] ?? $financement->objectif_global_projet,
     'date_debut' => $input['date_debut'] ?? $financement->date_debut,
@@ -553,6 +552,7 @@ public function update(Request $request, Financement $financement)
         "data" => $financement
     ]);
 }
+
 
 
 
