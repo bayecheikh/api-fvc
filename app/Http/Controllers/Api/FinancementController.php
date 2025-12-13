@@ -365,7 +365,7 @@ public function update(Request $request, Financement $financement)
     $source = $user->structures[0]->source_financements[0] ?? null;
     $source_id = $source->id ?? null;
 
-    $validator = Validator::make($input, ['annee' => 'required','monnaie' => 'required']);
+    $validator = Validator::make($input, ['annee' => 'nullable','monnaie' => 'nullable']);
     if ($validator->fails()) {
         return response()->json($validator->errors());
     }
