@@ -365,10 +365,23 @@ public function update(Request $request, Financement $financement)
     $source = $user->structures[0]->source_financements[0] ?? null;
     $source_id = $source->id ?? null;
 
-    $validator = Validator::make($input, ['annee' => 'required','monnaie' => 'required']);
+    $validator = Validator::make($input, ['titre_projet'=> 'nullable','annee' => 'nullable','monnaie' => 'nullable']);
     if ($validator->fails()) {
         return response()->json($validator->errors());
     }
+
+    $financement->update([
+    'titre_projet' => $input['titre_projet'] ?? $financement->titre_projet,
+    'objectif_global_projet' => $input['objectif_global_projet'] ?? $financement->objectif_global_projet,
+    'date_debut' => $input['date_debut'] ?? $financement->date_debut,
+    'date_fin' => $input['date_fin'] ?? $financement->date_fin,
+    'montant_total_adaptation' => $input['montant_total_adaptation'] ?? $financement->montant_total_adaptation,
+    'montant_total_attenuation' => $input['montant_total_attenuation'] ?? $financement->montant_total_attenuation,
+    'montant_total_execute' => $input['montant_total_execute'] ?? $financement->montant_total_execute,
+    'montant_total_restant' => $input['montant_total_restant'] ?? $financement->montant_total_restant,
+    'nombre_beneficiaire' => $input['nombre_beneficiaire'] ?? $financement->nombre_beneficiaire,
+    'volume_co2' => $input['volume_co2'] ?? $financement->volume_co2,
+]);
 
     // Nouvelles données
     $annee = $input['annee'] ?? null;
