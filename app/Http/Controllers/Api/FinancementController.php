@@ -433,8 +433,8 @@ public function update(Request $request, Financement $financement)
 
     try {
         $validator = Validator::make($request->all(), [
-            'annee' => 'required|exists:annees,id',
-            'monnaie' => 'required|exists:monnaies,id',
+            'annee' => 'nullable|exists:annees,id',
+            'monnaie' => 'nullable|exists:monnaies,id',
             'ligneModeFinancements' => 'nullable|string',
             'ligneFinancements' => 'nullable|string',
             'libelle_fichiers' => 'nullable|array',
