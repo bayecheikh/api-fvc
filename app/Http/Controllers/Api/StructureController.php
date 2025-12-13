@@ -18,7 +18,7 @@ use App\Models\SourceFinancement;
 use App\Models\TypeStructure;
 use App\Models\Fichier;
 use Mail;
- 
+
 use App\Mail\NotifyMail;
 
 class StructureController extends Controller
@@ -40,7 +40,7 @@ class StructureController extends Controller
         ->paginate(10);
         $total = $structures->total();
         return response()->json(["success" => true, "message" => "Liste des structures", "data" =>$structures,"total"=> $total]);
-        
+
     }
     /**
      * Display a listing of the resource.
@@ -53,7 +53,7 @@ class StructureController extends Controller
         ->with('users')
         ->paginate(10);
         $total = $structures->total();
-        return response()->json(["success" => true, "message" => "liste des structures", "data" =>$structures,"total"=> $total]);  
+        return response()->json(["success" => true, "message" => "liste des structures", "data" =>$structures,"total"=> $total]);
     }
     /**
      * Display a listing of the resource.
@@ -64,7 +64,7 @@ class StructureController extends Controller
     {
         $structures = Structure::with('users')
         ->get();
-        return response()->json(["success" => true, "message" => "liste des structures", "data" =>$structures]);  
+        return response()->json(["success" => true, "message" => "liste des structures", "data" =>$structures]);
     }
     /**
      * Store a newly created resource in storagrolee.
@@ -112,14 +112,14 @@ class StructureController extends Controller
             ]);
             $roleObj = Role::where('name','admin_structure')->first();
             $user->roles()->attach($roleObj);
-    
+
             $structure->users()->attach($user);
 
             $email = $input['email_responsable'];
-            $messages = 'Votre mot de passe par défaut sur la plateforme de suivie des investissement du MSAS est : ';
+            $messages = 'Votre mot de passe par défaut sur la plateforme FVC Sénégal est : ';
             $mailData = ['data' => $pwd, 'messages' => $messages];
             Mail::to($email)->send(new NotifyMail($mailData));
-        
+
             return response()->json(["success" => true, "message" => "Structure créée avec succès.", "data" => $structure]);
             //return response()->json(["success" => true, "message" => "Structure created successfully.", "data" => $input]);
         }

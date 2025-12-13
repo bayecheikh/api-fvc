@@ -1,6 +1,6 @@
 <div>
     <h1>
-        Plateforme de suivie des investissements du MSAS.
+        Plateforme FVC Sénégal.
     </h1>
     <hr>
     <p>
@@ -9,5 +9,5 @@
     <p>
         {{$data}}
     </p>
-        
+
 </div>

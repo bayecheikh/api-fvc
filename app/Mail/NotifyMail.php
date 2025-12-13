@@ -32,6 +32,6 @@ class NotifyMail extends Mailable
      */
     public function build()
     {
-        return $this->from(env('MAIL_FROM_ADDRESS'))->subject('Plateforme MSAS')->view('mail',$this->mailData);
+        return $this->from(env('MAIL_FROM_ADDRESS'))->subject('Plateforme FVC Sénégal')->view('mail',$this->mailData);
     }
 }
