@@ -425,256 +425,155 @@ public function store(Request $request)
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Financement $financement)
-    {
-        $input = $request->all();
 
-        $structure_id = User::find($request->user()->id)->structures[0]->id;
-        $source = User::find($request->user()->id)->structures[0]->source_financements[0];
-        $source_id = $source->id;
-        $source_libelle = $source->libelle_source;
+public function update(Request $request, Financement $financement)
+{
+    DB::beginTransaction();
 
-        $validator = Validator::make($input, ['annee' => 'required','monnaie' => 'required']);
-        if ($validator->fails())
-        {
-            //return $this->sendError('Validation Error.', $validator->errors());
-            return response()
-            ->json($validator->errors());
+    try {
+        $validator = Validator::make($request->all(), [
+            'annee' => 'required|exists:annees,id',
+            'monnaie' => 'required|exists:monnaies,id',
+            'ligneModeFinancements' => 'nullable|string',
+            'ligneFinancements' => 'nullable|string',
+            'libelle_fichiers' => 'nullable|array',
+            'input_fichiers' => 'nullable|array',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors'  => $validator->errors()
+            ], 422);
         }
-        else{
-            //news data
-            $annee = $input['annee'];
-            $monnaie = $input['monnaie'];
-            $region = $input['region'];
-            $dimension = $input['dimension'];
-            $structure_sources = explode (",", $input['structure_sources']);
-            $structure_beneficiaires = explode (",", $input['structure_beneficiaires']);
-            $regions = explode (",", $input['regions']);
-            $piliers = explode (",", $input['piliers']);
-            $axes = explode (",", $input['axes']);
 
-            $libelleModeFinancements = explode (",", $input['libelleModeFinancements']);
-            $montantModeFinancements = explode (",", $input['montantModeFinancements']);
-            $montantBienServicePrevus = explode (",", $input['montantBienServicePrevus']);
-            $montantBienServiceMobilises = explode (",", $input['montantBienServiceMobilises']);
-            $montantBienServiceExecutes = explode (",", $input['montantBienServiceExecutes']);
-            $montantfinancementPrevus = explode (",", $input['montantfinancementPrevus']);
-            $montantfinancementMobilises = explode (",", $input['montantfinancementMobilises']);
-            $montantfinancementExecutes = explode (",", $input['montantfinancementExecutes']);
+        $user = $request->user();
+        $structure_id = $user->structures->first()->id ?? null;
+        $source_id = $user->structures->first()->source_financements->first()->id ?? null;
 
-
-            $tempLigneModeFinancements = str_replace("\\", "",$input['ligneModeFinancements']);
-            $ligneModeFinancements = json_decode($tempLigneModeFinancements);
-
-            $tempLigneFinancements = str_replace("\\", "",$input['ligneFinancements']);
-            $ligneFinancements = json_decode($tempLigneFinancements);
-
-            //old data
-            $old_structure = $financement->structure();
-            $old_source = $financement->source();
-            $old_annee = $financement->annee();
-            $old_monnaie = $financement->monnaie();
-            $old_region = $financement->region();
-            $old_dimension = $financement->dimension();
-            /* $old_bailleurs = $financement->bailleurs(); */
-            $old_piliers = $financement->piliers();
-            $old_axes = $financement->axes();
-            $old_ligneModeFinancements = $financement->mode_financements();
-            $old_ligneFinancements = $financement->ligne_financements();
-            $old_fichiers = $financement->fichiers();
-            //traitements
-            if($structure_id!=null){
-                foreach($old_structure as $structure){
-                    $old_structureObj = Structure::where('id',$structure)->first();
-                    $financement->structure()->detach($old_structureObj);
-                }
-                $structureObj = Structure::where('id',intval($structure_id))->first();
-                $financement->structure()->attach($structureObj);
-            }
-            if($source_id!=null){
-                foreach($old_source as $source){
-                    $old_sourceObj = SourceFinancement::where('id',$source)->first();
-                    $financement->source()->detach($old_sourceObj);
-                }
-                $sourceObj = SourceFinancement::where('id',intval($source_id))->first();
-                $financement->source()->attach($sourceObj);
-            }
-
-            if($annee!=null){
-                foreach($old_annee as $annee){
-                    $old_anneeObj = Annee::where('id',$annee)->first();
-                    $financement->annee()->detach($old_anneeObj);
-                }
-                $anneeObj = Annee::where('id',intval($input['annee']))->first();
-                $financement->annee()->attach($anneeObj);
-            }
-            if($monnaie!=null){
-                foreach($old_monnaie as $monnaie){
-                    $old_monnaieObj = Monnaie::where('id',$monnaie)->first();
-                    $financement->monnaie()->detach($old_monnaieObj);
-                }
-                $monnaieObj = Monnaie::where('id',intval($input['monnaie']))->first();
-                $financement->monnaie()->attach($monnaieObj);
-            }
-            if($region!=null){
-                foreach($old_region as $region){
-                    $old_regionObj = Region::where('id',$region)->first();
-                    $financement->region()->detach($old_regionObj);
-                }
-                $regionObj = Region::where('id',intval($input['region']))->first();
-                $financement->region()->attach($regionObj);
-            }
-            if($dimension!=null){
-                foreach($old_dimension as $dimension){
-                    $old_dimensionObj = Dimension::where('id',$dimension)->first();
-                    $financement->dimension()->detach($old_dimensionObj);
-                }
-                $dimensionObj = Dimension::where('id',intval($input['dimension']))->first();
-                $financement->dimension()->attach($dimensionObj);
-            }
-            $imode=0;
-            if(!empty($libelleModeFinancements)){
-                foreach($old_ligneModeFinancements as $ligneModeFinancement){
-                    $old_ligneModeFinancementObj = ModeFinancement::where('id',$ligneModeFinancement)->first();
-                    $financement->mode_financements()->detach($old_ligneModeFinancementObj);
-                }
-                foreach($libelleModeFinancements as $libelleModeFinancement){
-                    $ligneModeFinancementObj = ModeFinancement::create([
-                        'libelle' => $libelleModeFinancement,
-                        'montant' => $montantModeFinancements[$imode],
-                        'status' => 'actif'
-                    ]);
-                    $financement->mode_financements()->attach($ligneModeFinancementObj);
-                    $imode++;
-                }
-            }
-            $ifinance=0;
-            if(!empty($piliers)){
-                /* foreach($old_bailleurs as $bailleur){
-                    $old_bailleurObj = Bailleur::where('id',$bailleur)->first();
-                    $financement->bailleurs()->detach($old_bailleurObj);
-                } */
-
-                foreach($old_ligneFinancements as $ligneFinancement){
-                    $old_ligneFinancementObj = LigneFinancement::where('id',$ligneFinancement)->first();
-                    $financement->ligne_financements()->detach($old_ligneFinancementObj);
-                }
-                foreach($piliers as $pilier){
-                    /* $bailleurObj = Bailleur::where('id',intval($bailleurs[$ifinance]))->first();
-                    $financement_id = $financement->id;
-
-                    $financement->bailleurs()->detach($bailleurObj);
-                    $financement->bailleurs()->attach($bailleurObj); */
-
-                    $structure_sourceObj = Structure::where('id',intval($structure_sources[$ifinance]))->first();
-                    $type_structure_sourceObj = SourceFinancement::where('id',$structure_sourceObj->source_financements[0]->id)->first();
-                    $structure_beneficiaireObj = Structure::where('id',intval($structure_beneficiaires[$ifinance]))->first();
-                    $regionObj = Region::where('id',intval($regions[$ifinance]))->first();
-                    $pilierObj = Pilier::where('id',intval($pilier))->first();
-                    $axeObj = Axe::where('id',intval($axes[$ifinance]))->first();
-                    $anneeObj = Annee::where('id',$annee)->first();
-                    $monnaieObj = Monnaie::where('id',$monnaie)->first();
-                    $structureObj = Structure::where('id',$structure_id)->first();
-                    $dimensionObj = Dimension::where('id',$dimension)->first();
-
-                    $ligneFinancementObj = LigneFinancement::create([
-                        'id_financement'=> intval($financement->id),
-                        'id_structure'=> intval($structure_id),
-                        'id_annee'=> intval($annee),
-                        'id_monnaie'=> intval($monnaie),
-                        'id_dimension'=> intval($dimension),
-                        'id_type_structure_source'=> intval($type_structure_sourceObj->id),
-                        'id_structure_source'=> intval($structure_sources[$ifinance]),
-                        'id_structure_beneficiaire'=> intval($structure_beneficiaires[$ifinance]),
-                        'id_region'=> intval($regions[$ifinance]),
-                        'id_pilier'=> intval($pilier),
-                        'id_axe'=> intval($axes[$ifinance]),
-                        'montantBienServicePrevus'=> $montantBienServicePrevus[$ifinance],
-                        'montantBienServiceMobilises'=> $montantBienServiceMobilises[$ifinance],
-                        'montantBienServiceExecutes'=> $montantBienServiceExecutes[$ifinance],
-                        'montantfinancementPrevus'=> $montantfinancementPrevus[$ifinance],
-                        'montantfinancementMobilises'=> $montantfinancementMobilises[$ifinance],
-                        'montantfinancementExecutes'=> $montantfinancementExecutes[$ifinance],
-                        'status' => $financement->status
-                    ]);
-                    $ligneFinancementObj->axe()->detach($axeObj);
-                    $ligneFinancementObj->axe()->attach($axeObj);
-
-                    $ligneFinancementObj->pilier()->detach($pilierObj);
-                    $ligneFinancementObj->pilier()->attach($pilierObj);
-
-                    $ligneFinancementObj->structure_source()->detach($structure_sourceObj);
-                    $ligneFinancementObj->structure_source()->attach($structure_sourceObj);
-
-                    $ligneFinancementObj->type_structure_source()->detach($type_structure_sourceObj);
-                    $ligneFinancementObj->type_structure_source()->attach($type_structure_sourceObj);
-
-                    $ligneFinancementObj->structure_beneficiaire()->detach($structure_beneficiaireObj);
-                    $ligneFinancementObj->structure_beneficiaire()->attach($structure_beneficiaireObj);
-
-                    $ligneFinancementObj->region()->detach($regionObj);
-                    $ligneFinancementObj->region()->attach($regionObj);
-
-                    $ligneFinancementObj->financement()->detach($financement);
-                    $ligneFinancementObj->financement()->attach($financement);
-
-                    $ligneFinancementObj->structure()->detach($structureObj);
-                    $ligneFinancementObj->structure()->attach($structureObj);
-
-                    $ligneFinancementObj->annee()->detach($anneeObj);
-                    $ligneFinancementObj->annee()->attach($anneeObj);
-
-                    $ligneFinancementObj->monnaie()->detach($monnaieObj);
-                    $ligneFinancementObj->monnaie()->attach($monnaieObj);
-
-                    $ligneFinancementObj->dimension()->detach($dimensionObj);
-                    $ligneFinancementObj->dimension()->attach($dimensionObj);
-
-                    $financement->ligne_financements()->detach($ligneFinancementObj);
-                    $financement->ligne_financements()->attach($ligneFinancementObj);
-
-
-                    $ifinance++;
-                }
-            }
-
-            //Fichiers
-            if(isset($input['libelle_fichiers']) && isset($input['input_fichiers'])){
-                $libelle_fichiers = $input['libelle_fichiers'];
-                $input_fichiers = $input['input_fichiers'];
-
-                $ifichier = 0;
-                if(!empty($libelle_fichiers) && $libelle_fichiers!=null && $input_fichiers!=null){
-                    foreach($old_fichiers as $fichier){
-                        $old_fichierObj = Fichier::where('id',$fichier)->first();
-                        $financement->fichiers()->detach($old_fichierObj);
-                    }
-                    foreach($libelle_fichiers as $libelle_fichier){
-                        if ($input_fichiers[$ifichier] && $input_fichiers[$ifichier]->isValid()) {
-                            $upload_path = public_path('upload');
-                            $file = $input_fichiers[$ifichier];
-                            $file_name = $file->getClientOriginalName();
-                            $file_extension = $file->getClientOriginalExtension();
-                            $url_file = $upload_path . '/' . $file_name;
-                            $generated_new_name = 'accord_siege_' . time() . '.' . $file_extension;
-                            $file->move($upload_path, $generated_new_name);
-
-                            $fichierObj = Fichier::create([
-                                'name' => $libelle_fichiers[$ifichier],
-                                'url' => $url_file,
-                                'extension' => $file_extension,
-                                'description' => 'Fichier'
-                            ]);
-                            $financement->fichiers()->attach($fichierObj);
-                        }
-                        $ifichier++;
-                    }
-                }
-            }
-
-            return response()->json(["success" => true, "message" => "financement enregistré avec succès.", "data" =>$input['annee']]);
+        if (!$structure_id || !$source_id) {
+            throw new \Exception("Utilisateur sans structure ou source.");
         }
+
+        /* ============================
+         * 1. RELATIONS SIMPLES
+         * ============================ */
+        $financement->structure()->sync([$structure_id]);
+        $financement->source()->sync([$source_id]);
+        $financement->annee()->sync([$request->annee]);
+        $financement->monnaie()->sync([$request->monnaie]);
+
+        if(!empty($request->region)) $financement->region()->sync([$request->region]);
+        if(!empty($request->dimension)) $financement->dimension()->sync([$request->dimension]);
+
+        /* ============================
+         * 2. MODE FINANCEMENTS
+         * ============================ */
+        $libelles = $request->libelleModeFinancements ?? [];
+        $montants = $request->montantModeFinancements ?? [];
+
+        if(!empty($libelles)){
+            $financement->mode_financements()->detach();
+
+            foreach($libelles as $i => $libelle){
+                $obj = ModeFinancement::create([
+                    'libelle' => $libelle,
+                    'montant' => $montants[$i] ?? 0,
+                    'status'  => 'actif'
+                ]);
+                $financement->mode_financements()->attach($obj->id);
+            }
+        }
+
+        /* ============================
+         * 3. LIGNES FINANCEMENTS (JSON)
+         * ============================ */
+        $this->handleJsonLines(
+            $request->ligneFinancements,
+            function($line) use ($financement, $request) {
+                $structure_id = $request->user()->structures->first()->id;
+                $annee_id = $request->annee;
+                $monnaie_id = $request->monnaie;
+                $dimension_id = $request->dimension;
+
+                return LigneFinancement::create([
+                    'id_financement' => $financement->id,
+                    'id_structure' => $structure_id,
+                    'id_annee' => $annee_id,
+                    'id_monnaie' => $monnaie_id,
+                    'id_dimension' => $dimension_id,
+                    'id_structure_source' => intval($line['structure_source'] ?? 0),
+                    'id_structure_beneficiaire' => intval($line['structure_beneficiaire'] ?? 0),
+                    'id_region' => intval($line['region'] ?? 0),
+                    'id_pilier' => intval($line['pilier'] ?? 0),
+                    'id_axe' => intval($line['axe'] ?? 0),
+                    'montantBienServicePrevus' => $line['montantBienServicePrevus'] ?? 0,
+                    'montantBienServiceMobilises' => $line['montantBienServiceMobilises'] ?? 0,
+                    'montantBienServiceExecutes' => $line['montantBienServiceExecutes'] ?? 0,
+                    'montantfinancementPrevus' => $line['montantfinancementPrevus'] ?? 0,
+                    'montantfinancementMobilises' => $line['montantfinancementMobilises'] ?? 0,
+                    'montantfinancementExecutes' => $line['montantfinancementExecutes'] ?? 0,
+                    'status' => $financement->status
+                ]);
+            },
+            fn($obj) => $financement->ligne_financements()->attach($obj->id)
+        );
+
+        /* ============================
+         * 4. FICHIERS
+         * ============================ */
+        if(!empty($request->libelle_fichiers) && !empty($request->input_fichiers)){
+            $financement->fichiers()->detach();
+
+            foreach($request->libelle_fichiers as $i => $libelle){
+                $file = $request->input_fichiers[$i] ?? null;
+                if($file && $file->isValid()){
+                    $generated_new_name = 'accord_siege_' . time() . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('upload'), $generated_new_name);
+
+                    $fichier = Fichier::create([
+                        'name' => $libelle,
+                        'url' => 'upload/' . $generated_new_name,
+                        'extension' => $file->getClientOriginalExtension(),
+                        'description' => 'Fichier'
+                    ]);
+                    $financement->fichiers()->attach($fichier->id);
+                }
+            }
+        }
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Financement mis à jour avec succès.'
+        ]);
+
+    } catch (\Throwable $e) {
+        DB::rollBack();
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors de la mise à jour.',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
+/* ==============================
+ * Helper JSON lines
+ * ============================== */
+private function handleJsonLines(?string $json, callable $creator, callable $attacher)
+{
+    if (!$json) return;
+    $data = json_decode(str_replace("\\", "", $json), true);
+    if (!is_array($data)) throw new \Exception('Format JSON invalide.');
+    foreach($data as $line){
+        if(!is_array($line)) continue;
+        $obj = $creator($line);
+        $attacher($obj);
+    }
+}
+
     /**
      * Remove the specified resource from storage.
      *
