@@ -68,7 +68,7 @@ Route::post('forget_password', [AuthController::class, 'forget_password']);
 
 /*KPIss*/
  // Route avec filtres
-Route::get('/financements/kpi/par-domaine', [FinancementController::class, 'getKpiFinancementParDomaineFiltre']);
+Route::get('/financements/kpi/par-domaine', [StatistiqueController::class, 'getKpiFinancementParDomaineFiltre']);
 
 
  /**Statistique*/
