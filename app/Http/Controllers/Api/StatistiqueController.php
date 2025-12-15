@@ -30,6 +30,7 @@ use App\Models\Secteur;
 use App\Models\Pilier;
 use App\Models\Axe;
 use App\Models\DomaineFinancement;
+use Illuminate\Support\Facades\DB;
 
 class StatistiqueController extends Controller
 {
