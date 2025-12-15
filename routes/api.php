@@ -61,10 +61,15 @@ use App\Http\Controllers\Api\TypeStructureController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
- 
+
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 Route::post('forget_password', [AuthController::class, 'forget_password']);
+
+/*KPIss*/
+ // Route avec filtres
+Route::get('/financements/kpi/par-domaine-filtre', [FinancementController::class, 'getKpiFinancementParDomaineFiltre']);
+
 
  /**Statistique*/
  Route::get('allStats', [StatistiqueController::class, 'allStats']);
@@ -86,8 +91,9 @@ Route::post('forget_password', [AuthController::class, 'forget_password']);
  Route::get('investissementByMonnaie/{idMonnaie}', [StatistiqueController::class, 'investissementByMonnaie']);
  Route::get('investissementByStructure/{idStructure}', [StatistiqueController::class, 'investissementByStructure']);
  Route::get('investissementByDimension/{idDimension}', [StatistiqueController::class, 'investissementByDimension']);
+ Route::get('investissementByDimension/{idDimension}', [StatistiqueController::class, 'investissementByDimension']);
  Route::get('investissementBySource/{idSource}', [StatistiqueController::class, 'investissementBySource']);
- Route::post('ajoutDemande', [DemandeController::class, 'ajoutDemande']); 
+ Route::post('ajoutDemande', [DemandeController::class, 'ajoutDemande']);
 
 Route::middleware('auth:api')->group(function () {
     Route::resource('products', ProductController::class);
@@ -186,12 +192,12 @@ Route::middleware('auth:api')->group(function () {
     Route::resource('structures', StructureController::class);
     Route::get('structure-multiple-search/{term}', [StructureController::class, 'structureMultipleSearch']);
     Route::get('selectstructures', [StructureController::class, 'selectstructure']);
-    
+
     Route::resource('annees', AnneeController::class);
     Route::resource('objectif_attenuations',ObjectifAttenuationController::class);
     Route::resource('objectif_adaptations',ObjectifAdaptationController::class);
     Route::resource('objectif_transversals',ObjectifTransversalController::class);
-    Route::resource('instrument_financiers',InstrumentFinancierController::class);  
+    Route::resource('instrument_financiers',InstrumentFinancierController::class);
     Route::resource('domaine_financements',DomaineFinancementController::class);
     Route::resource('source_financements',SourceFinancementController::class);
     Route::resource('type_structures',TypeStructureController::class);
@@ -205,7 +211,7 @@ Route::middleware('auth:api')->group(function () {
     Route::resource('ligne_financement_cos',LigneFinancementCoController::class);
     Route::resource('ligne_financement_bailleurs',LigneFinancementBailleurController::class);
 
-    
+
 
 
 });
