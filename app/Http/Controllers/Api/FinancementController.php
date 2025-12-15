@@ -378,6 +378,7 @@ public function update(Request $request, Financement $financement)
         'date_fin' => $input['date_fin'] ?? $financement->date_fin,
         'montant_total_adaptation' => $input['montant_total_adaptation'] ?? $financement->montant_total_adaptation,
         'montant_total_attenuation' => $input['montant_total_attenuation'] ?? $financement->montant_total_attenuation,
+        'montant_total' => $input['montant_total'] ?? $financement->montant_total,
         'montant_total_execute' => $input['montant_total_execute'] ?? $financement->montant_total_execute,
         'montant_total_restant' => $input['montant_total_restant'] ?? $financement->montant_total_restant,
         'nombre_beneficiaire' => $input['nombre_beneficiaire'] ?? $financement->nombre_beneficiaire,
