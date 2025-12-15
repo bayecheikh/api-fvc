@@ -267,148 +267,129 @@ class StatistiqueController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function getKpiFinancementParDomaine(Request $request)
-{
-    try {
-        // Filtrer uniquement les financements avec status = 'valide'
-        $statistiques = DomaineFinancement::select(
-            'domaine_financements.libelle',
-            DB::raw('COUNT(DISTINCT financements.id) as nombre_projet'),
-            DB::raw('COALESCE(SUM(financements.montant_total), 0) as volume_financement')
-        )
-        ->leftJoin('domaine_fines_fines', 'domaine_financements.id', '=', 'domaine_fines_fines.domaine_financement_id')
-        ->leftJoin('financements', function($join) {
-            $join->on('domaine_fines_fines.financement_id', '=', 'financements.id')
-                 ->where('financements.status', '=', 'brouillon');
-        })
-        ->groupBy('domaine_financements.id', 'domaine_financements.libelle')
-        ->orderBy('domaine_financements.libelle')
-        ->get();
+    {
+        try {
+            // Option 1: Via Query Builder (plus performant pour les agrégations)
+            $statistiques = DomaineFinancement::select(
+                'domaine_financements.libelle',
+                DB::raw('COUNT(DISTINCT financements.id) as nombre_projet'),
+                DB::raw('COALESCE(SUM(financements.montant_total), 0) as volume_financement')
+            )
+            ->leftJoin('domaine_fines_fines', 'domaine_financements.id', '=', 'domaine_fines_fines.domaine_financement_id')
+            ->leftJoin('financements', 'domaine_fines_fines.financement_id', '=', 'financements.id')
+            ->where(function($query) {
+                // Filtrer les financements actifs si nécessaire
+                $query->whereNull('financements.status')
+                      ->orWhere('financements.status', '!=', 'rejeté');
+            })
+            ->groupBy('domaine_financements.id', 'domaine_financements.libelle')
+            ->orderBy('domaine_financements.libelle')
+            ->get();
 
-        // Alternative: avec where() classique
-        // $statistiques = DomaineFinancement::select(
-        //     'domaine_financements.libelle',
-        //     DB::raw('COUNT(DISTINCT financements.id) as nombre_projet'),
-        //     DB::raw('COALESCE(SUM(financements.montant_total), 0) as volume_financement')
-        // )
-        // ->leftJoin('domaine_fines_fines', 'domaine_financements.id', '=', 'domaine_fines_fines.domaine_financement_id')
-        // ->leftJoin('financements', 'domaine_fines_fines.financement_id', '=', 'financements.id')
-        // ->where('financements.status', '=', 'valide') // Filtre strict sur 'valide'
-        // ->groupBy('domaine_financements.id', 'domaine_financements.libelle')
-        // ->orderBy('domaine_financements.libelle')
-        // ->get();
+            // Option 2: Via Eloquent avec eager loading (si préférez la méthode relationnelle)
+            // $statistiques = DomaineFinancement::withCount(['financement' => function($query) {
+            //     $query->where(function($q) {
+            //         $q->whereNull('status')->orWhere('status', '!=', 'rejeté');
+            //     });
+            // }])
+            // ->withSum(['financement' => function($query) {
+            //     $query->where(function($q) {
+            //         $q->whereNull('status')->orWhere('status', '!=', 'rejeté');
+            //     });
+            // }], 'montant_total')
+            // ->get()
+            // ->map(function($domaine) {
+            //     return [
+            //         'libelle' => $domaine->libelle,
+            //         'nombre_projet' => $domaine->financement_count,
+            //         'volume_financement' => $domaine->financement_sum_montant_total ?? 0
+            //     ];
+            // });
 
-        // Formater la réponse
-        $resultat = $statistiques->map(function($item) {
-            return [
-                'libelle' => $item->libelle,
-                'nombre_projet' => (int)$item->nombre_projet,
-                'volume_financement' => (float)$item->volume_financement
-            ];
-        });
+            // Formater la réponse
+            $resultat = $statistiques->map(function($item) {
+                return [
+                    'libelle' => $item->libelle,
+                    'nombre_projet' => (int)$item->nombre_projet,
+                    'volume_financement' => (float)$item->volume_financement
+                ];
+            });
 
-        // Option: Inclure les domaines même sans financements valides
-        // Pour cela, on peut filtrer après la requête
-        $tousDomaines = DomaineFinancement::select('libelle')->get();
+            return response()->json([
+                'success' => true,
+                'data' => $resultat,
+                'message' => 'Statistiques récupérées avec succès'
+            ]);
 
-        // Assurer que tous les domaines sont présents dans le résultat
-        $resultatFinal = $tousDomaines->map(function($domaine) use ($resultat) {
-            $stat = $resultat->firstWhere('libelle', $domaine->libelle);
-
-            return [
-                'libelle' => $domaine->libelle,
-                'nombre_projet' => $stat ? $stat['nombre_projet'] : 0,
-                'volume_financement' => $stat ? $stat['volume_financement'] : 0
-            ];
-        });
-
-        return response()->json([
-            'success' => true,
-            'data' => $resultatFinal,
-            'message' => 'Statistiques récupérées avec succès'
-        ]);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Erreur lors de la récupération des statistiques: ' . $e->getMessage()
-        ], 500);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération des statistiques: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
     /**
      * Version avec filtres (année, status, etc.)
      */
     public function getKpiFinancementParDomaineFiltre(Request $request)
-{
-    try {
-        $query = DomaineFinancement::select(
-            'domaine_financements.libelle',
-            DB::raw('COUNT(DISTINCT financements.id) as nombre_projet'),
-            DB::raw('COALESCE(SUM(financements.montant_total), 0) as volume_financement')
-        )
-        ->leftJoin('domaine_fines_fines', 'domaine_financements.id', '=', 'domaine_fines_fines.domaine_financement_id')
-        ->leftJoin('financements', 'domaine_fines_fines.financement_id', '=', 'financements.id')
-        ->leftJoin('annees_fines', 'financements.id', '=', 'annees_fines.financement_id')
-        ->leftJoin('annees', 'annees_fines.annee_id', '=', 'annees.id');
+    {
+        try {
+            $query = DomaineFinancement::select(
+                'domaine_financements.libelle',
+                DB::raw('COUNT(DISTINCT financements.id) as nombre_projet'),
+                DB::raw('COALESCE(SUM(financements.montant_total), 0) as volume_financement')
+            )
+            ->leftJoin('domaine_fines_fines', 'domaine_financements.id', '=', 'domaine_fines_fines.domaine_financement_id')
+            ->leftJoin('financements', 'domaine_fines_fines.financement_id', '=', 'financements.id')
+            ->leftJoin('annees_fines', 'financements.id', '=', 'annees_fines.financement_id')
+            ->leftJoin('annees', 'annees_fines.annee_id', '=', 'annees.id');
 
-        // Par défaut, filtrer par statut 'valide'
-        // Mais permettre de désactiver avec `tous_statuts=true`
-        if (!$request->has('tous_statuts') || $request->tous_statuts != 'true') {
-            $query->where('financements.status', '=', 'brouillon');
+            // Filtre par année
+            if ($request->has('annee_id')) {
+                $query->where('annees.id', $request->annee_id);
+            }
+
+            // Filtre par status
+            if ($request->has('status')) {
+                $query->where('financements.status', $request->status);
+            }
+
+            // Filtre par date de début
+            if ($request->has('date_debut')) {
+                $query->where('financements.date_debut', '>=', $request->date_debut);
+            }
+
+            // Filtre par date de fin
+            if ($request->has('date_fin')) {
+                $query->where('financements.date_fin', '<=', $request->date_fin);
+            }
+
+            $statistiques = $query->groupBy('domaine_financements.id', 'domaine_financements.libelle')
+                ->orderBy('domaine_financements.libelle')
+                ->get();
+
+            $resultat = $statistiques->map(function($item) {
+                return [
+                    'libelle' => $item->libelle,
+                    'nombre_projet' => (int)$item->nombre_projet,
+                    'volume_financement' => (float)$item->volume_financement
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $resultat,
+                'message' => 'Statistiques récupérées avec succès'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération des statistiques: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Filtre par année
-        if ($request->filled('annee_id')) {
-            $query->where('annees.id', $request->annee_id);
-        }
-
-        // Filtre par statut spécifique (remplace le filtre par défaut si fourni)
-        if ($request->filled('status')) {
-            $query->where('financements.status', '=', $request->status);
-        }
-
-        // Filtre par date de début
-        if ($request->filled('date_debut')) {
-            $query->where('financements.date_debut', '>=', $request->date_debut);
-        }
-
-        // Filtre par date de fin
-        if ($request->filled('date_fin')) {
-            $query->where('financements.date_fin', '<=', $request->date_fin);
-        }
-
-        $statistiques = $query->groupBy('domaine_financements.id', 'domaine_financements.libelle')
-            ->orderBy('domaine_financements.libelle')
-            ->get();
-
-        // Inclure tous les domaines
-        $tousDomaines = DomaineFinancement::select('libelle')
-            ->orderBy('libelle')
-            ->get();
-
-        $resultat = $tousDomaines->map(function($domaine) use ($statistiques) {
-            $stat = $statistiques->firstWhere('libelle', $domaine->libelle);
-
-            return [
-                'libelle' => $domaine->libelle,
-                'nombre_projet' => $stat ? (int)$stat->nombre_projet : 0,
-                'volume_financement' => $stat ? (float)$stat->volume_financement : 0
-            ];
-        });
-
-        return response()->json([
-            'success' => true,
-            'data' => $resultat,
-            'message' => 'Statistiques récupérées avec succès'
-        ]);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Erreur lors de la récupération des statistiques: ' . $e->getMessage()
-        ], 500);
     }
-}
 
 
 
