@@ -278,7 +278,7 @@ class StatistiqueController extends Controller
         ->leftJoin('domaine_fines_fines', 'domaine_financements.id', '=', 'domaine_fines_fines.domaine_financement_id')
         ->leftJoin('financements', function($join) {
             $join->on('domaine_fines_fines.financement_id', '=', 'financements.id')
-                 ->where('financements.status', '=', 'valide');
+                 ->where('financements.status', '=', 'brouillon');
         })
         ->groupBy('domaine_financements.id', 'domaine_financements.libelle')
         ->orderBy('domaine_financements.libelle')
@@ -354,7 +354,7 @@ class StatistiqueController extends Controller
         // Par défaut, filtrer par statut 'valide'
         // Mais permettre de désactiver avec `tous_statuts=true`
         if (!$request->has('tous_statuts') || $request->tous_statuts != 'true') {
-            $query->where('financements.status', '=', 'valide');
+            $query->where('financements.status', '=', 'brouillon');
         }
 
         // Filtre par année
