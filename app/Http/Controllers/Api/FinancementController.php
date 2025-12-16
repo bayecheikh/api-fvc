@@ -23,6 +23,7 @@ use App\Models\LigneFinancement;
 use App\Models\LigneSecteur;
 use App\Models\ModeFinancement;
 use App\Models\DomaineFinancement;
+use App\Models\LigneFinancementBailleur;
 use App\Models\LigneModeFinancement;
 use App\Models\Dimension;
 use App\Models\Region;
