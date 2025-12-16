@@ -24,6 +24,9 @@ use App\Models\LigneSecteur;
 use App\Models\ModeFinancement;
 use App\Models\DomaineFinancement;
 use App\Models\LigneFinancementBailleur;
+use App\Models\LigneFinancementSecteur;
+use App\Models\LigneFinancementZone;
+use App\Models\LigneFinancementCo;
 use App\Models\LigneModeFinancement;
 use App\Models\Dimension;
 use App\Models\Region;
@@ -285,18 +288,20 @@ public function store(Request $request)
         }
     }
 
-    // Lignes financement bailleurs
+    // Lignes financement bailleurs - CORRIGÉ
     if (!empty($input['ligne_financement_bailleurs'])) {
         $ligneFinancementBailleurs = json_decode(str_replace("\\", "", $input['ligne_financement_bailleurs']), true);
         if (!empty($ligneFinancementBailleurs)) {
             foreach ($ligneFinancementBailleurs as $ligne) {
+                // CORRECTION: 'id_instrument_financier' au lieu de 'id_instrumet_financier'
                 $ligneObj = LigneFinancementBailleur::create([
                     'id_investissement' => $financement->id,
                     'id_bailleur' => $ligne['bailleur'] ?? null,
-                    'id_instrumet_financier' => $ligne['instrumet_financier'] ?? null,
+                    'id_instrument_financier' => $ligne['instrument_financier'] ?? null, // CORRIGÉ
                     'montant_total' => $ligne['montant_total'] ?? 0,
                     'status' => $financement->status
                 ]);
+                // CORRECTION: Attacher la ligne au financement
                 $financement->ligne_financement_bailleurs()->attach($ligneObj);
             }
         }
