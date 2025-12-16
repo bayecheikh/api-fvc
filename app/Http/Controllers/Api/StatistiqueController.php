@@ -375,48 +375,71 @@ class StatistiqueController extends Controller
     public function getKpiFinancementParInstrumentDomaine(Request $request)
 {
     try {
-        $query = LigneFinancementBailleur::select(
-            'instrument_financiers.libelle as instrument',
-            DB::raw('COALESCE(SUM(
-                CASE WHEN domaine_fines_fines.domaine_financement_id IN (1) THEN ligne_fine_bailleurs.montant_total ELSE 0 END
-            ), 0) as montant_adaptation'),
-            DB::raw('COALESCE(SUM(
-                CASE WHEN domaine_fines_fines.domaine_financement_id IN (2) THEN ligne_fine_bailleurs.montant_total ELSE 0 END
-            ), 0) as montant_attenuation'),
-            DB::raw('COALESCE(SUM(
-                CASE WHEN domaine_fines_fines.domaine_financement_id IN (3) THEN ligne_fine_bailleurs.montant_total ELSE 0 END
-            ), 0) as montant_transversal')
-        )
-        ->leftJoin('ligne_fine_bailleurs_fines', 'ligne_fine_bailleurs.id', '=', 'ligne_fine_bailleurs_fines.ligne_financement_bailleur_id')
-        ->leftJoin('financements', 'ligne_fine_bailleurs_fines.financement_id', '=', 'financements.id')
-        ->leftJoin('domaine_fines_fines', 'financements.id', '=', 'domaine_fines_fines.financement_id')
-        ->leftJoin('instrument_financiers', 'ligne_fine_bailleurs.id_instrument_financier', '=', 'instrument_financiers.id')
-        ->leftJoin('annees_fines', 'financements.id', '=', 'annees_fines.financement_id')
-        ->leftJoin('annees', 'annees_fines.annee_id', '=', 'annees.id');
+        // Vérifiez d'abord le nom réel de la table
+        // Utilisez DB::raw pour éviter les problèmes de nommage
 
-        // Filtre par année
-        if ($request->has('annee_id')) {
+        $query = DB::table('ligne_financement_bailleurs')
+            ->select(
+                'instrument_financiers.libelle as instrument',
+                DB::raw('COALESCE(SUM(
+                    CASE WHEN domaine_fines_fines.domaine_financement_id = 1
+                    THEN ligne_financement_bailleurs.montant_total ELSE 0 END
+                ), 0) as montant_adaptation'),
+                DB::raw('COALESCE(SUM(
+                    CASE WHEN domaine_fines_fines.domaine_financement_id = 2
+                    THEN ligne_financement_bailleurs.montant_total ELSE 0 END
+                ), 0) as montant_attenuation'),
+                DB::raw('COALESCE(SUM(
+                    CASE WHEN domaine_fines_fines.domaine_financement_id = 3
+                    THEN ligne_financement_bailleurs.montant_total ELSE 0 END
+                ), 0) as montant_transversal')
+            )
+            ->leftJoin('ligne_fine_bailleurs_fines',
+                'ligne_financement_bailleurs.id',
+                '=',
+                'ligne_fine_bailleurs_fines.ligne_financement_bailleur_id'
+            )
+            ->leftJoin('financements',
+                'ligne_fine_bailleurs_fines.financement_id',
+                '=',
+                'financements.id'
+            )
+            ->leftJoin('domaine_fines_fines',
+                'financements.id',
+                '=',
+                'domaine_fines_fines.financement_id'
+            )
+            ->leftJoin('instrument_financiers',
+                'ligne_financement_bailleurs.id_instrument_financier',
+                '=',
+                'instrument_financiers.id'
+            )
+            ->leftJoin('annees_fines',
+                'financements.id',
+                '=',
+                'annees_fines.financement_id'
+            )
+            ->leftJoin('annees',
+                'annees_fines.annee_id',
+                '=',
+                'annees.id'
+            )
+            ->where('financements.status', 'publie')
+            ->whereNotNull('instrument_financiers.libelle')
+            ->where('ligne_financement_bailleurs.montant_total', '>', 0);
+
+        // Appliquer les filtres
+        if ($request->has('annee_id') && $request->annee_id) {
             $query->where('annees.id', $request->annee_id);
         }
 
-        // Filtre par status
-        if ($request->has('status')) {
-            $query->where('financements.status', $request->status);
-        }
-
-        // Filtre par date de début
-        if ($request->has('date_debut')) {
+        if ($request->has('date_debut') && $request->date_debut) {
             $query->where('financements.date_debut', '>=', $request->date_debut);
         }
 
-        // Filtre par date de fin
-        if ($request->has('date_fin')) {
+        if ($request->has('date_fin') && $request->date_fin) {
             $query->where('financements.date_fin', '<=', $request->date_fin);
         }
-
-        // Filtrer seulement les instruments financiers existants
-        $query->whereNotNull('instrument_financiers.libelle')
-            ->where('ligne_fine_bailleurs.montant_total', '>', 0);
 
         $statistiques = $query->groupBy('instrument_financiers.id', 'instrument_financiers.libelle')
             ->orderBy('instrument_financiers.libelle')
@@ -441,7 +464,8 @@ class StatistiqueController extends Controller
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
-            'message' => 'Erreur lors de la récupération des statistiques: ' . $e->getMessage()
+            'message' => 'Erreur lors de la récupération des statistiques: ' . $e->getMessage(),
+            'trace' => $e->getTraceAsString() // Optionnel: pour le débogage
         ], 500);
     }
 }
