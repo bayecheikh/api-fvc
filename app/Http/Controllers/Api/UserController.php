@@ -11,7 +11,7 @@ use App\Models\User;
 use App\Models\Structure;
 
 use Mail;
- 
+
 use App\Mail\NotifyMail;
 
 class UserController extends Controller
@@ -30,17 +30,16 @@ class UserController extends Controller
     {
         if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
             $users = User::with('roles')->with('structures')->paginate(10);
-        }
-        else{
+        } else {
             $structure_id = User::find($request->user()->id)->structures[0]->id;
-            $users = User::with('roles')->with('structures')->whereHas('structures', function($q) use ($structure_id){
+            $users = User::with('roles')->with('structures')->whereHas('structures', function ($q) use ($structure_id) {
                 $q->where('id', $structure_id);
             })->paginate(10);
         }
-        
+
         $total = $users->total();
 
-        return response()->json(["success" => true, "message" => "Liste des utilisateurs", "data" =>$users,"total"=> $total]);   
+        return response()->json(["success" => true, "message" => "Liste des utilisateurs", "data" => $users, "total" => $total]);
     }
 
     /**
@@ -51,16 +50,15 @@ class UserController extends Controller
     public function userMultipleSearch($term, Request $request)
     {
         if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('admin_dprs')) {
-            $users = User::where('id', 'like', '%'.$term.'%')->orWhere('email', 'like', '%'.$term.'%')->orWhere('name', 'like', '%'.$term.'%')->with('roles')->paginate(5);
-        }
-        else{
+            $users = User::where('id', 'like', '%' . $term . '%')->orWhere('email', 'like', '%' . $term . '%')->orWhere('name', 'like', '%' . $term . '%')->with('roles')->paginate(5);
+        } else {
             $structure_id = User::find($request->user()->id)->structures[0]->id;
-            $users = User::where('id', 'like', '%'.$term.'%')->orWhere('email', 'like', '%'.$term.'%')->orWhere('name', 'like', '%'.$term.'%')->with('roles')->whereHas('structures', function($q) use ($structure_id){
+            $users = User::where('id', 'like', '%' . $term . '%')->orWhere('email', 'like', '%' . $term . '%')->orWhere('name', 'like', '%' . $term . '%')->with('roles')->whereHas('structures', function ($q) use ($structure_id) {
                 $q->where('id', $structure_id);
             })->paginate(5);
         }
-       
-        return response()->json(["success" => true, "message" => "Liste des utilisateurs", "data" => $users]);   
+
+        return response()->json(["success" => true, "message" => "Liste des utilisateurs", "data" => $users]);
     }
     /**
      * Display a listing of the resource.
@@ -73,25 +71,24 @@ class UserController extends Controller
 
         $message = '';
 
-        if($user->status=='actif'){
+        if ($user->status == 'actif') {
             $message = 'Utilisateur desactivé';
             $user->update([
                 'status' => 'inactif'
             ]);
             //trouver et supprimer tout les token de l'utilisateur
             $userTokens = $user->tokens;
-            foreach($userTokens as $token) {
-                $token->revoke();   
+            foreach ($userTokens as $token) {
+                $token->revoke();
             }
-        }
-        else{
+        } else {
             $message = 'Utilisateur activé';
             $user->update([
                 'status' => 'actif'
             ]);
         }
 
-        return response()->json(["success" => true, "message" => $message, "data" => $user]);   
+        return response()->json(["success" => true, "message" => $message, "data" => $user]);
     }
     /**
      * Store a newly created resource in storagrolee.
@@ -102,49 +99,73 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-        $validator = Validator::make($input, ['firstname' => 'required','lastname' => 'required', 'email' => 'required|unique:users,email']);
-        if ($validator->fails())
-        {
-            //return $this->sendError('Validation Error.', $validator->errors());
-            return response()
-            ->json($validator->errors());
-        }
 
-        $pwd = bin2hex(openssl_random_pseudo_bytes(4));
-
-        $user = User::create([
-            'name' => $input['firstname'].' '.$input['lastname'],
-            'firstname' => $input['firstname'],
-            'lastname' => $input['lastname'],
-            'email' => $input['email'],
-            'telephone' => $input['telephone'],
-            'status' => 'actif',
-            'password' => bcrypt($pwd)
+        $validator = Validator::make($input, [
+            'firstname' => 'required',
+            'lastname'  => 'required',
+            'email'     => 'required|email|unique:users,email',
         ]);
 
-        $email = $input['email'];
-       
-
-        if(isset($input['structure_id'])){
-            $structureObj = Structure::where('id',$input['structure_id'])->first();
-            $user->structures()->attach($structureObj);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors'  => $validator->errors()
+            ], 422);
         }
 
-        $array_roles = $request->roles;
+        // Génération du mot de passe
+        $pwd = bin2hex(openssl_random_pseudo_bytes(4));
 
-        if(!empty($array_roles)){
-            foreach($array_roles as $role){
-                $roleObj = Role::where('id',$role)->first();
-                $user->roles()->attach($roleObj);
+        try {
+
+            // Création utilisateur
+            $user = User::create([
+                'name'       => $input['firstname'] . ' ' . $input['lastname'],
+                'firstname'  => $input['firstname'],
+                'lastname'   => $input['lastname'],
+                'email'      => $input['email'],
+                'telephone'  => $input['telephone'] ?? null,
+                'status'     => 'actif',
+                'password'   => bcrypt($pwd),
+            ]);
+
+            // Attacher structure
+            if (!empty($input['structure_id'])) {
+                $user->structures()->attach($input['structure_id']);
             }
+
+            // Attacher rôles
+            if (!empty($request->roles) && is_array($request->roles)) {
+                $user->roles()->sync($request->roles);
+            }
+
+            // Envoi mail (sécurisé)
+            try {
+                $mailData = [
+                    'data'     => $pwd,
+                    'messages' => 'Votre mot de passe par défaut est :'
+                ];
+
+                Mail::to($user->email)->send(new NotifyMail($mailData));
+            } catch (\Exception $e) {
+
+                // On ne bloque PAS la création
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Utilisateur créé avec succès.',
+                'data'    => $user
+            ]);
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la création de l’utilisateur.'
+            ], 500);
         }
-
-        $messages = 'Votre mot de passe par défaut est :';
-        $mailData = ['data' => $pwd, 'messages' => $messages];
-        Mail::to($email)->send(new NotifyMail($mailData));
-
-        return response()->json(["success" => true, "message" => "Utilisateur créé avec succès.", "data" => $user]);
     }
+
     /**
      * Display the specified resource.
      *
@@ -154,11 +175,10 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::with('roles')->with('structures')->get()->find($id);
-        if (is_null($user))
-        {
-   /*          return $this->sendError('Product not found.'); */
+        if (is_null($user)) {
+            /*          return $this->sendError('Product not found.'); */
             return response()
-            ->json(["success" => true, "message" => "Utilisateur introuvable."]);
+                ->json(["success" => true, "message" => "Utilisateur introuvable."]);
         }
         return response()
             ->json(["success" => true, "message" => "Utilisateur trouvé avec succès.", "data" => $user]);
@@ -174,11 +194,10 @@ class UserController extends Controller
     {
         $input = $request->all();
         $validator = Validator::make($input, ['name' => 'required']);
-        if ($validator->fails())
-        {
+        if ($validator->fails()) {
             //return $this->sendError('Validation Error.', $validator->errors());
             return response()
-            ->json($validator->errors());
+                ->json($validator->errors());
         }
 
         $user->name = $input['name'];
@@ -192,13 +211,13 @@ class UserController extends Controller
         $array_roles = $request->roles;
         $old_roles = $user->roles();
 
-        if(!empty($array_roles)){
-            foreach($old_roles as $role){
-                $roleObj = Role::where('id',$role)->first();
+        if (!empty($array_roles)) {
+            foreach ($old_roles as $role) {
+                $roleObj = Role::where('id', $role)->first();
                 $user->roles()->detach($roleObj);
             }
-            foreach($array_roles as $role){
-                $roleObj = Role::where('id',$role)->first();
+            foreach ($array_roles as $role) {
+                $roleObj = Role::where('id', $role)->first();
                 $user->roles()->attach($roleObj);
             }
         }
