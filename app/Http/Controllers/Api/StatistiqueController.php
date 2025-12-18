@@ -1021,8 +1021,8 @@ public function getKpiSecteurRegion(Request $request)
 public function getKpiBeneficiairesCo2ParDomaine(Request $request)
 {
     try {
-        // SOUS-REQUÊTE pour les agrégations par projet
-        $sousRequeteAgregations = DB::table('financements')
+        // SOUS-REQUÊTE pour les projets ACTIFS seulement
+        $sousRequeteProjetsActifs = DB::table('financements')
             ->select(
                 'financements.id as financement_id',
                 'financements.nombre_beneficiaire',
@@ -1030,77 +1030,94 @@ public function getKpiBeneficiairesCo2ParDomaine(Request $request)
                 'financements.montant_total',
                 'financements.date_debut',
                 'financements.date_fin',
-                'annees_fines.annee_id'
+                'financements.status',
+                DB::raw('(SELECT annee_id FROM annees_fines WHERE financement_id = financements.id LIMIT 1) as annee_id')
             )
-            ->leftJoin('annees_fines', 'financements.id', '=', 'annees_fines.financement_id')
-            ->where('financements.status', '!=', 'brouillon');
+            ->where('financements.status', '!=', 'brouillon')
+            // Important: ici on pourrait ajouter un filtre pour exclure les soft deleted
+            // ->whereNull('financements.deleted_at') // si vous utilisez SoftDeletes
 
-        // Filtres sur la sous-requête
+        // Filtres sur les projets actifs
         if ($request->has('annee_id') && $request->annee_id) {
-            $sousRequeteAgregations->where('annees_fines.annee_id', $request->annee_id);
+            $sousRequeteProjetsActifs->whereExists(function ($query) use ($request) {
+                $query->select(DB::raw(1))
+                    ->from('annees_fines')
+                    ->whereColumn('annees_fines.financement_id', 'financements.id')
+                    ->where('annees_fines.annee_id', $request->annee_id);
+            });
         }
 
         if ($request->has('date_debut') && $request->date_debut) {
-            $sousRequeteAgregations->where('financements.date_debut', '>=', $request->date_debut);
+            $sousRequeteProjetsActifs->where('financements.date_debut', '>=', $request->date_debut);
         }
 
         if ($request->has('date_fin') && $request->date_fin) {
-            $sousRequeteAgregations->where('financements.date_fin', '<=', $request->date_fin);
+            $sousRequeteProjetsActifs->where('financements.date_fin', '<=', $request->date_fin);
         }
 
-        // REQUÊTE PRINCIPALE
+        // REQUÊTE PRINCIPALE avec vérification d'existence
         $query = DB::table('domaine_financements')
             ->select(
                 'domaine_financements.id',
                 'domaine_financements.libelle as domaine',
 
-                // Compter TOUS les projets du domaine
-                DB::raw('COUNT(DISTINCT domaine_fines_fines.financement_id) as nombre_financements'),
+                // Compter UNIQUEMENT les projets qui existent dans financements
+                DB::raw('COUNT(DISTINCT CASE
+                    WHEN projets_actifs.financement_id IS NOT NULL
+                    THEN domaine_fines_fines.financement_id
+                    ELSE NULL
+                END) as nombre_financements'),
 
-                // Calculer les totaux avec COALESCE pour gérer les NULL
+                // Totaux basés sur les projets actifs
                 DB::raw('COALESCE(SUM(
                     CASE
-                        WHEN agregations_projet.nombre_beneficiaire IS NOT NULL
-                        AND agregations_projet.nombre_beneficiaire > 0
-                        THEN CAST(agregations_projet.nombre_beneficiaire AS DECIMAL(15,2))
+                        WHEN projets_actifs.financement_id IS NOT NULL
+                        AND projets_actifs.nombre_beneficiaire IS NOT NULL
+                        AND projets_actifs.nombre_beneficiaire > 0
+                        THEN CAST(projets_actifs.nombre_beneficiaire AS DECIMAL(15,2))
                         ELSE 0
                     END
                 ), 0) as total_beneficiaires'),
 
                 DB::raw('COALESCE(SUM(
                     CASE
-                        WHEN agregations_projet.volume_co2 IS NOT NULL
-                        AND agregations_projet.volume_co2 > 0
-                        THEN CAST(agregations_projet.volume_co2 AS DECIMAL(15,2))
+                        WHEN projets_actifs.financement_id IS NOT NULL
+                        AND projets_actifs.volume_co2 IS NOT NULL
+                        AND projets_actifs.volume_co2 > 0
+                        THEN CAST(projets_actifs.volume_co2 AS DECIMAL(15,2))
                         ELSE 0
                     END
                 ), 0) as total_co2'),
 
                 DB::raw('COALESCE(SUM(
                     CASE
-                        WHEN agregations_projet.montant_total IS NOT NULL
-                        THEN CAST(agregations_projet.montant_total AS DECIMAL(15,2))
+                        WHEN projets_actifs.financement_id IS NOT NULL
+                        AND projets_actifs.montant_total IS NOT NULL
+                        THEN CAST(projets_actifs.montant_total AS DECIMAL(15,2))
                         ELSE 0
                     END
                 ), 0) as montant_total'),
 
-                // Calcul des moyennes (uniquement sur les projets avec valeurs > 0)
+                // Moyennes calculées uniquement sur les projets actifs avec valeurs
                 DB::raw('CASE
                     WHEN COUNT(DISTINCT CASE
-                        WHEN agregations_projet.nombre_beneficiaire IS NOT NULL
-                        AND agregations_projet.nombre_beneficiaire > 0
+                        WHEN projets_actifs.financement_id IS NOT NULL
+                        AND projets_actifs.nombre_beneficiaire IS NOT NULL
+                        AND projets_actifs.nombre_beneficiaire > 0
                         THEN domaine_fines_fines.financement_id
                     END) > 0
                     THEN COALESCE(SUM(
                         CASE
-                            WHEN agregations_projet.nombre_beneficiaire IS NOT NULL
-                            AND agregations_projet.nombre_beneficiaire > 0
-                            THEN CAST(agregations_projet.nombre_beneficiaire AS DECIMAL(15,2))
+                            WHEN projets_actifs.financement_id IS NOT NULL
+                            AND projets_actifs.nombre_beneficiaire IS NOT NULL
+                            AND projets_actifs.nombre_beneficiaire > 0
+                            THEN CAST(projets_actifs.nombre_beneficiaire AS DECIMAL(15,2))
                             ELSE 0
                         END
                     ), 0) / COUNT(DISTINCT CASE
-                        WHEN agregations_projet.nombre_beneficiaire IS NOT NULL
-                        AND agregations_projet.nombre_beneficiaire > 0
+                        WHEN projets_actifs.financement_id IS NOT NULL
+                        AND projets_actifs.nombre_beneficiaire IS NOT NULL
+                        AND projets_actifs.nombre_beneficiaire > 0
                         THEN domaine_fines_fines.financement_id
                     END)
                     ELSE 0
@@ -1108,48 +1125,53 @@ public function getKpiBeneficiairesCo2ParDomaine(Request $request)
 
                 DB::raw('CASE
                     WHEN COUNT(DISTINCT CASE
-                        WHEN agregations_projet.volume_co2 IS NOT NULL
-                        AND agregations_projet.volume_co2 > 0
+                        WHEN projets_actifs.financement_id IS NOT NULL
+                        AND projets_actifs.volume_co2 IS NOT NULL
+                        AND projets_actifs.volume_co2 > 0
                         THEN domaine_fines_fines.financement_id
                     END) > 0
                     THEN COALESCE(SUM(
                         CASE
-                            WHEN agregations_projet.volume_co2 IS NOT NULL
-                            AND agregations_projet.volume_co2 > 0
-                            THEN CAST(agregations_projet.volume_co2 AS DECIMAL(15,2))
+                            WHEN projets_actifs.financement_id IS NOT NULL
+                            AND projets_actifs.volume_co2 IS NOT NULL
+                            AND projets_actifs.volume_co2 > 0
+                            THEN CAST(projets_actifs.volume_co2 AS DECIMAL(15,2))
                             ELSE 0
                         END
                     ), 0) / COUNT(DISTINCT CASE
-                        WHEN agregations_projet.volume_co2 IS NOT NULL
-                        AND agregations_projet.volume_co2 > 0
+                        WHEN projets_actifs.financement_id IS NOT NULL
+                        AND projets_actifs.volume_co2 IS NOT NULL
+                        AND projets_actifs.volume_co2 > 0
                         THEN domaine_fines_fines.financement_id
                     END)
                     ELSE 0
                 END as moyenne_co2')
             )
 
-            // Jointures
+            // Jointure avec la table pivot
             ->leftJoin('domaine_fines_fines',
                 'domaine_financements.id',
                 '=',
                 'domaine_fines_fines.domaine_financement_id'
             )
 
-            ->leftJoinSub($sousRequeteAgregations, 'agregations_projet', function ($join) {
-                $join->on('domaine_fines_fines.financement_id', '=', 'agregations_projet.financement_id');
+            // Jointure CRITIQUE : uniquement avec les projets ACTIFS
+            ->leftJoinSub($sousRequeteProjetsActifs, 'projets_actifs', function ($join) {
+                $join->on('domaine_fines_fines.financement_id', '=', 'projets_actifs.financement_id');
             })
 
             ->whereNotNull('domaine_financements.libelle')
             ->groupBy('domaine_financements.id', 'domaine_financements.libelle')
             ->orderBy('total_beneficiaires', 'DESC');
 
-        // Appliquer le filtre type SI besoin (mais sans exclure les projets)
-        if ($request->has('type') && $request->type) {
-            // On ne filtre plus au niveau WHERE principal, mais dans le SELECT via CASE
-            // Cette condition est déjà gérée dans les expressions CASE ci-dessus
-        }
-
         $statistiques = $query->get();
+
+        // DEBUG : Vérifier ce qui est compté
+        \Log::info('DEBUG KPI - Statistiques calculées', [
+            'total_domaines' => $statistiques->count(),
+            'total_projets_comptes' => $statistiques->sum('nombre_financements'),
+            'exemple_domaine' => $statistiques->first(),
+        ]);
 
         // Calculer les totaux globaux
         $totalBeneficiaires = $statistiques->sum('total_beneficiaires');
@@ -1157,7 +1179,7 @@ public function getKpiBeneficiairesCo2ParDomaine(Request $request)
         $totalMontant = $statistiques->sum('montant_total');
         $totalFinancements = $statistiques->sum('nombre_financements');
 
-        // Formater les résultats avec pourcentages
+        // Formater les résultats
         $resultat = $statistiques->map(function($item) use ($totalBeneficiaires, $totalCo2, $totalMontant) {
             return [
                 'id' => $item->id,
@@ -1174,7 +1196,6 @@ public function getKpiBeneficiairesCo2ParDomaine(Request $request)
                     round(($item->total_co2 / $totalCo2) * 100, 2) : 0,
                 'pourcentage_montant' => $totalMontant > 0 ?
                     round(($item->montant_total / $totalMontant) * 100, 2) : 0,
-                // Statistiques avancées
                 'beneficiaires_par_million' => $item->montant_total > 0 ?
                     round(($item->total_beneficiaires / $item->montant_total) * 1000000, 2) : 0,
                 'co2_par_million' => $item->montant_total > 0 ?
@@ -1206,10 +1227,14 @@ public function getKpiBeneficiairesCo2ParDomaine(Request $request)
         ]);
 
     } catch (\Exception $e) {
+        \Log::error('Erreur KPI bénéficiaires/CO2', [
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
         return response()->json([
             'success' => false,
-            'message' => 'Erreur lors de la récupération du KPI: ' . $e->getMessage(),
-            'trace' => $e->getTraceAsString()
+            'message' => 'Erreur lors de la récupération du KPI: ' . $e->getMessage()
         ], 500);
     }
 }
