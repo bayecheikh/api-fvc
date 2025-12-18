@@ -854,7 +854,6 @@ private function getSousSecteursParSecteur($secteurId, $request)
         ->orderBy('montant_total', 'DESC')
         ->get();
 }
-
 public function getKpiParRegion(Request $request)
 {
     try {
@@ -1013,6 +1012,7 @@ public function getKpiParRegion(Request $request)
         ], 500);
     }
 }
+
 
 
 public function getKpiSecteurRegion(Request $request)
