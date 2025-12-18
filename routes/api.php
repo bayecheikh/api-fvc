@@ -72,6 +72,10 @@ Route::get('/kpi/par-instruments', [StatistiqueController::class, 'getKpiParInst
 Route::get('/kpi/par-domaines', [StatistiqueController::class, 'getKpiParDomaine']);
 Route::get('/kpi/par-instruments-domaines', [StatistiqueController::class, 'getKpiCombineInstrumentDomaine']);
 
+Route::get('/kpi/secteurs', [StatistiqueController::class, 'getKpiParSecteur']);
+Route::get('/kpi/regions', [StatistiqueController::class, 'getKpiParRegion']);
+Route::get('/kpi/secteurs-regions', [StatistiqueController::class, 'getKpiSecteurRegion']);
+
 
  /**Statistique*/
  Route::get('allStats', [StatistiqueController::class, 'allStats']);
