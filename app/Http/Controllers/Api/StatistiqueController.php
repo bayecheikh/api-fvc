@@ -1021,69 +1021,135 @@ public function getKpiSecteurRegion(Request $request)
 public function getKpiBeneficiairesCo2ParDomaine(Request $request)
 {
     try {
+        // SOUS-REQUÊTE pour les agrégations par projet
+        $sousRequeteAgregations = DB::table('financements')
+            ->select(
+                'financements.id as financement_id',
+                'financements.nombre_beneficiaire',
+                'financements.volume_co2',
+                'financements.montant_total',
+                'financements.date_debut',
+                'financements.date_fin',
+                'annees_fines.annee_id'
+            )
+            ->leftJoin('annees_fines', 'financements.id', '=', 'annees_fines.financement_id')
+            ->where('financements.status', '!=', 'brouillon');
+
+        // Filtres sur la sous-requête
+        if ($request->has('annee_id') && $request->annee_id) {
+            $sousRequeteAgregations->where('annees_fines.annee_id', $request->annee_id);
+        }
+
+        if ($request->has('date_debut') && $request->date_debut) {
+            $sousRequeteAgregations->where('financements.date_debut', '>=', $request->date_debut);
+        }
+
+        if ($request->has('date_fin') && $request->date_fin) {
+            $sousRequeteAgregations->where('financements.date_fin', '<=', $request->date_fin);
+        }
+
+        // REQUÊTE PRINCIPALE
         $query = DB::table('domaine_financements')
             ->select(
                 'domaine_financements.id',
                 'domaine_financements.libelle as domaine',
-                DB::raw('COUNT(DISTINCT financements.id) as nombre_financements'),
-                DB::raw('COALESCE(SUM(CAST(financements.nombre_beneficiaire AS DECIMAL(15,2))), 0) as total_beneficiaires'),
-                DB::raw('COALESCE(AVG(CAST(financements.nombre_beneficiaire AS DECIMAL(15,2))), 0) as moyenne_beneficiaires'),
-                DB::raw('COALESCE(SUM(CAST(financements.volume_co2 AS DECIMAL(15,2))), 0) as total_co2'),
-                DB::raw('COALESCE(AVG(CAST(financements.volume_co2 AS DECIMAL(15,2))), 0) as moyenne_co2'),
-                DB::raw('COALESCE(SUM(CAST(financements.montant_total AS DECIMAL(15,2))), 0) as montant_total')
+
+                // Compter TOUS les projets du domaine
+                DB::raw('COUNT(DISTINCT domaine_fines_fines.financement_id) as nombre_financements'),
+
+                // Calculer les totaux avec COALESCE pour gérer les NULL
+                DB::raw('COALESCE(SUM(
+                    CASE
+                        WHEN agregations_projet.nombre_beneficiaire IS NOT NULL
+                        AND agregations_projet.nombre_beneficiaire > 0
+                        THEN CAST(agregations_projet.nombre_beneficiaire AS DECIMAL(15,2))
+                        ELSE 0
+                    END
+                ), 0) as total_beneficiaires'),
+
+                DB::raw('COALESCE(SUM(
+                    CASE
+                        WHEN agregations_projet.volume_co2 IS NOT NULL
+                        AND agregations_projet.volume_co2 > 0
+                        THEN CAST(agregations_projet.volume_co2 AS DECIMAL(15,2))
+                        ELSE 0
+                    END
+                ), 0) as total_co2'),
+
+                DB::raw('COALESCE(SUM(
+                    CASE
+                        WHEN agregations_projet.montant_total IS NOT NULL
+                        THEN CAST(agregations_projet.montant_total AS DECIMAL(15,2))
+                        ELSE 0
+                    END
+                ), 0) as montant_total'),
+
+                // Calcul des moyennes (uniquement sur les projets avec valeurs > 0)
+                DB::raw('CASE
+                    WHEN COUNT(DISTINCT CASE
+                        WHEN agregations_projet.nombre_beneficiaire IS NOT NULL
+                        AND agregations_projet.nombre_beneficiaire > 0
+                        THEN domaine_fines_fines.financement_id
+                    END) > 0
+                    THEN COALESCE(SUM(
+                        CASE
+                            WHEN agregations_projet.nombre_beneficiaire IS NOT NULL
+                            AND agregations_projet.nombre_beneficiaire > 0
+                            THEN CAST(agregations_projet.nombre_beneficiaire AS DECIMAL(15,2))
+                            ELSE 0
+                        END
+                    ), 0) / COUNT(DISTINCT CASE
+                        WHEN agregations_projet.nombre_beneficiaire IS NOT NULL
+                        AND agregations_projet.nombre_beneficiaire > 0
+                        THEN domaine_fines_fines.financement_id
+                    END)
+                    ELSE 0
+                END as moyenne_beneficiaires'),
+
+                DB::raw('CASE
+                    WHEN COUNT(DISTINCT CASE
+                        WHEN agregations_projet.volume_co2 IS NOT NULL
+                        AND agregations_projet.volume_co2 > 0
+                        THEN domaine_fines_fines.financement_id
+                    END) > 0
+                    THEN COALESCE(SUM(
+                        CASE
+                            WHEN agregations_projet.volume_co2 IS NOT NULL
+                            AND agregations_projet.volume_co2 > 0
+                            THEN CAST(agregations_projet.volume_co2 AS DECIMAL(15,2))
+                            ELSE 0
+                        END
+                    ), 0) / COUNT(DISTINCT CASE
+                        WHEN agregations_projet.volume_co2 IS NOT NULL
+                        AND agregations_projet.volume_co2 > 0
+                        THEN domaine_fines_fines.financement_id
+                    END)
+                    ELSE 0
+                END as moyenne_co2')
             )
+
+            // Jointures
             ->leftJoin('domaine_fines_fines',
                 'domaine_financements.id',
                 '=',
                 'domaine_fines_fines.domaine_financement_id'
             )
-            ->leftJoin('financements',
-                'domaine_fines_fines.financement_id',
-                '=',
-                'financements.id'
-            )
-            ->leftJoin('annees_fines',
-                'financements.id',
-                '=',
-                'annees_fines.financement_id'
-            )
-            ->leftJoin('annees',
-                'annees_fines.annee_id',
-                '=',
-                'annees.id'
-            )
-            ->where('financements.status', '!=', 'brouillon')
+
+            ->leftJoinSub($sousRequeteAgregations, 'agregations_projet', function ($join) {
+                $join->on('domaine_fines_fines.financement_id', '=', 'agregations_projet.financement_id');
+            })
+
             ->whereNotNull('domaine_financements.libelle')
-            // Filtrer uniquement les projets avec bénéficiaires ou CO2
-            ->where(function($query) {
-                $query->where('financements.nombre_beneficiaire', '>', 0)
-                      ->orWhere('financements.volume_co2', '>', 0);
-            });
+            ->groupBy('domaine_financements.id', 'domaine_financements.libelle')
+            ->orderBy('total_beneficiaires', 'DESC');
 
-        // Appliquer les filtres
-        if ($request->has('annee_id') && $request->annee_id) {
-            $query->where('annees.id', $request->annee_id);
-        }
-
-        if ($request->has('date_debut') && $request->date_debut) {
-            $query->where('financements.date_debut', '>=', $request->date_debut);
-        }
-
-        if ($request->has('date_fin') && $request->date_fin) {
-            $query->where('financements.date_fin', '<=', $request->date_fin);
-        }
-
+        // Appliquer le filtre type SI besoin (mais sans exclure les projets)
         if ($request->has('type') && $request->type) {
-            if ($request->type === 'avec_beneficiaires') {
-                $query->where('financements.nombre_beneficiaire', '>', 0);
-            } elseif ($request->type === 'avec_co2') {
-                $query->where('financements.volume_co2', '>', 0);
-            }
+            // On ne filtre plus au niveau WHERE principal, mais dans le SELECT via CASE
+            // Cette condition est déjà gérée dans les expressions CASE ci-dessus
         }
 
-        $statistiques = $query->groupBy('domaine_financements.id', 'domaine_financements.libelle')
-            ->orderBy('total_beneficiaires', 'DESC')
-            ->get();
+        $statistiques = $query->get();
 
         // Calculer les totaux globaux
         $totalBeneficiaires = $statistiques->sum('total_beneficiaires');
