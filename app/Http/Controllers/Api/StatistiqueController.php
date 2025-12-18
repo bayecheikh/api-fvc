@@ -1033,11 +1033,10 @@ public function getKpiBeneficiairesCo2ParDomaine(Request $request)
                 'financements.status',
                 DB::raw('(SELECT annee_id FROM annees_fines WHERE financement_id = financements.id LIMIT 1) as annee_id')
             )
-            ->where('financements.status', '!=', 'brouillon')
-            // Important: ici on pourrait ajouter un filtre pour exclure les soft deleted
-            // ->whereNull('financements.deleted_at') // si vous utilisez SoftDeletes
+            ->where('financements.status', '!=', 'brouillon');
+            // Note: Si vous utilisez SoftDeletes, ajoutez: ->whereNull('financements.deleted_at')
 
-        // Filtres sur les projets actifs
+        // CORRECTION : Application correcte des filtres avec des conditions PHP standard
         if ($request->has('annee_id') && $request->annee_id) {
             $sousRequeteProjetsActifs->whereExists(function ($query) use ($request) {
                 $query->select(DB::raw(1))
@@ -1055,7 +1054,7 @@ public function getKpiBeneficiairesCo2ParDomaine(Request $request)
             $sousRequeteProjetsActifs->where('financements.date_fin', '<=', $request->date_fin);
         }
 
-        // REQUÊTE PRINCIPALE avec vérification d'existence
+        // REQUÊTE PRINCIPALE
         $query = DB::table('domaine_financements')
             ->select(
                 'domaine_financements.id',
@@ -1155,7 +1154,7 @@ public function getKpiBeneficiairesCo2ParDomaine(Request $request)
                 'domaine_fines_fines.domaine_financement_id'
             )
 
-            // Jointure CRITIQUE : uniquement avec les projets ACTIFS
+            // Jointure uniquement avec les projets ACTIFS
             ->leftJoinSub($sousRequeteProjetsActifs, 'projets_actifs', function ($join) {
                 $join->on('domaine_fines_fines.financement_id', '=', 'projets_actifs.financement_id');
             })
