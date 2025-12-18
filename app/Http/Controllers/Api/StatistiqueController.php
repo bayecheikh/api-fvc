@@ -261,138 +261,224 @@ class StatistiqueController extends Controller
 
     //************************KPI******************//
 
-    /**
-     * Récupère les statistiques de financement par domaine
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getKpiFinancementParDomaine(Request $request)
-    {
-        try {
-            // Option 1: Via Query Builder (plus performant pour les agrégations)
-            $statistiques = DomaineFinancement::select(
-                'domaine_financements.libelle',
-                DB::raw('COUNT(DISTINCT financements.id) as nombre_projet'),
-                DB::raw('COALESCE(SUM(financements.montant_total), 0) as volume_financement')
-            )
-            ->leftJoin('domaine_fines_fines', 'domaine_financements.id', '=', 'domaine_fines_fines.domaine_financement_id')
-            ->leftJoin('financements', 'domaine_fines_fines.financement_id', '=', 'financements.id')
-            ->where(function($query) {
-                // Filtrer les financements actifs si nécessaire
-                $query->whereNull('financements.status')
-                      ->orWhere('financements.status', '!=', 'rejeté');
-            })
-            ->groupBy('domaine_financements.id', 'domaine_financements.libelle')
-            ->orderBy('domaine_financements.libelle')
-            ->get();
 
-            // Formater la réponse
-            $resultat = $statistiques->map(function($item) {
-                return [
-                    'libelle' => $item->libelle,
-                    'nombre_projet' => (int)$item->nombre_projet,
-                    'volume_financement' => (float)$item->volume_financement
-                ];
-            });
-
-            return response()->json([
-                'success' => true,
-                'data' => $resultat,
-                'message' => 'Statistiques récupérées avec succès'
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la récupération des statistiques: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Version avec filtres (année, status, etc.)
-     */
-    public function getKpiFinancementParDomaineFiltre(Request $request)
-    {
-        try {
-            $query = DomaineFinancement::select(
-                'domaine_financements.libelle',
-                DB::raw('COUNT(DISTINCT financements.id) as nombre_projet'),
-                DB::raw('COALESCE(SUM(financements.montant_total), 0) as volume_financement')
-            )
-            ->leftJoin('domaine_fines_fines', 'domaine_financements.id', '=', 'domaine_fines_fines.domaine_financement_id')
-            ->leftJoin('financements', 'domaine_fines_fines.financement_id', '=', 'financements.id')
-            ->leftJoin('annees_fines', 'financements.id', '=', 'annees_fines.financement_id')
-            ->leftJoin('annees', 'annees_fines.annee_id', '=', 'annees.id');
-
-            // Filtre par année
-            if ($request->has('annee_id')) {
-                $query->where('annees.id', $request->annee_id);
-            }
-
-            // Filtre par status
-            if ($request->has('status')) {
-                $query->where('financements.status', $request->status);
-            }
-
-            // Filtre par date de début
-            if ($request->has('date_debut')) {
-                $query->where('financements.date_debut', '>=', $request->date_debut);
-            }
-
-            // Filtre par date de fin
-            if ($request->has('date_fin')) {
-                $query->where('financements.date_fin', '<=', $request->date_fin);
-            }
-
-            $statistiques = $query->groupBy('domaine_financements.id', 'domaine_financements.libelle')
-                ->orderBy('domaine_financements.libelle')
-                ->get();
-
-            $resultat = $statistiques->map(function($item) {
-                return [
-                    'libelle' => $item->libelle,
-                    'nombre_projet' => (int)$item->nombre_projet,
-                    'volume_financement' => (float)$item->volume_financement
-                ];
-            });
-
-            return response()->json([
-                'success' => true,
-                'data' => $resultat,
-                'message' => 'Statistiques récupérées avec succès'
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la récupération des statistiques: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function getKpiFinancementParInstrumentDomaine(Request $request)
+//NEW KPI
+public function getKpiParInstrument(Request $request)
 {
     try {
-        // Vérifiez d'abord le nom réel de la table
-        // Utilisez DB::raw pour éviter les problèmes de nommage
-
-        $query = DB::table('ligne_financement_bailleurs')
+        $query = DB::table('instrument_financiers')
             ->select(
+                'instrument_financiers.id',
                 'instrument_financiers.libelle as instrument',
-                DB::raw('COALESCE(SUM(
-                    CASE WHEN domaine_fines_fines.domaine_financement_id = 1
-                    THEN ligne_financement_bailleurs.montant_total ELSE 0 END
-                ), 0) as montant_adaptation'),
-                DB::raw('COALESCE(SUM(
-                    CASE WHEN domaine_fines_fines.domaine_financement_id = 2
-                    THEN ligne_financement_bailleurs.montant_total ELSE 0 END
-                ), 0) as montant_attenuation'),
-                DB::raw('COALESCE(SUM(
-                    CASE WHEN domaine_fines_fines.domaine_financement_id = 3
-                    THEN ligne_financement_bailleurs.montant_total ELSE 0 END
-                ), 0) as montant_transversal')
+                DB::raw('COUNT(DISTINCT financements.id) as nombre_financements'),
+                DB::raw('COALESCE(SUM(CAST(ligne_financement_bailleurs.montant_total AS DECIMAL(15,2))), 0) as montant_total'),
+                DB::raw('COALESCE(AVG(CAST(ligne_financement_bailleurs.montant_total AS DECIMAL(15,2))), 0) as montant_moyen')
+            )
+            ->leftJoin('ligne_financement_bailleurs',
+                'instrument_financiers.id',
+                '=',
+                'ligne_financement_bailleurs.id_instrument_financier'
+            )
+            ->leftJoin('ligne_fine_bailleurs_fines',
+                'ligne_financement_bailleurs.id',
+                '=',
+                'ligne_fine_bailleurs_fines.ligne_financement_bailleur_id'
+            )
+            ->leftJoin('financements',
+                'ligne_fine_bailleurs_fines.financement_id',
+                '=',
+                'financements.id'
+            )
+            ->leftJoin('annees_fines',
+                'financements.id',
+                '=',
+                'annees_fines.financement_id'
+            )
+            ->leftJoin('annees',
+                'annees_fines.annee_id',
+                '=',
+                'annees.id'
+            )
+            ->where('financements.status', '!=', 'brouillon')
+            ->whereNotNull('instrument_financiers.libelle');
+
+        // Appliquer les filtres
+        if ($request->has('annee_id') && $request->annee_id) {
+            $query->where('annees.id', $request->annee_id);
+        }
+
+        if ($request->has('date_debut') && $request->date_debut) {
+            $query->where('financements.date_debut', '>=', $request->date_debut);
+        }
+
+        if ($request->has('date_fin') && $request->date_fin) {
+            $query->where('financements.date_fin', '<=', $request->date_fin);
+        }
+
+        if ($request->has('domaine_id') && $request->domaine_id) {
+            $query->leftJoin('domaine_fines_fines',
+                    'financements.id',
+                    '=',
+                    'domaine_fines_fines.financement_id'
+                )
+                ->where('domaine_fines_fines.domaine_financement_id', $request->domaine_id);
+        }
+
+        if ($request->has('status') && $request->status) {
+            $query->where('financements.status', $request->status);
+        }
+
+        $statistiques = $query->groupBy('instrument_financiers.id', 'instrument_financiers.libelle')
+            ->orderBy('montant_total', 'DESC')
+            ->get();
+
+        $totalMontant = $statistiques->sum('montant_total');
+
+        $resultat = $statistiques->map(function($item) use ($totalMontant) {
+            $pourcentage = $totalMontant > 0 ? round(($item->montant_total / $totalMontant) * 100, 2) : 0;
+
+            return [
+                'id' => $item->id,
+                'instrument' => $item->instrument,
+                'nombre_financements' => (int)$item->nombre_financements,
+                'montant_total' => (float)$item->montant_total,
+                'montant_moyen' => (float)$item->montant_moyen,
+                'pourcentage_total' => $pourcentage
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $resultat,
+            'total_montant' => $totalMontant,
+            'total_projets' => $statistiques->sum('nombre_financements'),
+            'message' => 'KPI par instrument financier récupéré avec succès'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors de la récupération du KPI par instrument: ' . $e->getMessage()
+        ], 500);
+    }
+}
+public function getKpiParDomaine(Request $request)
+{
+    try {
+        $query = DB::table('domaine_financements')
+            ->select(
+                'domaine_financements.id',
+                'domaine_financements.libelle as domaine',
+                DB::raw('COUNT(DISTINCT financements.id) as nombre_financements'),
+                DB::raw('COALESCE(SUM(CAST(financements.montant_total AS DECIMAL(15,2))), 0) as montant_total'),
+                DB::raw('COALESCE(AVG(CAST(financements.montant_total AS DECIMAL(15,2))), 0) as montant_moyen')
+            )
+            ->leftJoin('domaine_fines_fines',
+                'domaine_financements.id',
+                '=',
+                'domaine_fines_fines.domaine_financement_id'
+            )
+            ->leftJoin('financements',
+                'domaine_fines_fines.financement_id',
+                '=',
+                'financements.id'
+            )
+            ->leftJoin('annees_fines',
+                'financements.id',
+                '=',
+                'annees_fines.financement_id'
+            )
+            ->leftJoin('annees',
+                'annees_fines.annee_id',
+                '=',
+                'annees.id'
+            )
+            ->where('financements.status', '!=', 'brouillon')
+            ->whereNotNull('domaine_financements.libelle');
+
+        // Appliquer les filtres
+        if ($request->has('annee_id') && $request->annee_id) {
+            $query->where('annees.id', $request->annee_id);
+        }
+
+        if ($request->has('date_debut') && $request->date_debut) {
+            $query->where('financements.date_debut', '>=', $request->date_debut);
+        }
+
+        if ($request->has('date_fin') && $request->date_fin) {
+            $query->where('financements.date_fin', '<=', $request->date_fin);
+        }
+
+        if ($request->has('instrument_id') && $request->instrument_id) {
+            $query->leftJoin('ligne_fine_bailleurs_fines',
+                    'financements.id',
+                    '=',
+                    'ligne_fine_bailleurs_fines.financement_id'
+                )
+                ->leftJoin('ligne_financement_bailleurs',
+                    'ligne_fine_bailleurs_fines.ligne_financement_bailleur_id',
+                    '=',
+                    'ligne_financement_bailleurs.id'
+                )
+                ->where('ligne_financement_bailleurs.id_instrument_financier', $request->instrument_id);
+        }
+
+        if ($request->has('status') && $request->status) {
+            $query->where('financements.status', $request->status);
+        }
+
+        $statistiques = $query->groupBy('domaine_financements.id', 'domaine_financements.libelle')
+            ->orderBy('montant_total', 'DESC')
+            ->get();
+
+        $totalMontant = $statistiques->sum('montant_total');
+
+        $resultat = $statistiques->map(function($item) use ($totalMontant) {
+            $pourcentage = $totalMontant > 0 ? round(($item->montant_total / $totalMontant) * 100, 2) : 0;
+
+            return [
+                'id' => $item->id,
+                'domaine' => $item->domaine,
+                'nombre_financements' => (int)$item->nombre_financements,
+                'montant_total' => (float)$item->montant_total,
+                'montant_moyen' => (float)$item->montant_moyen,
+                'pourcentage_total' => $pourcentage
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $resultat,
+            'total_montant' => $totalMontant,
+            'total_projets' => $statistiques->sum('nombre_financements'),
+            'message' => 'KPI par domaine de financement récupéré avec succès'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors de la récupération du KPI par domaine: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+public function getKpiCombineInstrumentDomaine(Request $request)
+{
+    try {
+        $query = DB::table('instrument_financiers')
+            ->select(
+                'instrument_financiers.id as instrument_id',
+                'instrument_financiers.libelle as instrument',
+                'domaine_financements.id as domaine_id',
+                'domaine_financements.libelle as domaine',
+                DB::raw('COUNT(DISTINCT financements.id) as nombre_financements'),
+                DB::raw('COALESCE(SUM(CAST(ligne_financement_bailleurs.montant_total AS DECIMAL(15,2))), 0) as montant_instrument'),
+                DB::raw('COALESCE(SUM(CAST(financements.montant_total AS DECIMAL(15,2))), 0) as montant_total_projet')
+            )
+            ->leftJoin('ligne_financement_bailleurs',
+                'instrument_financiers.id',
+                '=',
+                'ligne_financement_bailleurs.id_instrument_financier'
             )
             ->leftJoin('ligne_fine_bailleurs_fines',
                 'ligne_financement_bailleurs.id',
@@ -409,10 +495,10 @@ class StatistiqueController extends Controller
                 '=',
                 'domaine_fines_fines.financement_id'
             )
-            ->leftJoin('instrument_financiers',
-                'ligne_financement_bailleurs.id_instrument_financier',
+            ->leftJoin('domaine_financements',
+                'domaine_fines_fines.domaine_financement_id',
                 '=',
-                'instrument_financiers.id'
+                'domaine_financements.id'
             )
             ->leftJoin('annees_fines',
                 'financements.id',
@@ -424,9 +510,9 @@ class StatistiqueController extends Controller
                 '=',
                 'annees.id'
             )
-            ->where('financements.status', 'publie')
+            ->where('financements.status', '!=', 'brouillon')
             ->whereNotNull('instrument_financiers.libelle')
-            ->where('ligne_financement_bailleurs.montant_total', '>', 0);
+            ->whereNotNull('domaine_financements.libelle');
 
         // Appliquer les filtres
         if ($request->has('annee_id') && $request->annee_id) {
@@ -441,35 +527,63 @@ class StatistiqueController extends Controller
             $query->where('financements.date_fin', '<=', $request->date_fin);
         }
 
-        $statistiques = $query->groupBy('instrument_financiers.id', 'instrument_financiers.libelle')
+        if ($request->has('instrument_id') && $request->instrument_id) {
+            $query->where('instrument_financiers.id', $request->instrument_id);
+        }
+
+        if ($request->has('domaine_id') && $request->domaine_id) {
+            $query->where('domaine_financements.id', $request->domaine_id);
+        }
+
+        if ($request->has('status') && $request->status) {
+            $query->where('financements.status', $request->status);
+        }
+
+        $statistiques = $query->groupBy(
+                'instrument_financiers.id',
+                'instrument_financiers.libelle',
+                'domaine_financements.id',
+                'domaine_financements.libelle'
+            )
             ->orderBy('instrument_financiers.libelle')
+            ->orderBy('montant_instrument', 'DESC')
             ->get();
 
         // Formater les résultats
         $resultat = $statistiques->map(function($item) {
             return [
+                'instrument_id' => $item->instrument_id,
                 'instrument' => $item->instrument,
-                'montant_adaptation' => (float)$item->montant_adaptation,
-                'montant_attenuation' => (float)$item->montant_attenuation,
-                'montant_transversal' => (float)$item->montant_transversal
+                'domaine_id' => $item->domaine_id,
+                'domaine' => $item->domaine,
+                'nombre_financements' => (int)$item->nombre_financements,
+                'montant_instrument' => (float)$item->montant_instrument,
+                'montant_total_projet' => (float)$item->montant_total_projet
             ];
         });
+
+        // Agrégations pour les totaux
+        $agregations = [
+            'total_projets' => $statistiques->sum('nombre_financements'),
+            'total_montant_instrument' => $statistiques->sum('montant_instrument'),
+            'total_montant_projets' => $statistiques->sum('montant_total_projet'),
+            'nombre_instruments' => $statistiques->unique('instrument_id')->count(),
+            'nombre_domaines' => $statistiques->unique('domaine_id')->count()
+        ];
 
         return response()->json([
             'success' => true,
             'data' => $resultat,
-            'message' => 'Statistiques par instrument et domaine récupérées avec succès'
+            'agregations' => $agregations,
+            'message' => 'KPI combiné instrument × domaine récupéré avec succès'
         ]);
 
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
-            'message' => 'Erreur lors de la récupération des statistiques: ' . $e->getMessage(),
-            'trace' => $e->getTraceAsString() // Optionnel: pour le débogage
+            'message' => 'Erreur lors de la récupération du KPI combiné: ' . $e->getMessage()
         ], 500);
     }
 }
-
-
 
 }
