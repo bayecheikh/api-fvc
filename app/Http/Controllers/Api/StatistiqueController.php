@@ -819,53 +819,87 @@ public function getKpiParRegion(Request $request)
                 DB::raw('COALESCE(SUM(CAST(ligne_financement_zones.montant_total AS DECIMAL(15,2))), 0) as montant_total'),
                 DB::raw('COALESCE(AVG(CAST(ligne_financement_zones.montant_total AS DECIMAL(15,2))), 0) as montant_moyen')
             )
-            ->leftJoin('ligne_financement_zones', function($join) {
+
+            /**
+             * ================================
+             * JOINTURES
+             * ================================
+             */
+
+            ->leftJoin('ligne_financement_zones', function ($join) {
                 $join->on('regions.id', '=', 'ligne_financement_zones.id_region')
                      ->where('ligne_financement_zones.montant_total', '>', 0);
             })
-            ->leftJoin('ligne_fine_zones_fines',
+
+            ->leftJoin(
+                'ligne_fine_zones_fines',
                 'ligne_financement_zones.id',
                 '=',
                 'ligne_fine_zones_fines.ligne_financement_zone_id'
             )
-            ->leftJoin('financements',
+
+            /**
+             * 🔴 JOINTURE CLÉ
+             * ➜ INNER JOIN pour exclure les régions sans financement réel
+             */
+            ->join(
+                'financements',
                 'ligne_fine_zones_fines.financement_id',
                 '=',
                 'financements.id'
             )
-            ->leftJoin('annees_fines',
+
+            ->leftJoin(
+                'annees_fines',
                 'financements.id',
                 '=',
                 'annees_fines.financement_id'
             )
-            ->leftJoin('annees',
+
+            ->leftJoin(
+                'annees',
                 'annees_fines.annee_id',
                 '=',
                 'annees.id'
             )
+
+            /**
+             * ================================
+             * CONTRAINTES GLOBALES
+             * ================================
+             */
+
             ->where('financements.status', '!=', 'brouillon')
             ->whereNotNull('regions.nom_region');
 
-        // Appliquer les filtres
-        if ($request->has('annee_id') && $request->annee_id) {
+        /**
+         * ================================
+         * FILTRES OPTIONNELS
+         * ================================
+         */
+
+        if ($request->filled('annee_id')) {
             $query->where('annees.id', $request->annee_id);
         }
 
-        if ($request->has('date_debut') && $request->date_debut) {
+        if ($request->filled('date_debut')) {
             $query->where('financements.date_debut', '>=', $request->date_debut);
         }
 
-        if ($request->has('date_fin') && $request->date_fin) {
+        if ($request->filled('date_fin')) {
             $query->where('financements.date_fin', '<=', $request->date_fin);
         }
 
-        if ($request->has('secteur_id') && $request->secteur_id) {
-            $query->leftJoin('ligne_fine_secteurs_fines',
+        if ($request->filled('secteur_id')) {
+            $query
+                ->leftJoin(
+                    'ligne_fine_secteurs_fines',
                     'financements.id',
                     '=',
                     'ligne_fine_secteurs_fines.financement_id'
                 )
-                ->leftJoin('ligne_financement_secteurs',
+                ->leftJoin(
+                    'ligne_financement_secteurs',
                     'ligne_fine_secteurs_fines.ligne_financement_secteur_id',
                     '=',
                     'ligne_financement_secteurs.id'
@@ -873,24 +907,43 @@ public function getKpiParRegion(Request $request)
                 ->where('ligne_financement_secteurs.id_secteur', $request->secteur_id);
         }
 
-        $statistiques = $query->groupBy('regions.id', 'regions.nom_region', 'regions.latitude', 'regions.longitude')
+        /**
+         * ================================
+         * AGRÉGATION
+         * ================================
+         */
+
+        $statistiques = $query
+            ->groupBy(
+                'regions.id',
+                'regions.nom_region',
+                'regions.latitude',
+                'regions.longitude'
+            )
             ->orderBy('montant_total', 'DESC')
             ->get();
 
+        /**
+         * ================================
+         * POST-TRAITEMENT
+         * ================================
+         */
+
         $totalMontant = $statistiques->sum('montant_total');
 
-        $resultat = $statistiques->map(function($item) use ($totalMontant) {
-            $pourcentage = $totalMontant > 0 ?
-                round(($item->montant_total / $totalMontant) * 100, 2) : 0;
+        $resultat = $statistiques->map(function ($item) use ($totalMontant) {
+            $pourcentage = $totalMontant > 0
+                ? round(($item->montant_total / $totalMontant) * 100, 2)
+                : 0;
 
             return [
                 'id' => $item->id,
                 'region' => $item->region,
                 'latitude' => $item->latitude,
                 'longitude' => $item->longitude,
-                'nombre_financements' => (int)$item->nombre_financements,
-                'montant_total' => (float)$item->montant_total,
-                'montant_moyen' => (float)$item->montant_moyen,
+                'nombre_financements' => (int) $item->nombre_financements,
+                'montant_total' => (float) $item->montant_total,
+                'montant_moyen' => (float) $item->montant_moyen,
                 'pourcentage_total' => $pourcentage
             ];
         });
@@ -907,10 +960,11 @@ public function getKpiParRegion(Request $request)
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
-            'message' => 'Erreur lors de la récupération du KPI par région: ' . $e->getMessage()
+            'message' => 'Erreur lors de la récupération du KPI par région : ' . $e->getMessage()
         ], 500);
     }
 }
+
 
 public function getKpiSecteurRegion(Request $request)
 {
@@ -925,71 +979,115 @@ public function getKpiSecteurRegion(Request $request)
                 DB::raw('COALESCE(SUM(CAST(ligne_financement_secteurs.montant_total AS DECIMAL(15,2))), 0) as montant_total'),
                 DB::raw('COALESCE(SUM(CAST(ligne_financement_zones.montant_total AS DECIMAL(15,2))), 0) as montant_total_zone')
             )
-            ->leftJoin('ligne_financement_secteurs', function($join) {
+
+            /**
+             * ================================
+             * JOINTURES
+             * ================================
+             */
+
+            ->leftJoin('ligne_financement_secteurs', function ($join) {
                 $join->on('secteurs.id', '=', 'ligne_financement_secteurs.id_secteur')
                      ->where('ligne_financement_secteurs.montant_total', '>', 0);
             })
-            ->leftJoin('ligne_fine_secteurs_fines',
+
+            ->leftJoin(
+                'ligne_fine_secteurs_fines',
                 'ligne_financement_secteurs.id',
                 '=',
                 'ligne_fine_secteurs_fines.ligne_financement_secteur_id'
             )
-            ->leftJoin('financements',
+
+            /**
+             * 🔴 JOINTURE CLÉ
+             * ➜ INNER JOIN = exclusion des financements inexistants
+             */
+            ->join(
+                'financements',
                 'ligne_fine_secteurs_fines.financement_id',
                 '=',
                 'financements.id'
             )
-            ->leftJoin('ligne_fine_zones_fines',
+
+            ->leftJoin(
+                'ligne_fine_zones_fines',
                 'financements.id',
                 '=',
                 'ligne_fine_zones_fines.financement_id'
             )
-            ->leftJoin('ligne_financement_zones',
+
+            ->leftJoin(
+                'ligne_financement_zones',
                 'ligne_fine_zones_fines.ligne_financement_zone_id',
                 '=',
                 'ligne_financement_zones.id'
             )
-            ->leftJoin('regions',
+
+            ->leftJoin(
+                'regions',
                 'ligne_financement_zones.id_region',
                 '=',
                 'regions.id'
             )
-            ->leftJoin('annees_fines',
+
+            ->leftJoin(
+                'annees_fines',
                 'financements.id',
                 '=',
                 'annees_fines.financement_id'
             )
-            ->leftJoin('annees',
+
+            ->leftJoin(
+                'annees',
                 'annees_fines.annee_id',
                 '=',
                 'annees.id'
             )
+
+            /**
+             * ================================
+             * CONTRAINTES GLOBALES
+             * ================================
+             */
+
             ->where('financements.status', '!=', 'brouillon')
             ->whereNotNull('secteurs.libelle')
             ->whereNotNull('regions.nom_region');
 
-        // Appliquer les filtres
-        if ($request->has('annee_id') && $request->annee_id) {
+        /**
+         * ================================
+         * FILTRES OPTIONNELS
+         * ================================
+         */
+
+        if ($request->filled('annee_id')) {
             $query->where('annees.id', $request->annee_id);
         }
 
-        if ($request->has('date_debut') && $request->date_debut) {
+        if ($request->filled('date_debut')) {
             $query->where('financements.date_debut', '>=', $request->date_debut);
         }
 
-        if ($request->has('date_fin') && $request->date_fin) {
+        if ($request->filled('date_fin')) {
             $query->where('financements.date_fin', '<=', $request->date_fin);
         }
 
-        if ($request->has('secteur_id') && $request->secteur_id) {
+        if ($request->filled('secteur_id')) {
             $query->where('secteurs.id', $request->secteur_id);
         }
 
-        if ($request->has('region_id') && $request->region_id) {
+        if ($request->filled('region_id')) {
             $query->where('regions.id', $request->region_id);
         }
 
-        $statistiques = $query->groupBy(
+        /**
+         * ================================
+         * AGRÉGATION
+         * ================================
+         */
+
+        $statistiques = $query
+            ->groupBy(
                 'secteurs.id',
                 'secteurs.libelle',
                 'regions.id',
@@ -999,12 +1097,16 @@ public function getKpiSecteurRegion(Request $request)
             ->orderBy('montant_total', 'DESC')
             ->get();
 
-        // Formatage des résultats en matrice
+        /**
+         * ================================
+         * FORMATAGE MATRICE
+         * ================================
+         */
+
         $matrice = [];
         $regionsUniques = $statistiques->pluck('region_id', 'region')->unique();
         $secteursUniques = $statistiques->pluck('secteur_id', 'secteur')->unique();
 
-        // Initialiser la matrice
         foreach ($secteursUniques as $secteur => $secteurId) {
             $matrice[$secteur] = [
                 'secteur_id' => $secteurId,
@@ -1022,25 +1124,28 @@ public function getKpiSecteurRegion(Request $request)
             }
         }
 
-        // Remplir la matrice avec les données réelles
         foreach ($statistiques as $stat) {
             if (isset($matrice[$stat->secteur]['regions'][$stat->region])) {
                 $matrice[$stat->secteur]['regions'][$stat->region] = [
                     'region_id' => $stat->region_id,
                     'region' => $stat->region,
-                    'nombre_financements' => (int)$stat->nombre_financements,
-                    'montant_total' => (float)$stat->montant_total
+                    'nombre_financements' => (int) $stat->nombre_financements,
+                    'montant_total' => (float) $stat->montant_total
                 ];
             }
         }
 
-        // Convertir en format simple pour le frontend
-        $resultat = collect($matrice)->map(function($secteur) {
+        $resultat = collect($matrice)->map(function ($secteur) {
             $secteur['regions'] = collect($secteur['regions'])->values();
             return $secteur;
         })->values();
 
-        // Agrégations
+        /**
+         * ================================
+         * AGRÉGATIONS
+         * ================================
+         */
+
         $agregations = [
             'total_projets' => $statistiques->sum('nombre_financements'),
             'total_montant' => $statistiques->sum('montant_total'),
@@ -1060,10 +1165,11 @@ public function getKpiSecteurRegion(Request $request)
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
-            'message' => 'Erreur lors de la récupération du KPI secteur × région: ' . $e->getMessage()
+            'message' => 'Erreur lors de la récupération du KPI secteur × région : ' . $e->getMessage()
         ], 500);
     }
 }
+
 
 public function getKpiBeneficiairesCo2ParDomaine(Request $request)
 {
