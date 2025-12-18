@@ -76,6 +76,10 @@ Route::get('/kpi/par-secteurs', [StatistiqueController::class, 'getKpiParSecteur
 Route::get('/kpi/par-regions', [StatistiqueController::class, 'getKpiParRegion']);
 Route::get('/kpi/par-secteurs-regions', [StatistiqueController::class, 'getKpiSecteurRegion']);
 
+Route::get('/kpi/beneficiaires-co2/domaines', [StatistiqueController::class, 'getKpiBeneficiairesCo2ParDomaine']);
+Route::get('/kpi/beneficiaires-co2/top-domaines', [StatistiqueController::class, 'getKpiTopDomainesBeneficiairesCo2']);
+Route::get('/kpi/beneficiaires-co2/evolution', [StatistiqueController::class, 'getKpiEvolutionBeneficiairesCo2']);
+
 
  /**Statistique*/
  Route::get('allStats', [StatistiqueController::class, 'allStats']);

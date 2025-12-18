@@ -1017,4 +1017,285 @@ public function getKpiSecteurRegion(Request $request)
         ], 500);
     }
 }
+
+public function getKpiBeneficiairesCo2ParDomaine(Request $request)
+{
+    try {
+        $query = DB::table('domaine_financements')
+            ->select(
+                'domaine_financements.id',
+                'domaine_financements.libelle as domaine',
+                DB::raw('COUNT(DISTINCT financements.id) as nombre_financements'),
+                DB::raw('COALESCE(SUM(CAST(financements.nombre_beneficiaire AS DECIMAL(15,2))), 0) as total_beneficiaires'),
+                DB::raw('COALESCE(AVG(CAST(financements.nombre_beneficiaire AS DECIMAL(15,2))), 0) as moyenne_beneficiaires'),
+                DB::raw('COALESCE(SUM(CAST(financements.volume_co2 AS DECIMAL(15,2))), 0) as total_co2'),
+                DB::raw('COALESCE(AVG(CAST(financements.volume_co2 AS DECIMAL(15,2))), 0) as moyenne_co2'),
+                DB::raw('COALESCE(SUM(CAST(financements.montant_total AS DECIMAL(15,2))), 0) as montant_total')
+            )
+            ->leftJoin('domaine_fines_fines',
+                'domaine_financements.id',
+                '=',
+                'domaine_fines_fines.domaine_financement_id'
+            )
+            ->leftJoin('financements',
+                'domaine_fines_fines.financement_id',
+                '=',
+                'financements.id'
+            )
+            ->leftJoin('annees_fines',
+                'financements.id',
+                '=',
+                'annees_fines.financement_id'
+            )
+            ->leftJoin('annees',
+                'annees_fines.annee_id',
+                '=',
+                'annees.id'
+            )
+            ->where('financements.status', '!=', 'brouillon')
+            ->whereNotNull('domaine_financements.libelle')
+            // Filtrer uniquement les projets avec bénéficiaires ou CO2
+            ->where(function($query) {
+                $query->where('financements.nombre_beneficiaire', '>', 0)
+                      ->orWhere('financements.volume_co2', '>', 0);
+            });
+
+        // Appliquer les filtres
+        if ($request->has('annee_id') && $request->annee_id) {
+            $query->where('annees.id', $request->annee_id);
+        }
+
+        if ($request->has('date_debut') && $request->date_debut) {
+            $query->where('financements.date_debut', '>=', $request->date_debut);
+        }
+
+        if ($request->has('date_fin') && $request->date_fin) {
+            $query->where('financements.date_fin', '<=', $request->date_fin);
+        }
+
+        if ($request->has('type') && $request->type) {
+            if ($request->type === 'avec_beneficiaires') {
+                $query->where('financements.nombre_beneficiaire', '>', 0);
+            } elseif ($request->type === 'avec_co2') {
+                $query->where('financements.volume_co2', '>', 0);
+            }
+        }
+
+        $statistiques = $query->groupBy('domaine_financements.id', 'domaine_financements.libelle')
+            ->orderBy('total_beneficiaires', 'DESC')
+            ->get();
+
+        // Calculer les totaux globaux
+        $totalBeneficiaires = $statistiques->sum('total_beneficiaires');
+        $totalCo2 = $statistiques->sum('total_co2');
+        $totalMontant = $statistiques->sum('montant_total');
+        $totalFinancements = $statistiques->sum('nombre_financements');
+
+        // Formater les résultats avec pourcentages
+        $resultat = $statistiques->map(function($item) use ($totalBeneficiaires, $totalCo2, $totalMontant) {
+            return [
+                'id' => $item->id,
+                'domaine' => $item->domaine,
+                'nombre_financements' => (int)$item->nombre_financements,
+                'total_beneficiaires' => (float)$item->total_beneficiaires,
+                'moyenne_beneficiaires' => (float)$item->moyenne_beneficiaires,
+                'total_co2' => (float)$item->total_co2,
+                'moyenne_co2' => (float)$item->moyenne_co2,
+                'montant_total' => (float)$item->montant_total,
+                'pourcentage_beneficiaires' => $totalBeneficiaires > 0 ?
+                    round(($item->total_beneficiaires / $totalBeneficiaires) * 100, 2) : 0,
+                'pourcentage_co2' => $totalCo2 > 0 ?
+                    round(($item->total_co2 / $totalCo2) * 100, 2) : 0,
+                'pourcentage_montant' => $totalMontant > 0 ?
+                    round(($item->montant_total / $totalMontant) * 100, 2) : 0,
+                // Statistiques avancées
+                'beneficiaires_par_million' => $item->montant_total > 0 ?
+                    round(($item->total_beneficiaires / $item->montant_total) * 1000000, 2) : 0,
+                'co2_par_million' => $item->montant_total > 0 ?
+                    round(($item->total_co2 / $item->montant_total) * 1000000, 2) : 0
+            ];
+        });
+
+        // Agrégations globales
+        $agregations = [
+            'total_beneficiaires' => $totalBeneficiaires,
+            'total_co2' => $totalCo2,
+            'total_montant' => $totalMontant,
+            'total_financements' => $totalFinancements,
+            'moyenne_beneficiaires_par_projet' => $totalFinancements > 0 ?
+                $totalBeneficiaires / $totalFinancements : 0,
+            'moyenne_co2_par_projet' => $totalFinancements > 0 ?
+                $totalCo2 / $totalFinancements : 0,
+            'efficacite_beneficiaires' => $totalMontant > 0 ?
+                round(($totalBeneficiaires / $totalMontant) * 1000000, 2) : 0,
+            'efficacite_co2' => $totalMontant > 0 ?
+                round(($totalCo2 / $totalMontant) * 1000000, 2) : 0
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $resultat,
+            'agregations' => $agregations,
+            'message' => 'KPI bénéficiaires et CO2 par domaine récupéré avec succès'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors de la récupération du KPI: ' . $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+}
+
+public function getKpiTopDomainesBeneficiairesCo2(Request $request)
+{
+    try {
+        // Top 10 domaines par bénéficiaires
+        $topBeneficiaires = DB::table('domaine_financements')
+            ->select(
+                'domaine_financements.id',
+                'domaine_financements.libelle as domaine',
+                DB::raw('COALESCE(SUM(CAST(financements.nombre_beneficiaire AS DECIMAL(15,2))), 0) as total_beneficiaires'),
+                DB::raw('COUNT(DISTINCT financements.id) as nombre_projets')
+            )
+            ->leftJoin('domaine_fines_fines', 'domaine_financements.id', '=', 'domaine_fines_fines.domaine_financement_id')
+            ->leftJoin('financements', 'domaine_fines_fines.financement_id', '=', 'financements.id')
+            ->where('financements.status', '!=', 'brouillon')
+            ->where('financements.nombre_beneficiaire', '>', 0)
+            ->groupBy('domaine_financements.id', 'domaine_financements.libelle')
+            ->orderBy('total_beneficiaires', 'DESC')
+            ->limit(10)
+            ->get();
+
+        // Top 10 domaines par réduction CO2
+        $topCo2 = DB::table('domaine_financements')
+            ->select(
+                'domaine_financements.id',
+                'domaine_financements.libelle as domaine',
+                DB::raw('COALESCE(SUM(CAST(financements.volume_co2 AS DECIMAL(15,2))), 0) as total_co2'),
+                DB::raw('COUNT(DISTINCT financements.id) as nombre_projets')
+            )
+            ->leftJoin('domaine_fines_fines', 'domaine_financements.id', '=', 'domaine_fines_fines.domaine_financement_id')
+            ->leftJoin('financements', 'domaine_fines_fines.financement_id', '=', 'financements.id')
+            ->where('financements.status', '!=', 'brouillon')
+            ->where('financements.volume_co2', '>', 0)
+            ->groupBy('domaine_financements.id', 'domaine_financements.libelle')
+            ->orderBy('total_co2', 'DESC')
+            ->limit(10)
+            ->get();
+
+        // Domaines avec le meilleur ratio bénéficiaires/CO2
+        $topEfficacite = DB::table('domaine_financements')
+            ->select(
+                'domaine_financements.id',
+                'domaine_financements.libelle as domaine',
+                DB::raw('COALESCE(SUM(CAST(financements.nombre_beneficiaire AS DECIMAL(15,2))), 0) as total_beneficiaires'),
+                DB::raw('COALESCE(SUM(CAST(financements.volume_co2 AS DECIMAL(15,2))), 0) as total_co2'),
+                DB::raw('COUNT(DISTINCT financements.id) as nombre_projets'),
+                DB::raw('CASE
+                    WHEN SUM(CAST(financements.volume_co2 AS DECIMAL(15,2))) > 0
+                    THEN SUM(CAST(financements.nombre_beneficiaire AS DECIMAL(15,2))) / SUM(CAST(financements.volume_co2 AS DECIMAL(15,2)))
+                    ELSE 0
+                END as ratio_beneficiaires_co2')
+            )
+            ->leftJoin('domaine_fines_fines', 'domaine_financements.id', '=', 'domaine_fines_fines.domaine_financement_id')
+            ->leftJoin('financements', 'domaine_fines_fines.financement_id', '=', 'financements.id')
+            ->where('financements.status', '!=', 'brouillon')
+            ->where('financements.nombre_beneficiaire', '>', 0)
+            ->where('financements.volume_co2', '>', 0)
+            ->groupBy('domaine_financements.id', 'domaine_financements.libelle')
+            ->orderBy('ratio_beneficiaires_co2', 'DESC')
+            ->limit(10)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'top_beneficiaires' => $topBeneficiaires,
+                'top_co2' => $topCo2,
+                'top_efficacite' => $topEfficacite
+            ],
+            'message' => 'Top domaines par bénéficiaires et CO2 récupérés avec succès'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+public function getKpiEvolutionBeneficiairesCo2(Request $request)
+{
+    try {
+        $query = DB::table('annees')
+            ->select(
+                'annees.id',
+                'annees.libelle as annee',
+                DB::raw('COUNT(DISTINCT financements.id) as nombre_financements'),
+                DB::raw('COALESCE(SUM(CAST(financements.nombre_beneficiaire AS DECIMAL(15,2))), 0) as total_beneficiaires'),
+                DB::raw('COALESCE(SUM(CAST(financements.volume_co2 AS DECIMAL(15,2))), 0) as total_co2'),
+                DB::raw('COALESCE(SUM(CAST(financements.montant_total AS DECIMAL(15,2))), 0) as montant_total')
+            )
+            ->leftJoin('annees_fines', 'annees.id', '=', 'annees_fines.annee_id')
+            ->leftJoin('financements', 'annees_fines.financement_id', '=', 'financements.id')
+            ->leftJoin('domaine_fines_fines', 'financements.id', '=', 'domaine_fines_fines.financement_id')
+            ->leftJoin('domaine_financements', 'domaine_fines_fines.domaine_financement_id', '=', 'domaine_financements.id')
+            ->where('financements.status', '!=', 'brouillon')
+            ->where(function($query) {
+                $query->where('financements.nombre_beneficiaire', '>', 0)
+                      ->orWhere('financements.volume_co2', '>', 0);
+            });
+
+        if ($request->has('domaine_id') && $request->domaine_id) {
+            $query->where('domaine_financements.id', $request->domaine_id);
+        }
+
+        $statistiques = $query->groupBy('annees.id', 'annees.libelle')
+            ->orderBy('annees.libelle', 'ASC')
+            ->get();
+
+        // Calculer les évolutions
+        $dataAvecEvolution = [];
+        $previous = null;
+
+        foreach ($statistiques as $index => $item) {
+            $evolutionBeneficiaires = $previous ?
+                round((($item->total_beneficiaires - $previous->total_beneficiaires) / $previous->total_beneficiaires) * 100, 2) : 0;
+
+            $evolutionCo2 = $previous ?
+                round((($item->total_co2 - $previous->total_co2) / $previous->total_co2) * 100, 2) : 0;
+
+            $dataAvecEvolution[] = [
+                'annee' => $item->annee,
+                'nombre_financements' => (int)$item->nombre_financements,
+                'total_beneficiaires' => (float)$item->total_beneficiaires,
+                'total_co2' => (float)$item->total_co2,
+                'montant_total' => (float)$item->montant_total,
+                'evolution_beneficiaires' => $evolutionBeneficiaires,
+                'evolution_co2' => $evolutionCo2,
+                'beneficiaires_par_million' => $item->montant_total > 0 ?
+                    round(($item->total_beneficiaires / $item->montant_total) * 1000000, 2) : 0,
+                'co2_par_million' => $item->montant_total > 0 ?
+                    round(($item->total_co2 / $item->montant_total) * 1000000, 2) : 0
+            ];
+
+            $previous = $item;
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $dataAvecEvolution,
+            'message' => 'Évolution bénéficiaires et CO2 récupérée avec succès'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }
