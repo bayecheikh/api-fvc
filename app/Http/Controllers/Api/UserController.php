@@ -191,40 +191,69 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, User $user)
-    {
-        $input = $request->all();
-        $validator = Validator::make($input, ['name' => 'required']);
-        if ($validator->fails()) {
-            //return $this->sendError('Validation Error.', $validator->errors());
-            return response()
-                ->json($validator->errors());
-        }
+{
+    $input = $request->all();
 
-        $user->name = $input['name'];
-        $user->firstname = $input['firstname'];
-        $user->lastname = $input['lastname'];
-        $user->email = $input['email'];
-        $user->telephone = $input['telephone'];
-        $user->fonction = $input['fonction'];
-        $user->save();
+    $validator = Validator::make($input, [
+        'firstname' => 'required',
+        'lastname'  => 'required',
+        'email'     => 'required|email|unique:users,email,' . $user->id,
+    ]);
 
-        $array_roles = $request->roles;
-        $old_roles = $user->roles();
-
-        if (!empty($array_roles)) {
-            foreach ($old_roles as $role) {
-                $roleObj = Role::where('id', $role)->first();
-                $user->roles()->detach($roleObj);
-            }
-            foreach ($array_roles as $role) {
-                $roleObj = Role::where('id', $role)->first();
-                $user->roles()->attach($roleObj);
-            }
-        }
-
-        return response()
-            ->json(["success" => true, "message" => "Utilisateur modifié avec succès.", "data" => $user]);
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'errors'  => $validator->errors()
+        ], 422);
     }
+
+    try {
+        // Mise à jour des informations de base
+        $user->update([
+            'name'       => $input['firstname'] . ' ' . $input['lastname'],
+            'firstname'  => $input['firstname'],
+            'lastname'   => $input['lastname'],
+            'email'      => $input['email'],
+            'telephone'  => $input['telephone'] ?? null,
+            'fonction'   => $input['fonction'] ?? null,
+        ]);
+
+        // Gestion de la structure
+        if (isset($input['structure_id'])) {
+            // Synchroniser la structure (remplace toutes les structures existantes)
+            // Si vous voulez permettre plusieurs structures, utilisez sync
+            // Si vous voulez une seule structure, utilisez ceci :
+            $user->structures()->sync([$input['structure_id']]);
+        } else {
+            // Si vous voulez retirer toutes les structures quand structure_id est absent
+            // $user->structures()->detach();
+            // Ou ne rien faire pour garder les structures existantes
+        }
+
+        // Gestion des rôles - méthode simplifiée et optimisée
+        if (!empty($request->roles) && is_array($request->roles)) {
+            $user->roles()->sync($request->roles);
+        } else {
+            // Si aucun rôle n'est envoyé, vous pouvez choisir de :
+            // 1. Ne rien faire (garder les rôles existants) - commentez la ligne suivante
+            // 2. Retirer tous les rôles - décommentez la ligne suivante
+            // $user->roles()->detach();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Utilisateur modifié avec succès.',
+            'data'    => $user->load(['roles', 'structures']) // Charger les relations pour la réponse
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors de la modification de l\'utilisateur.',
+            'error'   => env('APP_DEBUG') ? $e->getMessage() : null
+        ], 500);
+    }
+}
     /**
      * Remove the specified resource from storage.
      *

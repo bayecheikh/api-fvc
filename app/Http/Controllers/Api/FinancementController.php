@@ -867,20 +867,14 @@ private function handleJsonLines(?string $json, callable $creator, callable $att
         $financement = Financement::where('id',$input['id'])->first();
 
         if ($request->user()->hasRole('point_focal')){
-            $financement->state = 'VALIDATION_ADMIN_STRUCTURE';
-            $financement->status = 'a_valider';
+            /* $financement->state = 'VALIDATION_ADMIN_STRUCTURE';
+            $financement->status = 'a_valider'; */
+            $financement->state = 'FIN_PROCESS';
+            $financement->status = 'publie';
         }
         if ($request->user()->hasRole('admin_structure')){
             $financement->state = 'FIN_PROCESS';
             $financement->status = 'publie';
-            /* if($financement->source[0]->libelle_source=='EPS'){
-                $financement->state = 'VALIDATION_DIRECTEUR_EPS';
-                $financement->status = 'a_valider';
-            }
-            else{
-                $financement->state = 'FIN_PROCESS';
-                $financement->status = 'publie';
-            } */
         }
         if ($request->user()->hasRole('directeur_eps')){
             $financement->state = 'FIN_PROCESS';
