@@ -655,8 +655,7 @@ class StatistiqueController extends Controller
     }
 }
 
-
-    public function getKpiParSecteur(Request $request)
+public function getKpiParSecteur(Request $request)
 {
     try {
         $query = DB::table('secteurs')
@@ -667,70 +666,119 @@ class StatistiqueController extends Controller
                 DB::raw('COALESCE(SUM(CAST(ligne_financement_secteurs.montant_total AS DECIMAL(15,2))), 0) as montant_total'),
                 DB::raw('COALESCE(AVG(CAST(ligne_financement_secteurs.montant_total AS DECIMAL(15,2))), 0) as montant_moyen')
             )
-            ->leftJoin('ligne_financement_secteurs', function($join) {
+
+            /**
+             * ================================
+             * JOINTURES
+             * ================================
+             */
+
+            ->leftJoin('ligne_financement_secteurs', function ($join) {
                 $join->on('secteurs.id', '=', 'ligne_financement_secteurs.id_secteur')
                      ->where('ligne_financement_secteurs.montant_total', '>', 0);
             })
-            ->leftJoin('ligne_fine_secteurs_fines',
+
+            ->leftJoin(
+                'ligne_fine_secteurs_fines',
                 'ligne_financement_secteurs.id',
                 '=',
                 'ligne_fine_secteurs_fines.ligne_financement_secteur_id'
             )
-            ->leftJoin('financements',
+
+            /**
+             * 🔴 JOINTURE CLÉ
+             * ➜ INNER JOIN pour exclure les secteurs sans financement réel
+             */
+            ->join(
+                'financements',
                 'ligne_fine_secteurs_fines.financement_id',
                 '=',
                 'financements.id'
             )
-            ->leftJoin('annees_fines',
+
+            ->leftJoin(
+                'annees_fines',
                 'financements.id',
                 '=',
                 'annees_fines.financement_id'
             )
-            ->leftJoin('annees',
+
+            ->leftJoin(
+                'annees',
                 'annees_fines.annee_id',
                 '=',
                 'annees.id'
             )
+
+            /**
+             * ================================
+             * CONTRAINTES GLOBALES
+             * ================================
+             */
+
             ->where('financements.status', '!=', 'brouillon')
             ->whereNotNull('secteurs.libelle');
 
-        // Appliquer les filtres
-        if ($request->has('annee_id') && $request->annee_id) {
+        /**
+         * ================================
+         * FILTRES OPTIONNELS
+         * ================================
+         */
+
+        if ($request->filled('annee_id')) {
             $query->where('annees.id', $request->annee_id);
         }
 
-        if ($request->has('date_debut') && $request->date_debut) {
+        if ($request->filled('date_debut')) {
             $query->where('financements.date_debut', '>=', $request->date_debut);
         }
 
-        if ($request->has('date_fin') && $request->date_fin) {
+        if ($request->filled('date_fin')) {
             $query->where('financements.date_fin', '<=', $request->date_fin);
         }
 
-        $statistiques = $query->groupBy('secteurs.id', 'secteurs.libelle')
+        /**
+         * ================================
+         * AGRÉGATION
+         * ================================
+         */
+
+        $statistiques = $query
+            ->groupBy('secteurs.id', 'secteurs.libelle')
             ->orderBy('montant_total', 'DESC')
             ->get();
 
-        // Pour chaque secteur, ajouter les sous-secteurs
-        $resultat = $statistiques->map(function($secteur) use ($request) {
+        /**
+         * ================================
+         * AJOUT DES SOUS-SECTEURS
+         * ================================
+         */
+
+        $resultat = $statistiques->map(function ($secteur) use ($request) {
             $sousSecteurs = $this->getSousSecteursParSecteur($secteur->id, $request);
 
             return [
                 'id' => $secteur->id,
                 'secteur' => $secteur->secteur,
-                'nombre_financements' => (int)$secteur->nombre_financements,
-                'montant_total' => (float)$secteur->montant_total,
-                'montant_moyen' => (float)$secteur->montant_moyen,
+                'nombre_financements' => (int) $secteur->nombre_financements,
+                'montant_total' => (float) $secteur->montant_total,
+                'montant_moyen' => (float) $secteur->montant_moyen,
                 'sous_secteurs' => $sousSecteurs
             ];
         });
 
+        /**
+         * ================================
+         * POURCENTAGES
+         * ================================
+         */
+
         $totalMontant = $statistiques->sum('montant_total');
 
-        // Calculer les pourcentages
-        $resultatAvecPourcentage = $resultat->map(function($item) use ($totalMontant) {
-            $item['pourcentage_total'] = $totalMontant > 0 ?
-                round(($item['montant_total'] / $totalMontant) * 100, 2) : 0;
+        $resultatAvecPourcentage = $resultat->map(function ($item) use ($totalMontant) {
+            $item['pourcentage_total'] = $totalMontant > 0
+                ? round(($item['montant_total'] / $totalMontant) * 100, 2)
+                : 0;
             return $item;
         });
 
@@ -746,10 +794,11 @@ class StatistiqueController extends Controller
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
-            'message' => 'Erreur lors de la récupération du KPI par secteur: ' . $e->getMessage()
+            'message' => 'Erreur lors de la récupération du KPI par secteur : ' . $e->getMessage()
         ], 500);
     }
 }
+
 
 private function getSousSecteursParSecteur($secteurId, $request)
 {
