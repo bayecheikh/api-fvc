@@ -63,7 +63,7 @@ class RechercheInvestissementController extends Controller
         'structure_enregistrements'
     ];
 
-    // Préparer un tableau pour stocker les valeurs normalisées
+    // Normalisation des paramètres
     $normalized = [];
 
     foreach ($parameters as $param) {
@@ -71,27 +71,17 @@ class RechercheInvestissementController extends Controller
             $value = $request->input($param);
 
             if (is_array($value)) {
-                // C'est déjà un tableau, filtrer les valeurs vides
-                $filteredValues = array_filter($value, function($v) {
-                    return $v !== '' && $v !== null && $v !== false;
-                });
-                // Réindexer le tableau
-                $normalized[$param] = array_values($filteredValues);
-            } elseif (is_string($value) && !empty(trim($value))) {
-                // C'est une chaîne, vérifier si c'est une liste séparée par des virgules
+                $filtered = array_filter($value, fn ($v) => $v !== '' && $v !== null && $v !== false);
+                $normalized[$param] = array_values($filtered);
+            } elseif (is_string($value) && trim($value) !== '') {
                 if (strpos($value, ',') !== false) {
-                    // Séparer par virgules et filtrer
                     $values = explode(',', $value);
-                    $filteredValues = array_filter($values, function($v) {
-                        return trim($v) !== '' && trim($v) !== null;
-                    });
-                    $normalized[$param] = array_map('trim', $filteredValues);
+                    $filtered = array_filter($values, fn ($v) => trim($v) !== '');
+                    $normalized[$param] = array_map('trim', $filtered);
                 } else {
-                    // C'est une valeur unique
                     $normalized[$param] = [trim($value)];
                 }
             } else {
-                // Vide ou autre type
                 $normalized[$param] = [];
             }
         } else {
@@ -99,186 +89,177 @@ class RechercheInvestissementController extends Controller
         }
     }
 
-    // Debug: logger les paramètres reçus
-    \Log::info('Recherche financements - Paramètres reçus:', [
-        'raw_input' => $input,
-        'normalized' => $normalized
-    ]);
+    \Log::info('Recherche financements - Paramètres normalisés', $normalized);
 
     // Validation
-    $validator = Validator::make($input, [
-        'annees' => 'nullable',
-        'domaine_financements' => 'nullable',
-        'source_financements' => 'nullable',
-        'objectif_adaptations' => 'nullable',
-        'objectif_attenuations' => 'nullable',
-        'objectif_transversals' => 'nullable',
-        'agence_acredites' => 'nullable',
-        'secteurs' => 'nullable',
-        'bailleurs' => 'nullable',
-        'regions' => 'nullable',
-        'monnaies' => 'nullable',
-        'dimensions' => 'nullable',
-        'type_structure_sources' => 'nullable',
-        'structure_sources' => 'nullable',
-        'structure_beneficiaires' => 'nullable',
-        'piliers' => 'nullable',
-        'axes' => 'nullable',
-        'structure_enregistrements' => 'nullable'
-    ]);
+    $validator = Validator::make($input, array_fill_keys($parameters, 'nullable'));
 
     if ($validator->fails()) {
         return response()->json([
-            "success" => false,
-            "message" => "Erreur de validation",
-            "errors" => $validator->errors()
+            'success' => false,
+            'message' => 'Erreur de validation',
+            'errors'  => $validator->errors()
         ], 400);
     }
 
-    // Construction de la requête selon les permissions
-    if ($request->user()->hasRole('super_admin') || $request->user()->hasRole('directeur_eps')) {
-        $financements = Financement::with([
-            'annee',
-            'domaine_financement',
-            'source_financement',
-            'objectif_adaptations',
-            'objectif_attenuations',
-            'objectif_transversals',
-            'agence_acredite',
-            'ligne_financement_bailleurs',
-            'ligne_financement_cos',
-            'ligne_financement_secteurs',
-            'ligne_financement_zones',
-            'resumes',
-            'tableau_budgets',
-            'structure'
-        ]);
-    } else {
-        $structure_id = User::find($request->user()->id)->structures[0]->id;
-        $financements = Financement::with([
-            'annee',
-            'domaine_financement',
-            'source_financement',
-            'objectif_adaptations',
-            'objectif_attenuations',
-            'objectif_transversals',
-            'agence_acredite',
-            'ligne_financement_bailleurs',
-            'ligne_financement_cos',
-            'ligne_financement_secteurs',
-            'ligne_financement_zones',
-            'resumes',
-            'tableau_budgets',
-            'structure'
-        ])->whereHas('structure', function($q) use ($structure_id) {
-            $q->where('id', $structure_id);
+    /**
+     * ================================
+     * CONSTRUCTION DE LA REQUÊTE
+     * ================================
+     */
+
+    $financements = Financement::with([
+        'annee',
+        'domaine_financement',
+        'source_financement',
+        'objectif_adaptations',
+        'objectif_attenuations',
+        'objectif_transversals',
+        'agence_acredite',
+        'ligne_financement_bailleurs',
+        'ligne_financement_cos',
+        'ligne_financement_secteurs',
+        'ligne_financement_zones',
+        'resumes',
+        'tableau_budgets',
+        'structure'
+    ])
+    ->whereRaw('LOWER(status) = ?', ['publie']);
+
+    /**
+     * ================================
+     * FILTRAGE PAR STRUCTURE UTILISATEUR
+     * ================================
+     * - si l'utilisateur a une structure :
+     *   -> financements sans structure
+     *   -> OU financements de sa structure
+     */
+
+    $user = $request->user();
+
+    if (
+        !$user->hasRole('super_admin') &&
+        !$user->hasRole('directeur_eps') &&
+        $user->structures->count() > 0
+    ) {
+        $structureId = $user->structures->first()->id;
+
+        $financements->where(function ($q) use ($structureId) {
+            $q->whereNull('structure_id')
+              ->orWhere('structure_id', $structureId);
         });
     }
 
-    // Appliquer les filtres avec les valeurs normalisées
+    /**
+     * ================================
+     * FILTRES MÉTIERS (OPTIONNELS)
+     * ================================
+     */
+
     if (!empty($normalized['annees'])) {
-        $financements = $financements->whereHas('annee', function($q) use ($normalized) {
+        $financements->whereHas('annee', function ($q) use ($normalized) {
             $q->whereIn('id', $normalized['annees']);
         });
     }
 
     if (!empty($normalized['domaine_financements'])) {
-        $financements = $financements->whereHas('domaine_financement', function($q) use ($normalized) {
+        $financements->whereHas('domaine_financement', function ($q) use ($normalized) {
             $q->whereIn('id', $normalized['domaine_financements']);
         });
     }
 
     if (!empty($normalized['source_financements'])) {
-        $financements = $financements->whereHas('source_financement', function($q) use ($normalized) {
+        $financements->whereHas('source_financement', function ($q) use ($normalized) {
             $q->whereIn('id', $normalized['source_financements']);
         });
     }
 
     if (!empty($normalized['objectif_adaptations'])) {
-        $financements = $financements->whereHas('objectif_adaptations', function($q) use ($normalized) {
+        $financements->whereHas('objectif_adaptations', function ($q) use ($normalized) {
             $q->whereIn('id', $normalized['objectif_adaptations']);
         });
     }
 
     if (!empty($normalized['objectif_attenuations'])) {
-        $financements = $financements->whereHas('objectif_attenuations', function($q) use ($normalized) {
+        $financements->whereHas('objectif_attenuations', function ($q) use ($normalized) {
             $q->whereIn('id', $normalized['objectif_attenuations']);
         });
     }
 
     if (!empty($normalized['objectif_transversals'])) {
-        $financements = $financements->whereHas('objectif_transversals', function($q) use ($normalized) {
+        $financements->whereHas('objectif_transversals', function ($q) use ($normalized) {
             $q->whereIn('id', $normalized['objectif_transversals']);
         });
     }
 
     if (!empty($normalized['agence_acredites'])) {
-        $financements = $financements->whereHas('agence_acredite', function($q) use ($normalized) {
+        $financements->whereHas('agence_acredite', function ($q) use ($normalized) {
             $q->whereIn('id', $normalized['agence_acredites']);
         });
     }
 
     if (!empty($normalized['secteurs'])) {
-        $financements = $financements->whereHas('ligne_financement_secteurs', function($q) use ($normalized) {
+        $financements->whereHas('ligne_financement_secteurs', function ($q) use ($normalized) {
             $q->whereIn('id', $normalized['secteurs']);
         });
     }
 
     if (!empty($normalized['bailleurs'])) {
-        $financements = $financements->whereHas('ligne_financement_bailleurs', function($q) use ($normalized) {
+        $financements->whereHas('ligne_financement_bailleurs', function ($q) use ($normalized) {
             $q->whereIn('id', $normalized['bailleurs']);
         });
     }
 
     if (!empty($normalized['regions'])) {
-        $financements = $financements->whereHas('ligne_financement_zones', function($q) use ($normalized) {
+        $financements->whereHas('ligne_financement_zones', function ($q) use ($normalized) {
             $q->whereIn('id', $normalized['regions']);
         });
     }
 
     if (!empty($normalized['structure_sources'])) {
-        $financements = $financements->whereHas('structure', function($q) use ($normalized) {
+        $financements->whereHas('structure', function ($q) use ($normalized) {
             $q->whereIn('id', $normalized['structure_sources']);
         });
     }
 
-    // Filtre par status (uniquement publiés)
-    $financements = $financements->where('status', 'like', '%publie%');
+    /**
+     * ================================
+     * EXPORT OU PAGINATION
+     * ================================
+     */
 
-    // Gestion de l'export vs recherche normale
-    if ($request->has('export') && $request->input('export') === 'excel') {
-        // Pour l'export, pas de pagination
-        $financements = $financements->orderBy('created_at', 'DESC')->get();
-
-        return response()->json([
-            "success" => true,
-            "message" => "Données pour export",
-            "data" => $financements,
-            "total" => $financements->count()
-        ]);
-    } else {
-        // Pour l'affichage normal, avec pagination
-        $perPage = $request->input('per_page', 20);
-        $page = $request->input('page', 1);
-
-        $financements = $financements->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $page);
-
-        $total = $financements->total();
+    if ($request->input('export') === 'excel') {
+        $data = $financements->orderBy('created_at', 'DESC')->get();
 
         return response()->json([
-            "success" => true,
-            "message" => "Liste des financements",
-            "data" => [
-                "data" => $financements->items(),
-                "current_page" => $financements->currentPage(),
-                "last_page" => $financements->lastPage(),
-                "per_page" => $financements->perPage(),
-                "total" => $financements->total(),
-                "from" => $financements->firstItem(),
-                "to" => $financements->lastItem()
-            ],
-            "total" => $total
+            'success' => true,
+            'message' => 'Données pour export',
+            'data'    => $data,
+            'total'   => $data->count()
         ]);
     }
+
+    $perPage = (int) $request->input('per_page', 20);
+    $page    = (int) $request->input('page', 1);
+
+    $paginated = $financements
+        ->orderBy('created_at', 'DESC')
+        ->paginate($perPage, ['*'], 'page', $page);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Liste des financements',
+        'data' => [
+            'data'         => $paginated->items(),
+            'current_page' => $paginated->currentPage(),
+            'last_page'    => $paginated->lastPage(),
+            'per_page'     => $paginated->perPage(),
+            'total'        => $paginated->total(),
+            'from'         => $paginated->firstItem(),
+            'to'           => $paginated->lastItem()
+        ],
+        'total' => $paginated->total()
+    ]);
 }
+
 }
