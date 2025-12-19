@@ -71,6 +71,7 @@ Route::post('forget_password', [AuthController::class, 'forget_password']);
 Route::get('/kpi/par-instruments', [StatistiqueController::class, 'getKpiParInstrument']);
 Route::get('/kpi/par-domaines', [StatistiqueController::class, 'getKpiParDomaine']);
 Route::get('/kpi/par-instruments-domaines', [StatistiqueController::class, 'getKpiCombineInstrumentDomaine']);
+Route::get('/kpi/par-bailleurs-domaines', [StatistiqueController::class, 'getKpiCombineBailleurDomaine']);
 
 Route::get('/kpi/par-secteurs', [StatistiqueController::class, 'getKpiParSecteur']);
 Route::get('/kpi/par-regions', [StatistiqueController::class, 'getKpiParRegion']);

@@ -1502,4 +1502,143 @@ public function getKpiEvolutionBeneficiairesCo2(Request $request)
         ], 500);
     }
 }
+
+public function getKpiCombineBailleurDomaine(Request $request)
+{
+    try {
+        $query = DB::table('bailleurs')
+            ->select(
+                'bailleurs.id as bailleur_id',
+                'bailleurs.nom as bailleur',
+                'domaine_financements.id as domaine_id',
+                'domaine_financements.libelle as domaine',
+                DB::raw('COUNT(DISTINCT financements.id) as nombre_financements'),
+                DB::raw('COALESCE(SUM(DISTINCT CAST(ligne_financement_bailleurs.montant_total AS DECIMAL(15,2))), 0) as montant_bailleur'),
+                DB::raw('COALESCE(SUM(DISTINCT CAST(financements.montant_total AS DECIMAL(15,2))), 0) as montant_total_projet')
+            )
+            ->leftJoin(
+                'ligne_financement_bailleurs',
+                'bailleurs.id',
+                '=',
+                'ligne_financement_bailleurs.id_bailleur'
+            )
+            ->leftJoin(
+                'ligne_fine_bailleurs_fines',
+                'ligne_financement_bailleurs.id',
+                '=',
+                'ligne_fine_bailleurs_fines.ligne_financement_bailleur_id'
+            )
+            // LEFT JOIN avec vérification que le financement existe et n'est pas brouillon
+            ->leftJoin('financements', function($join) {
+                $join->on('ligne_fine_bailleurs_fines.financement_id', '=', 'financements.id')
+                     ->where('financements.status', '!=', 'brouillon')
+                     ->whereNotNull('financements.id');
+            })
+            ->leftJoin(
+                'domaine_fines_fines',
+                'financements.id',
+                '=',
+                'domaine_fines_fines.financement_id'
+            )
+            ->leftJoin(
+                'domaine_financements',
+                'domaine_fines_fines.domaine_financement_id',
+                '=',
+                'domaine_financements.id'
+            )
+            ->leftJoin(
+                'annees_fines',
+                'financements.id',
+                '=',
+                'annees_fines.financement_id'
+            )
+            ->leftJoin(
+                'annees',
+                'annees_fines.annee_id',
+                '=',
+                'annees.id'
+            )
+            // Condition pour inclure seulement les financements valides ou les lignes sans financement
+            ->where(function($query) {
+                $query->whereNotNull('financements.id') // Financement existe
+                      ->orWhereNull('ligne_fine_bailleurs_fines.financement_id'); // Ou pas de financement dans la ligne
+            })
+            ->whereNotNull('bailleurs.nom')
+            ->whereNotNull('domaine_financements.libelle');
+
+        // Appliquer les filtres
+        if ($request->filled('annee_id')) {
+            $query->where('annees.id', $request->annee_id);
+        }
+
+        if ($request->filled('date_debut')) {
+            $query->where('financements.date_debut', '>=', $request->date_debut);
+        }
+
+        if ($request->filled('date_fin')) {
+            $query->where('financements.date_fin', '<=', $request->date_fin);
+        }
+
+        if ($request->filled('bailleur_id')) {
+            $query->where('bailleurs.id', $request->bailleur_id);
+        }
+
+        if ($request->filled('domaine_id')) {
+            $query->where('domaine_financements.id', $request->domaine_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('financements.status', $request->status);
+        }
+
+        // Filtre optionnel pour l'instrument financier
+        if ($request->filled('instrument_id')) {
+            $query->where('ligne_financement_bailleurs.id_instrument_financier', $request->instrument_id);
+        }
+
+        $statistiques = $query->groupBy(
+                'bailleurs.id',
+                'bailleurs.nom',
+                'domaine_financements.id',
+                'domaine_financements.libelle'
+            )
+            ->orderBy('bailleurs.nom')
+            ->orderBy('montant_bailleur', 'DESC')
+            ->get();
+
+        // Formater les résultats
+        $resultat = $statistiques->map(function ($item) {
+            return [
+                'bailleur_id' => $item->bailleur_id,
+                'bailleur' => $item->bailleur,
+                'domaine_id' => $item->domaine_id,
+                'domaine' => $item->domaine,
+                'nombre_financements' => (int)$item->nombre_financements,
+                'montant_bailleur' => (float)$item->montant_bailleur,
+                'montant_total_projet' => (float)$item->montant_total_projet
+            ];
+        });
+
+        // Agrégations pour les totaux
+        $agregations = [
+            'total_projets' => $statistiques->sum('nombre_financements'),
+            'total_montant_bailleur' => $statistiques->sum('montant_bailleur'),
+            'total_montant_projets' => $statistiques->sum('montant_total_projet'),
+            'nombre_bailleurs' => $statistiques->unique('bailleur_id')->count(),
+            'nombre_domaines' => $statistiques->unique('domaine_id')->count()
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $resultat,
+            'agregations' => $agregations,
+            'message' => 'KPI combiné bailleur × domaine récupéré avec succès'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors de la récupération du KPI combiné bailleur × domaine: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }
