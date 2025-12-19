@@ -1509,7 +1509,7 @@ public function getKpiCombineBailleurDomaine(Request $request)
         $query = DB::table('bailleurs')
             ->select(
                 'bailleurs.id as bailleur_id',
-                'bailleurs.nom as bailleur',
+                'bailleurs.libelle as bailleur',
                 'domaine_financements.id as domaine_id',
                 'domaine_financements.libelle as domaine',
                 DB::raw('COUNT(DISTINCT financements.id) as nombre_financements'),
@@ -1563,7 +1563,7 @@ public function getKpiCombineBailleurDomaine(Request $request)
                 $query->whereNotNull('financements.id') // Financement existe
                       ->orWhereNull('ligne_fine_bailleurs_fines.financement_id'); // Ou pas de financement dans la ligne
             })
-            ->whereNotNull('bailleurs.nom')
+            ->whereNotNull('bailleurs.libelle')
             ->whereNotNull('domaine_financements.libelle');
 
         // Appliquer les filtres
@@ -1598,11 +1598,11 @@ public function getKpiCombineBailleurDomaine(Request $request)
 
         $statistiques = $query->groupBy(
                 'bailleurs.id',
-                'bailleurs.nom',
+                'bailleurs.libelle',
                 'domaine_financements.id',
                 'domaine_financements.libelle'
             )
-            ->orderBy('bailleurs.nom')
+            ->orderBy('bailleurs.libelle')
             ->orderBy('montant_bailleur', 'DESC')
             ->get();
 
