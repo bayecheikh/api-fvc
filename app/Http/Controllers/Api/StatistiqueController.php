@@ -489,8 +489,8 @@ class StatistiqueController extends Controller
                 'domaine_financements.id as domaine_id',
                 'domaine_financements.libelle as domaine',
                 DB::raw('COUNT(DISTINCT financements.id) as nombre_financements'),
-                DB::raw('COALESCE(SUM(CAST(ligne_financement_bailleurs.montant_total AS DECIMAL(15,2))), 0) as montant_instrument'),
-                DB::raw('COALESCE(SUM(CAST(financements.montant_total AS DECIMAL(15,2))), 0) as montant_total_projet')
+                DB::raw('COALESCE(SUM(DISTINCT CAST(ligne_financement_bailleurs.montant_total AS DECIMAL(15,2))), 0) as montant_instrument'),
+                DB::raw('COALESCE(SUM(DISTINCT CAST(financements.montant_total AS DECIMAL(15,2))), 0) as montant_total_projet')
             )
             ->leftJoin(
                 'ligne_financement_bailleurs',
@@ -983,8 +983,8 @@ public function getKpiSecteurRegion(Request $request)
                 'regions.id as region_id',
                 'regions.nom_region as region',
                 DB::raw('COUNT(DISTINCT financements.id) as nombre_financements'),
-                DB::raw('COALESCE(SUM(CAST(ligne_financement_secteurs.montant_total AS DECIMAL(15,2))), 0) as montant_total'),
-                DB::raw('COALESCE(SUM(CAST(ligne_financement_zones.montant_total AS DECIMAL(15,2))), 0) as montant_total_zone')
+                DB::raw('COALESCE(SUM(DISTINCT CAST(ligne_financement_secteurs.montant_total AS DECIMAL(15,2))), 0) as montant_total'),
+                DB::raw('COALESCE(SUM(DISTINCT CAST(ligne_financement_zones.montant_total AS DECIMAL(15,2))), 0) as montant_total_zone')
             )
             ->leftJoin('ligne_financement_secteurs', function($join) {
                 $join->on('secteurs.id', '=', 'ligne_financement_secteurs.id_secteur')
