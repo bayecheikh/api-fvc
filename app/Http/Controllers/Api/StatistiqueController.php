@@ -482,137 +482,136 @@ class StatistiqueController extends Controller
    public function getKpiCombineInstrumentDomaine(Request $request)
 {
     try {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Sous-requête : 1 ligne = 1 financement × instrument × domaine
-        |--------------------------------------------------------------------------
-        */
-        $subQuery = DB::table('ligne_fine_bailleurs_fines as lfbf')
-            ->join('financements as f', function ($join) {
-                $join->on('lfbf.financement_id', '=', 'f.id')
-                     ->where('f.status', '!=', 'brouillon');
+        $query = DB::table('instrument_financiers')
+            ->select(
+                'instrument_financiers.id as instrument_id',
+                'instrument_financiers.libelle as instrument',
+                'domaine_financements.id as domaine_id',
+                'domaine_financements.libelle as domaine',
+                DB::raw('COUNT(DISTINCT financements.id) as nombre_financements'),
+                DB::raw('COALESCE(SUM(DISTINCT CAST(ligne_financement_bailleurs.montant_total AS DECIMAL(15,2))), 0) as montant_instrument'),
+                DB::raw('COALESCE(SUM(DISTINCT CAST(financements.montant_total AS DECIMAL(15,2))), 0) as montant_total_projet')
+            )
+            ->leftJoin(
+                'ligne_financement_bailleurs',
+                'instrument_financiers.id',
+                '=',
+                'ligne_financement_bailleurs.id_instrument_financier'
+            )
+            ->leftJoin(
+                'ligne_fine_bailleurs_fines',
+                'ligne_financement_bailleurs.id',
+                '=',
+                'ligne_fine_bailleurs_fines.ligne_financement_bailleur_id'
+            )
+            // LEFT JOIN avec vérification que le financement existe et n'est pas brouillon
+            ->leftJoin('financements', function($join) {
+                $join->on('ligne_fine_bailleurs_fines.financement_id', '=', 'financements.id')
+                     ->where('financements.status', '!=', 'brouillon')
+                     ->whereNotNull('financements.id');
             })
-            ->join(
-                'ligne_financement_bailleurs as lfb',
-                'lfbf.ligne_financement_bailleur_id',
+            ->leftJoin(
+                'domaine_fines_fines',
+                'financements.id',
                 '=',
-                'lfb.id'
+                'domaine_fines_fines.financement_id'
             )
-            ->join(
-                'instrument_financiers as i',
-                'lfb.id_instrument_financier',
+            ->leftJoin(
+                'domaine_financements',
+                'domaine_fines_fines.domaine_financement_id',
                 '=',
-                'i.id'
+                'domaine_financements.id'
             )
-            ->join(
-                'domaine_fines_fines as dff',
-                'f.id',
+            ->leftJoin(
+                'annees_fines',
+                'financements.id',
                 '=',
-                'dff.financement_id'
+                'annees_fines.financement_id'
             )
-            ->join(
-                'domaine_financements as d',
-                'dff.domaine_financement_id',
+            ->leftJoin(
+                'annees',
+                'annees_fines.annee_id',
                 '=',
-                'd.id'
+                'annees.id'
             )
-            ->leftJoin('annees_fines as af', 'f.id', '=', 'af.financement_id')
-            ->leftJoin('annees as a', 'af.annee_id', '=', 'a.id')
-            ->select(
-                'i.id as instrument_id',
-                'i.libelle as instrument',
-                'd.id as domaine_id',
-                'd.libelle as domaine',
-                'f.id as financement_id',
-                'f.montant_total as montant_projet'
+            // Condition pour inclure seulement les financements valides ou les lignes sans financement
+            ->where(function($query) {
+                $query->whereNotNull('financements.id') // Financement existe
+                      ->orWhereNull('ligne_fine_bailleurs_fines.financement_id'); // Ou pas de financement dans la ligne
+            })
+            ->whereNotNull('instrument_financiers.libelle')
+            ->whereNotNull('domaine_financements.libelle');
+
+        // Appliquer les filtres
+        if ($request->has('annee_id') && $request->annee_id) {
+            $query->where('annees.id', $request->annee_id);
+        }
+
+        if ($request->has('date_debut') && $request->date_debut) {
+            $query->where('financements.date_debut', '>=', $request->date_debut);
+        }
+
+        if ($request->has('date_fin') && $request->date_fin) {
+            $query->where('financements.date_fin', '<=', $request->date_fin);
+        }
+
+        if ($request->has('instrument_id') && $request->instrument_id) {
+            $query->where('instrument_financiers.id', $request->instrument_id);
+        }
+
+        if ($request->has('domaine_id') && $request->domaine_id) {
+            $query->where('domaine_financements.id', $request->domaine_id);
+        }
+
+        if ($request->has('status') && $request->status) {
+            $query->where('financements.status', $request->status);
+        }
+
+        $statistiques = $query->groupBy(
+                'instrument_financiers.id',
+                'instrument_financiers.libelle',
+                'domaine_financements.id',
+                'domaine_financements.libelle'
             )
-            ->groupBy(
-                'i.id',
-                'i.libelle',
-                'd.id',
-                'd.libelle',
-                'f.id',
-                'f.montant_total'
-            );
-
-        /* =========================
-           Filtres
-        ========================= */
-        if ($request->filled('annee_id')) {
-            $subQuery->where('a.id', $request->annee_id);
-        }
-
-        if ($request->filled('date_debut')) {
-            $subQuery->where('f.date_debut', '>=', $request->date_debut);
-        }
-
-        if ($request->filled('date_fin')) {
-            $subQuery->where('f.date_fin', '<=', $request->date_fin);
-        }
-
-        if ($request->filled('instrument_id')) {
-            $subQuery->where('i.id', $request->instrument_id);
-        }
-
-        if ($request->filled('domaine_id')) {
-            $subQuery->where('d.id', $request->domaine_id);
-        }
-
-        if ($request->filled('status')) {
-            $subQuery->where('f.status', $request->status);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Requête finale (agrégation propre)
-        |--------------------------------------------------------------------------
-        */
-        $statistiques = DB::query()
-            ->fromSub($subQuery, 't')
-            ->select(
-                'instrument_id',
-                'instrument',
-                'domaine_id',
-                'domaine',
-                DB::raw('COUNT(financement_id) as nombre_financements'),
-                DB::raw('SUM(montant_projet) as montant_total_projet')
-            )
-            ->groupBy(
-                'instrument_id',
-                'instrument',
-                'domaine_id',
-                'domaine'
-            )
-            ->orderBy('instrument')
-            ->orderByDesc('montant_total_projet')
+            ->orderBy('instrument_financiers.libelle')
+            ->orderBy('montant_instrument', 'DESC')
             ->get();
 
-        /* =========================
-           Agrégations globales
-        ========================= */
+        // Formater les résultats
+        $resultat = $statistiques->map(function ($item) {
+            return [
+                'instrument_id' => $item->instrument_id,
+                'instrument' => $item->instrument,
+                'domaine_id' => $item->domaine_id,
+                'domaine' => $item->domaine,
+                'nombre_financements' => (int)$item->nombre_financements,
+                'montant_instrument' => (float)$item->montant_instrument,
+                'montant_total_projet' => (float)$item->montant_total_projet
+            ];
+        });
+
+        // Agrégations pour les totaux
         $agregations = [
-            'total_projets'            => $statistiques->sum('nombre_financements'),
-            'total_montant_projets'    => $statistiques->sum('montant_total_projet'),
-            'nombre_instruments'       => $statistiques->unique('instrument_id')->count(),
-            'nombre_domaines'          => $statistiques->unique('domaine_id')->count(),
+            'total_projets' => $statistiques->sum('nombre_financements'),
+            'total_montant_instrument' => $statistiques->sum('montant_instrument'),
+            'total_montant_projets' => $statistiques->sum('montant_total_projet'),
+            'nombre_instruments' => $statistiques->unique('instrument_id')->count(),
+            'nombre_domaines' => $statistiques->unique('domaine_id')->count()
         ];
 
         return response()->json([
             'success' => true,
-            'data' => $statistiques,
+            'data' => $resultat,
             'agregations' => $agregations,
             'message' => 'KPI combiné instrument × domaine récupéré avec succès'
         ]);
-
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
-            'message' => 'Erreur KPI combiné : ' . $e->getMessage()
+            'message' => 'Erreur lors de la récupération du KPI combiné: ' . $e->getMessage()
         ], 500);
     }
 }
-
 
 public function getKpiParSecteur(Request $request)
 {
